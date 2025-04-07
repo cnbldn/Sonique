@@ -163,7 +163,7 @@ class _LoginState extends State<Login> {
                     _formKey.currentState!.save();
                     print('Email $email Password $pass');
                     setState(() {
-                      /*counter vardi burda*/
+                      Navigator.pushNamed(context, '/home');
                     });
                   } else {
                     _loginErrorDialogBuilder(
