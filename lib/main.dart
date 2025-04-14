@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:sonique/utils/colors.dart';
 import 'package:sonique/routes/welcome.dart';
 import 'package:sonique/routes/login.dart';
 import 'package:sonique/routes/signup.dart';

@@ -2,6 +2,7 @@ import 'package:email_validator/email_validator.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:sonique/utils/colors.dart';
+import 'package:sonique/utils/styles.dart';
 
 class Login extends StatefulWidget {
   const Login({super.key});
@@ -14,6 +15,7 @@ class _LoginState extends State<Login> {
   final _formKey = GlobalKey<FormState>();
   String email = '';
   String pass = '';
+  bool _passwordVisible = true;
 
   Future<void> _loginErrorDialogBuilder(String title, String content) async {
     return showDialog(
@@ -58,14 +60,7 @@ class _LoginState extends State<Login> {
               mainAxisAlignment: MainAxisAlignment.start,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
-                  'Log in',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 30,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
+                Text('Log in', style: AppTextStyles.welcomeTitle),
                 Form(
                   key: _formKey,
                   child: Column(
@@ -88,7 +83,7 @@ class _LoginState extends State<Login> {
                             ),
                           ),
                         ),
-                        style: TextStyle(color: AppColors.w_text),
+                        style: AppTextStyles.welcomeSmall,
                         validator: (value) {
                           if (value != null) {
                             if (value.isEmpty) {
@@ -105,13 +100,25 @@ class _LoginState extends State<Login> {
                       ),
                       TextFormField(
                         keyboardType: TextInputType.text,
-                        obscureText: true,
+                        obscureText: !_passwordVisible,
                         autocorrect: false,
                         enableSuggestions: false,
                         decoration: InputDecoration(
                           labelText: 'Password',
                           fillColor: AppColors.w_box,
                           filled: true,
+                          suffixIcon: IconButton(
+                            icon: Icon(
+                              _passwordVisible
+                                  ? Icons.visibility
+                                  : Icons.visibility_off,
+                            ),
+                            onPressed: () {
+                              setState(() {
+                                _passwordVisible = !_passwordVisible;
+                              });
+                            },
+                          ),
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(10),
                             borderSide: BorderSide.none,
@@ -123,7 +130,7 @@ class _LoginState extends State<Login> {
                             ),
                           ),
                         ),
-                        style: TextStyle(color: AppColors.w_text),
+                        style: AppTextStyles.welcomeSmall,
                         validator: (value) {
                           if (value != null) {
                             if (value.isEmpty) {
@@ -149,7 +156,7 @@ class _LoginState extends State<Login> {
                           ..onTap = () {
                             print('this fool forgot their password lmao');
                           },
-                    style: TextStyle(color: AppColors.w_text),
+                    style: AppTextStyles.welcomeSmall,
                   ),
                 ),
               ],

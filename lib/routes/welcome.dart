@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:sonique/utils/colors.dart';
+import 'package:sonique/utils/widgets.dart';
 
 class Welcome extends StatelessWidget {
   const Welcome({super.key});
@@ -21,17 +22,18 @@ class Welcome extends StatelessWidget {
                   mainAxisAlignment: MainAxisAlignment.center,
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    ElevatedButton(
+                    WelcomeButton(
+                      text: 'Log In',
+                      color: AppColors.w_loginBox,
                       onPressed: () {
                         Navigator.pushNamed(context, '/login');
                       },
-                      child: Text('Log In'),
                     ),
-                    ElevatedButton(
+                    WelcomeButton(
+                      text: 'Signup',
                       onPressed: () {
                         Navigator.pushNamed(context, '/signup');
                       },
-                      child: Text('Sign Up'),
                     ),
                   ],
                 ),
