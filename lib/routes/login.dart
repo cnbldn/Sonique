@@ -3,6 +3,7 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:sonique/utils/colors.dart';
 import 'package:sonique/utils/styles.dart';
+import 'package:sonique/utils/widgets.dart';
 
 class Login extends StatefulWidget {
   const Login({super.key});
@@ -15,7 +16,7 @@ class _LoginState extends State<Login> {
   final _formKey = GlobalKey<FormState>();
   String email = '';
   String pass = '';
-  bool _passwordVisible = true;
+  bool _passwordVisible = false;
 
   Future<void> _loginErrorDialogBuilder(String title, String content) async {
     return showDialog(
@@ -72,16 +73,8 @@ class _LoginState extends State<Login> {
                           labelText: 'Email',
                           fillColor: AppColors.w_box,
                           filled: true,
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(10),
-                            borderSide: BorderSide.none,
-                          ),
-                          focusedBorder: OutlineInputBorder(
-                            borderSide: BorderSide(
-                              color: AppColors.w_loginBox,
-                              width: 2,
-                            ),
-                          ),
+                          border: AppBorders.formBorder,
+                          focusedBorder: AppBorders.focusedFormBorder,
                         ),
                         style: AppTextStyles.welcomeSmall,
                         validator: (value) {
@@ -119,16 +112,8 @@ class _LoginState extends State<Login> {
                               });
                             },
                           ),
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(10),
-                            borderSide: BorderSide.none,
-                          ),
-                          focusedBorder: OutlineInputBorder(
-                            borderSide: BorderSide(
-                              color: AppColors.w_loginBox,
-                              width: 2,
-                            ),
-                          ),
+                          border: AppBorders.formBorder,
+                          focusedBorder: AppBorders.focusedFormBorder,
                         ),
                         style: AppTextStyles.welcomeSmall,
                         validator: (value) {
@@ -163,7 +148,9 @@ class _LoginState extends State<Login> {
             ),
             Padding(
               padding: const EdgeInsets.fromLTRB(0, 0, 0, 20),
-              child: ElevatedButton(
+              child: WelcomeButton(
+                text: 'Log In',
+                inverted: true,
                 onPressed: () {
                   if (_formKey.currentState!.validate()) {
                     print('Email $email Password $pass');
@@ -179,7 +166,6 @@ class _LoginState extends State<Login> {
                     );
                   }
                 },
-                child: Text('login'),
               ),
             ),
           ],

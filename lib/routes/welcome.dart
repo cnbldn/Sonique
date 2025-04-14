@@ -24,7 +24,7 @@ class Welcome extends StatelessWidget {
                   children: [
                     WelcomeButton(
                       text: 'Log In',
-                      color: AppColors.w_loginBox,
+                      inverted: true,
                       onPressed: () {
                         Navigator.pushNamed(context, '/login');
                       },

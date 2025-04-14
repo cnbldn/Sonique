@@ -24,6 +24,15 @@ class AppTextStyles {
   );
 
   //home
+}
 
-  // to be continued...
+class AppBorders {
+  static const formBorder = OutlineInputBorder(
+    borderRadius: BorderRadius.all(Radius.circular(10)),
+    borderSide: BorderSide.none,
+  );
+
+  static const focusedFormBorder = OutlineInputBorder(
+    borderSide: BorderSide(color: AppColors.w_loginBox, width: 2),
+  );
 }
