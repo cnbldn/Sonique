@@ -14,9 +14,9 @@ class Login extends StatefulWidget {
 
 class _LoginState extends State<Login> {
   final _formKey = GlobalKey<FormState>();
+  bool _passwordVisible = false;
   String email = '';
   String pass = '';
-  bool _passwordVisible = false;
 
   Future<void> _loginErrorDialogBuilder(String title, String content) async {
     return showDialog(
@@ -150,7 +150,7 @@ class _LoginState extends State<Login> {
                     _formKey.currentState!.save();
                     print('Email $email Password $pass');
                     setState(() {
-                      Navigator.pushNamed(context, '/home');
+                      Navigator.pushNamed(context, '/');
                     });
                   } else {
                     _loginErrorDialogBuilder(
