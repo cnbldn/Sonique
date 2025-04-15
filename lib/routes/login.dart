@@ -42,14 +42,7 @@ class _LoginState extends State<Login> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.w_background,
-      appBar: AppBar(
-        title: Container(
-          height: 20,
-          child: Image.asset('assets/logo.png', fit: BoxFit.contain),
-        ),
-        backgroundColor: AppColors.w_background,
-        centerTitle: true,
-      ),
+      appBar: myAppBar(),
       body: Padding(
         padding: const EdgeInsets.all(20.0),
         child: Column(

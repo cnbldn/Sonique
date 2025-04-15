@@ -22,8 +22,26 @@ class WelcomeButton extends StatelessWidget {
         backgroundColor: inverted ? AppColors.w_loginBox : Colors.white,
         foregroundColor: inverted ? Colors.white : AppColors.w_text,
         textStyle: TextStyle(fontWeight: FontWeight.w700, fontSize: 20),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
       ),
       child: Text(text),
+    );
+  }
+}
+
+class myAppBar extends StatelessWidget implements PreferredSizeWidget {
+  @override
+  Size get preferredSize => const Size.fromHeight(kToolbarHeight);
+
+  @override
+  Widget build(BuildContext context) {
+    return AppBar(
+      title: SizedBox(
+        height: 25,
+        child: Image.asset('assets/logo.png', fit: BoxFit.contain),
+      ),
+      backgroundColor: AppColors.w_background,
+      centerTitle: true,
     );
   }
 }
