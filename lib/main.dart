@@ -3,6 +3,7 @@ import 'package:sonique/routes/welcome.dart';
 import 'package:sonique/routes/login.dart';
 import 'package:sonique/routes/signup.dart';
 import 'package:sonique/routes/home.dart';
+import 'package:sonique/routes/rate.dart';
 
 void main() {
   runApp(
