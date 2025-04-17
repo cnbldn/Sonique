@@ -14,6 +14,7 @@ void main() {
         '/signup': (context) => Signup(),
         '/login': (context) => Login(),
         '/home': (context) => Home(),
+        '/rate': (context) => Rate(),
       },
     ),
   );
