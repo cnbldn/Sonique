@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:sonique/utils/colors.dart';
-import 'package:sonique/utils/widgets.dart';
-import 'package:sonique/utils/styles.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:intl/intl.dart';
 
