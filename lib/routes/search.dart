@@ -1,13 +1,14 @@
 import 'package:flutter/material.dart';
+import 'package:sonique/utils/colors.dart';
 
 class Search extends StatelessWidget {
   const Search({Key? key}) : super(key: key);
 
   static const _Offsets = (
-  titleTop: 20.0,
-  barTop: 60.0,
-  trendingTop: 120.0,
-  genresTop: 320.0,
+    titleTop: 20.0,
+    barTop: 60.0,
+    trendingTop: 120.0,
+    genresTop: 320.0,
   );
 
   final List<_Genre> _genres = const [
@@ -32,7 +33,7 @@ class Search extends StatelessWidget {
     final double tileH = tileW * (116 / 190);
 
     return Scaffold(
-      backgroundColor: const Color(0xFF0E0F11),
+      backgroundColor: AppColors.buttonSelected,
       body: SafeArea(
         top: false,
         child: SingleChildScrollView(
@@ -46,7 +47,7 @@ class Search extends StatelessWidget {
                   left: 0,
                   right: 0,
                   height: _Offsets.barTop + 36 + 45,
-                  child: Container(color: const Color(0xFF151618)),
+                  child: Container(color: AppColors.cardBackground),
                 ),
                 Positioned(
                   top: _Offsets.titleTop + 35,
@@ -71,13 +72,13 @@ class Search extends StatelessWidget {
                   child: Container(
                     height: 36,
                     decoration: BoxDecoration(
-                      color: const Color(0xFF1C1C1C),
+                      color: AppColors.buttonSelected,
                       borderRadius: BorderRadius.circular(18),
                     ),
                     padding: const EdgeInsets.symmetric(horizontal: 14),
                     child: Row(
                       children: const [
-                        Icon(Icons.search, color: Color(0xFFAAAAAA), size: 18),
+                        Icon(Icons.search, color: AppColors.text, size: 18),
                         SizedBox(width: 6),
                         Expanded(
                           child: TextField(
@@ -85,7 +86,7 @@ class Search extends StatelessWidget {
                             cursorColor: Colors.white,
                             decoration: InputDecoration(
                               hintText: 'Search a song, an album or an artist…',
-                              hintStyle: TextStyle(color: Color(0xFFAAAAAA)),
+                              hintStyle: TextStyle(color: AppColors.text),
                               border: InputBorder.none,
                               isDense: true,
                             ),
@@ -96,7 +97,7 @@ class Search extends StatelessWidget {
                   ),
                 ),
                 Positioned(
-                  top: _Offsets.trendingTop+ 40 ,
+                  top: _Offsets.trendingTop + 40,
                   left: hPad,
                   child: _header('Trending'),
                 ),
@@ -106,14 +107,24 @@ class Search extends StatelessWidget {
                   right: hPad,
                   child: Row(
                     children: [
-                      _tile('assets/new_releases.png', 'New\nReleases', tileW, tileH),
+                      _tile(
+                        'assets/new_releases.png',
+                        'New\nReleases',
+                        tileW,
+                        tileH,
+                      ),
                       const SizedBox(width: gap),
-                      _tile('assets/popular.png', 'Popular\nThis Week', tileW, tileH),
+                      _tile(
+                        'assets/popular.png',
+                        'Popular\nThis Week',
+                        tileW,
+                        tileH,
+                      ),
                     ],
                   ),
                 ),
                 Positioned(
-                  top: _Offsets.genresTop + 15 ,
+                  top: _Offsets.genresTop + 15,
                   left: hPad,
                   child: _header('Genres'),
                 ),

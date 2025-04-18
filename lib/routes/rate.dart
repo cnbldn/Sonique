@@ -3,9 +3,7 @@ import 'package:sonique/utils/colors.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:intl/intl.dart';
 
-
-class Rate extends StatefulWidget{
-
+class Rate extends StatefulWidget {
   const Rate({super.key});
 
   @override
@@ -13,21 +11,20 @@ class Rate extends StatefulWidget{
 }
 
 class _RateState extends State<Rate> {
-
   double _rating = 0;
   DateTime _selectedDate = DateTime.now();
-  final TextEditingController _reviewController= TextEditingController();
+  final TextEditingController _reviewController = TextEditingController();
   bool _isChecked = false;
 
-  Future<void> _pickDate(BuildContext context) async{
+  Future<void> _pickDate(BuildContext context) async {
     final DateTime? picked = await showDatePicker(
       context: context,
       firstDate: DateTime(2020),
       lastDate: DateTime.now(),
     );
 
-    if (picked != null && picked != _selectedDate){
-      setState((){
+    if (picked != null && picked != _selectedDate) {
+      setState(() {
         _selectedDate = picked;
       });
     }
@@ -36,47 +33,47 @@ class _RateState extends State<Rate> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Color(0xFF0E0F11),
+      backgroundColor: AppColors.buttonSelected,
       appBar: AppBar(
         title: Text(
           "Rate Album",
-        style: TextStyle(
-          color: Colors.white,
-          fontWeight: FontWeight.bold,
-          fontSize: 16.0
-        ),
+          style: TextStyle(
+            color: Colors.white,
+            fontWeight: FontWeight.bold,
+            fontSize: 16.0,
+          ),
         ),
         backgroundColor: AppColors.w_background,
         centerTitle: true,
         leading: IconButton(
-            onPressed: () {
-              Navigator.pop(context);
-        },
-            icon: Icon(Icons.arrow_back_ios),
-            color: Colors.white,
+          onPressed: () {
+            Navigator.pop(context);
+          },
+          icon: Icon(Icons.arrow_back_ios),
+          color: Colors.white,
         ),
 
         actions: [
           Padding(
             padding: const EdgeInsets.all(8.0),
             child: ElevatedButton(
-                onPressed: () {
-                  print("Published");
-                  print("$_rating");
-                  print(_reviewController.text);
-                  print("$_selectedDate");
-                  print("$_isChecked");
-                },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: AppColors.sonique_purple,
-                  foregroundColor: Colors.white,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(8),
-                  )
+              onPressed: () {
+                print("Published");
+                print("$_rating");
+                print(_reviewController.text);
+                print("$_selectedDate");
+                print("$_isChecked");
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: AppColors.sonique_purple,
+                foregroundColor: Colors.white,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8),
                 ),
-                child: Text("Publish")
+              ),
+              child: Text("Publish"),
             ),
-          )
+          ),
         ],
       ),
       body: SafeArea(
@@ -91,21 +88,23 @@ class _RateState extends State<Rate> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text("Aç Kurtlar Mixtape",
+                        Text(
+                          "Aç Kurtlar Mixtape",
                           style: TextStyle(
-                              color: Colors.white,
-                              fontSize: 16.0,
-                              fontWeight: FontWeight.bold
+                            color: Colors.white,
+                            fontSize: 16.0,
+                            fontWeight: FontWeight.bold,
                           ),
                         ),
-                        Text("APL",
-                            style: TextStyle(
-                                color: Colors.white,
-                                fontSize: 16.0,
-                                fontWeight: FontWeight.w400
-                            )
+                        Text(
+                          "APL",
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 16.0,
+                            fontWeight: FontWeight.w400,
+                          ),
                         ),
-                        SizedBox(height: 10,),
+                        SizedBox(height: 10),
                         RatingBar.builder(
                           initialRating: _rating,
                           minRating: 0.5,
@@ -115,25 +114,25 @@ class _RateState extends State<Rate> {
                           itemSize: 32,
                           //itemPadding:
                           //  EdgeInsets.symmetric(horizontal: 2.0),
-                          itemBuilder: (context, _) => Icon(
-                            Icons.star,
-                            color: Colors.amber,
-                          ),
-                          unratedColor: Color(0xFFD9D9D9),
-                          onRatingUpdate: (rating){
+                          itemBuilder:
+                              (context, _) =>
+                                  Icon(Icons.star, color: Colors.amber),
+                          unratedColor: AppColors.starUnrated,
+                          onRatingUpdate: (rating) {
                             setState(() {
                               _rating = rating;
                             });
                           },
                         ),
-                        SizedBox(height: 15,),
-                        Text("Date",
-                        style: TextStyle(
-                          color: Color(0xFFAAAAAA),
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold
+                        SizedBox(height: 15),
+                        Text(
+                          "Date",
+                          style: TextStyle(
+                            color: AppColors.text,
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                          ),
                         ),
-                        )
                       ],
                     ),
                   ),
@@ -149,42 +148,35 @@ class _RateState extends State<Rate> {
                           fit: BoxFit.cover,
                         ),
                       ),
-                      SizedBox(height: 34,),
+                      SizedBox(height: 34),
                       GestureDetector(
                         onTap: () => _pickDate(context),
                         child: Text(
                           DateFormat('EEEE, MMM d yyyy').format(_selectedDate),
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 16,
-                          ),
-                        )
-                      )
+                          style: TextStyle(color: Colors.white, fontSize: 16),
+                        ),
+                      ),
                     ],
                   ),
                 ],
               ),
-              SizedBox(height: 10,),
+              SizedBox(height: 10),
               TextField(
                 controller: _reviewController,
                 maxLines: 8,
-                style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 16,
-                ),
+                style: TextStyle(color: Colors.white, fontSize: 16),
                 decoration: InputDecoration(
                   hintText: "Add a review or not we don't care...",
-                  hintStyle: TextStyle( color: Colors.white),
+                  hintStyle: TextStyle(color: Colors.white),
                   filled: true,
-                  fillColor: Color(0xFF17191B),
+                  fillColor: AppColors.w_background,
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(10),
-                    borderSide: BorderSide.none
-                  )
-
+                    borderSide: BorderSide.none,
+                  ),
                 ),
               ),
-              SizedBox(height: 8,),
+              SizedBox(height: 8),
               Align(
                 alignment: Alignment.centerLeft,
                 child: GestureDetector(
@@ -202,23 +194,20 @@ class _RateState extends State<Rate> {
                         height: 24,
                         child: Transform.scale(
                           scale: 1,
-                            child: Checkbox(
-                                value: _isChecked,
-                                onChanged: (value){
-                                  setState(() {
-                                    _isChecked = value!;
-                                  });
-                                }
-                            ),
+                          child: Checkbox(
+                            value: _isChecked,
+                            onChanged: (value) {
+                              setState(() {
+                                _isChecked = value!;
+                              });
+                            },
+                          ),
                         ),
                       ),
                       SizedBox(width: 4),
                       Text(
                         "This is a relisten.",
-                        style: TextStyle(
-                          color: Color(0xFFAAAAAA),
-                          fontSize: 16,
-                        ),
+                        style: TextStyle(color: AppColors.text, fontSize: 16),
                       ),
                     ],
                   ),
@@ -226,8 +215,8 @@ class _RateState extends State<Rate> {
               ),
             ],
           ),
-      )
-      )
+        ),
+      ),
     );
   }
 }

@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:sonique/utils/colors.dart';
 
-class Profile extends StatefulWidget{
-
+class Profile extends StatefulWidget {
   const Profile({super.key});
 
   @override
@@ -11,96 +11,92 @@ class Profile extends StatefulWidget{
 }
 
 class _ProfileState extends State<Profile> {
-
   int _selectedIndex = 0;
   String? _userLink;
   final TextEditingController _linkController = TextEditingController();
 
-  void _showLinkDialog(){
+  void _showLinkDialog() {
     showDialog(
-        context: context,
-        builder: (context){
-          return AlertDialog(
-            backgroundColor: Color(0xFF1E1F21),
-            title: Text("Enter your link", style: TextStyle(color: Colors.white)),
-            content: TextField(
-              controller: _linkController,
-              style: TextStyle(color: Colors.white),
-              decoration: InputDecoration(
-                hintText: "https://linksomethingidk.com",
-                hintStyle: TextStyle(color: Color(0xFFAAAAAA)),
-                border: OutlineInputBorder(),
-              ),
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          backgroundColor: AppColors.dialogBoxBackground,
+          title: Text("Enter your link", style: TextStyle(color: Colors.white)),
+          content: TextField(
+            controller: _linkController,
+            style: TextStyle(color: Colors.white),
+            decoration: InputDecoration(
+              hintText: "https://linksomethingidk.com",
+              hintStyle: TextStyle(color: AppColors.text),
+              border: OutlineInputBorder(),
             ),
-            actions: [
-              TextButton(
-                  onPressed: (){
-                    Navigator.of(context).pop();
-                  },
-                  child: Text("Cancel",
-                    style: TextStyle(
-                      color: Color(0xFFAAAAAA),
-                    ),)
-              ),
-              TextButton(
-                onPressed: () {
-                  setState(() {
-                    _userLink = _linkController.text;
-                  });
-                  Navigator.of(context).pop();
-                },
-                child: Text("Save", style: TextStyle(color: Color(0xFF40B7FF))),
-              ),
-            ],
-          );
-        }
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: Text("Cancel", style: TextStyle(color: AppColors.text)),
+            ),
+            TextButton(
+              onPressed: () {
+                setState(() {
+                  _userLink = _linkController.text;
+                });
+                Navigator.of(context).pop();
+              },
+              child: Text("Save", style: TextStyle(color: AppColors.linkBlue)),
+            ),
+          ],
+        );
+      },
     );
   }
 
   @override
-
-
-
   Widget build(BuildContext context) {
+    final BorderRadiusGeometry homeButtonRadius =
+        _selectedIndex == 0
+            ? BorderRadius.circular(6) // Fully rounded when selected
+            : BorderRadius.only(
+              topLeft: Radius.circular(6),
+              bottomLeft: Radius.circular(6),
+            );
 
-    final BorderRadiusGeometry homeButtonRadius = _selectedIndex == 0
-        ? BorderRadius.circular(6) // Fully rounded when selected
-        : BorderRadius.only(
-      topLeft: Radius.circular(6),
-      bottomLeft: Radius.circular(6),
-    );
-
-    final BorderRadiusGeometry ratingsButtonRadius = _selectedIndex == 1
-        ? BorderRadius.circular(6)
-        : BorderRadius.only(
-      topRight: Radius.circular(6),
-      bottomRight: Radius.circular(6),
-    );
+    final BorderRadiusGeometry ratingsButtonRadius =
+        _selectedIndex == 1
+            ? BorderRadius.circular(6)
+            : BorderRadius.only(
+              topRight: Radius.circular(6),
+              bottomRight: Radius.circular(6),
+            );
 
     return Scaffold(
       body: Container(
-        color: Color(0xFF151618),
+        color: AppColors.cardBackground,
         child: SafeArea(
           child: Column(
             mainAxisAlignment: MainAxisAlignment.start,
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 17.0),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    SizedBox(height: 10,),
+                    SizedBox(height: 10),
 
                     Center(
-                        child: Text("batuhanbaydar",
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontWeight: FontWeight.w500,
-                            fontSize: 14,
-                          ),)),
-                    SizedBox(height: 33,),
+                      child: Text(
+                        "batuhanbaydar",
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontWeight: FontWeight.w500,
+                          fontSize: 14,
+                        ),
+                      ),
+                    ),
+                    SizedBox(height: 33),
                     Row(
                       children: [
                         CircleAvatar(
@@ -110,16 +106,18 @@ class _ProfileState extends State<Profile> {
                         Spacer(),
                         Column(
                           children: [
-                            Text("24",
+                            Text(
+                              "24",
                               style: TextStyle(
-                                color: Color(0xFFAAAAAA),
+                                color: AppColors.text,
                                 fontSize: 20,
                                 fontWeight: FontWeight.bold,
                               ),
                             ),
-                            Text("Ratings",
+                            Text(
+                              "Ratings",
                               style: TextStyle(
-                                color: Color(0xFFAAAAAA),
+                                color: AppColors.text,
                                 fontSize: 14,
                                 fontWeight: FontWeight.normal,
                               ),
@@ -129,16 +127,18 @@ class _ProfileState extends State<Profile> {
                         Spacer(),
                         Column(
                           children: [
-                            Text("4",
+                            Text(
+                              "4",
                               style: TextStyle(
-                                color: Color(0xFFAAAAAA),
+                                color: AppColors.text,
                                 fontSize: 20,
                                 fontWeight: FontWeight.bold,
                               ),
                             ),
-                            Text("Followers",
+                            Text(
+                              "Followers",
                               style: TextStyle(
-                                color: Color(0xFFAAAAAA),
+                                color: AppColors.text,
                                 fontSize: 14,
                                 fontWeight: FontWeight.normal,
                               ),
@@ -148,49 +148,49 @@ class _ProfileState extends State<Profile> {
                         Spacer(),
                         Column(
                           children: [
-                            Text("12",
+                            Text(
+                              "12",
                               style: TextStyle(
-                                color: Color(0xFFAAAAAA),
+                                color: AppColors.text,
                                 fontSize: 20,
                                 fontWeight: FontWeight.bold,
                               ),
                             ),
-                            Text("Following",
+                            Text(
+                              "Following",
                               style: TextStyle(
-                                  color: Color(0xFFAAAAAA),
-                                  fontSize: 14,
-                                  fontWeight: FontWeight.normal
+                                color: AppColors.text,
+                                fontSize: 14,
+                                fontWeight: FontWeight.normal,
                               ),
                             ),
                           ],
                         ),
                       ],
                     ),
-                    SizedBox(height: 15,),
-                    Text("Batu",
+                    SizedBox(height: 15),
+                    Text(
+                      "Batu",
                       style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 20,
-                          fontWeight: FontWeight.bold
+                        color: Colors.white,
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
                       ),
                     ),
-                    SizedBox(height: 9,),
-                    Text("what can i say i just love music",
-                      style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 14
-                      ),
+                    SizedBox(height: 9),
+                    Text(
+                      "what can i say i just love music",
+                      style: TextStyle(color: Colors.white, fontSize: 14),
                     ),
-                    SizedBox(height: 9,),
+                    SizedBox(height: 9),
                     GestureDetector(
-                      onTap: (){
-                        if(_userLink != null) {
+                      onTap: () {
+                        if (_userLink != null) {
                           launchUrl(
                             Uri.parse(_userLink!),
                             mode: LaunchMode.externalApplication,
                           );
-                        }
-                        else{
+                        } else {
                           _showLinkDialog();
                         }
                       },
@@ -200,25 +200,27 @@ class _ProfileState extends State<Profile> {
                             angle: -45,
                             child: Icon(
                               Icons.link,
-                              color: Color(0xFF40B7FF),
+                              color: AppColors.linkBlue,
                               size: 18,
                             ),
                           ),
                           Text(
                             _userLink ?? "Add Link...",
                             style: TextStyle(
-                              color: Color(0xFF40B7FF),
+                              color: AppColors.linkBlue,
                               fontSize: 14,
                               fontWeight: FontWeight.bold,
                               fontStyle: FontStyle.italic,
                               decoration:
-                              _userLink != null ? TextDecoration.underline : TextDecoration.none,
+                                  _userLink != null
+                                      ? TextDecoration.underline
+                                      : TextDecoration.none,
                             ),
                           ),
                         ],
                       ),
                     ),
-                    SizedBox(height: 24,),
+                    SizedBox(height: 24),
                   ],
                 ),
               ),
@@ -228,65 +230,75 @@ class _ProfileState extends State<Profile> {
                 child: Row(
                   children: [
                     Expanded(
-                        child: SizedBox(
-                          height: 28,
-                          child: ElevatedButton(
-                              onPressed: (){
-                                setState(() {
-                                  _selectedIndex = 0;
-                                });
-                              },
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: _selectedIndex == 0 ? Color(0xFF0E0F11) : Color(0xFF242527),
-                                padding: EdgeInsets.zero,
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: homeButtonRadius,
-                                ),
-                              ),
-                              child: Text("Home",
-                                style: TextStyle(
-                                    color: Colors.white,
-                                    fontSize: 14,
-                                    fontWeight: FontWeight.bold
-                                ),)
+                      child: SizedBox(
+                        height: 28,
+                        child: ElevatedButton(
+                          onPressed: () {
+                            setState(() {
+                              _selectedIndex = 0;
+                            });
+                          },
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor:
+                                _selectedIndex == 0
+                                    ? AppColors.buttonSelected
+                                    : AppColors.button,
+                            padding: EdgeInsets.zero,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: homeButtonRadius,
+                            ),
                           ),
-                        )
+                          child: Text(
+                            "Home",
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 14,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ),
+                      ),
                     ),
                     Expanded(
-                        child: SizedBox(
-                          height: 28,
-                          child: ElevatedButton(
-                              onPressed: (){
-                                setState(() {
-                                  _selectedIndex = 1;
-                                });
-                              },
-                              style: ElevatedButton.styleFrom(
-                                  backgroundColor: _selectedIndex == 0 ?  Color(0xFF242527) : Color(0xFF0E0F11),
-                                  padding: EdgeInsets.zero,
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: ratingsButtonRadius,
-                                  )
-                              ),
-                              child: Text("Ratings",
-                                style: TextStyle(
-                                    color: Colors.white,
-                                    fontSize: 14,
-                                    fontWeight: FontWeight.bold
-                                ),)
+                      child: SizedBox(
+                        height: 28,
+                        child: ElevatedButton(
+                          onPressed: () {
+                            setState(() {
+                              _selectedIndex = 1;
+                            });
+                          },
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor:
+                                _selectedIndex == 0
+                                    ? AppColors.button
+                                    : AppColors.buttonSelected,
+                            padding: EdgeInsets.zero,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: ratingsButtonRadius,
+                            ),
                           ),
-                        )
-                    )
+                          child: Text(
+                            "Ratings",
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 14,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
                   ],
                 ),
               ),
-              SizedBox(height: 21,),
+              SizedBox(height: 21),
               Expanded(
                 child: IndexedStack(
                   index: _selectedIndex,
                   children: [
-                    HomePageView(),     // <- Replace with your actual home content widget
-                    RatingsPageView(),  // <- Replace with your actual ratings content widget
+                    HomePageView(), // <- Replace with your actual home content widget
+                    RatingsPageView(), // <- Replace with your actual ratings content widget
                   ],
                 ),
               ),
@@ -295,61 +307,43 @@ class _ProfileState extends State<Profile> {
         ),
       ),
       bottomNavigationBar: BottomNavigationBar(
-        backgroundColor: Color(0xFF17191B),
-        selectedItemColor: Color(0xFF40B7FF),
+        backgroundColor: AppColors.w_background,
+        selectedItemColor: AppColors.linkBlue,
         unselectedItemColor: Colors.white70,
         currentIndex: 0, // mock index
         onTap: (index) {
           // You can show a snackbar or update UI if needed
         },
         items: [
-          BottomNavigationBarItem(
-            icon: Icon(Icons.home),
-            label: 'Home',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.star),
-            label: 'Ratings',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.person),
-            label: 'Profile',
-          ),
+          BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
+          BottomNavigationBarItem(icon: Icon(Icons.star), label: 'Ratings'),
+          BottomNavigationBarItem(icon: Icon(Icons.person), label: 'Profile'),
         ],
       ),
     );
   }
 }
 
-class HomePageView extends StatelessWidget{
+class HomePageView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-
     final List<Map<String, String>> favoriteAlbums = [
       {
         "title": "Goodbye Yellow Brick Road",
         "artist": "Elton John",
-        "image": "assets/goodbye_yellow_brick_road.jpg"
+        "image": "assets/goodbye_yellow_brick_road.jpg",
       },
-      {
-        "title": "brat",
-        "artist": "Charli xcx",
-        "image": "assets/brat.png"
-      },
-      {
-        "title": "Dummy",
-        "artist": "Portishead",
-        "image": "assets/dummy.jpg"
-      },
+      {"title": "brat", "artist": "Charli xcx", "image": "assets/brat.png"},
+      {"title": "Dummy", "artist": "Portishead", "image": "assets/dummy.jpg"},
       {
         "title": "Underground",
         "artist": "Thelonious Monk",
-        "image": "assets/underground.png"
+        "image": "assets/underground.png",
       },
     ];
 
     return Scaffold(
-      backgroundColor: Color(0xFF0E0F11),
+      backgroundColor: AppColors.buttonSelected,
       body: SafeArea(
         child: Column(
           children: [
@@ -357,35 +351,39 @@ class HomePageView extends StatelessWidget{
               padding: const EdgeInsets.symmetric(horizontal: 17.0),
               child: Column(
                 children: [
-                  SizedBox(height: 20,),
+                  SizedBox(height: 20),
                   Align(
                     alignment: Alignment.centerLeft,
-                    child: Text("Favorite Albums",
+                    child: Text(
+                      "Favorite Albums",
                       style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 20,
-                          fontWeight: FontWeight.bold
-                      ),),
+                        color: Colors.white,
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
                   ),
-                  SizedBox(height: 20,),
-                  SizedBox(height: 177,
+                  SizedBox(height: 20),
+                  SizedBox(
+                    height: 177,
                     child: ListView.builder(
                       scrollDirection: Axis.horizontal,
                       itemCount: favoriteAlbums.length,
-                      itemBuilder: (context, index){
+                      itemBuilder: (context, index) {
                         return Padding(
                           padding: const EdgeInsets.only(right: 17),
                           child: Column(
                             children: [
                               ClipRRect(
                                 borderRadius: BorderRadius.circular(10),
-                                child: Image.asset(favoriteAlbums[index]["image"]!,
+                                child: Image.asset(
+                                  favoriteAlbums[index]["image"]!,
                                   height: 110,
                                   width: 110,
                                   fit: BoxFit.cover,
                                 ),
                               ),
-                              SizedBox(height: 11,),
+                              SizedBox(height: 11),
                               SizedBox(
                                 width: 110,
                                 child: Text(
@@ -422,20 +420,22 @@ class HomePageView extends StatelessWidget{
                 ],
               ),
             ),
-            SizedBox(height: 22,),
+            SizedBox(height: 22),
             Align(
               alignment: Alignment.centerLeft,
-              child: Text("Recent Activity",
+              child: Text(
+                "Recent Activity",
                 style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 20,
-                    fontWeight: FontWeight.bold
-                ),),
+                  color: Colors.white,
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
             ),
-            SizedBox(height: 18,),
+            SizedBox(height: 18),
             Expanded(
               child: Container(
-                color: Color(0xFF151618),
+                color: AppColors.cardBackground,
                 child: Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 20.0),
                   child: Row(
@@ -447,24 +447,27 @@ class HomePageView extends StatelessWidget{
                           crossAxisAlignment: CrossAxisAlignment.start,
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            Text("When The Pawn...",
-                              style: TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.bold
-                              ),),
-                            Text("Fiona Apple",
+                            Text(
+                              "When The Pawn...",
                               style: TextStyle(
                                 color: Colors.white,
                                 fontSize: 16,
-                              ),),
-                            SizedBox(height: 10,),
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            Text(
+                              "Fiona Apple",
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 16,
+                              ),
+                            ),
+                            SizedBox(height: 10),
                             RatingBarIndicator(
                               rating: 5,
-                              itemBuilder: (context, index) => Icon(
-                                Icons.star,
-                                color: Colors.amber,
-                              ),
+                              itemBuilder:
+                                  (context, index) =>
+                                      Icon(Icons.star, color: Colors.amber),
                               itemCount: 5,
                               itemSize: 18,
                               direction: Axis.horizontal,
@@ -474,7 +477,8 @@ class HomePageView extends StatelessWidget{
                       ),
                       ClipRRect(
                         borderRadius: BorderRadius.circular(10),
-                        child: Image.asset('assets/when_the_pawn.jpg',
+                        child: Image.asset(
+                          'assets/when_the_pawn.jpg',
                           height: 70,
                           width: 70,
                           fit: BoxFit.cover,
@@ -484,7 +488,7 @@ class HomePageView extends StatelessWidget{
                   ),
                 ),
               ),
-            )
+            ),
           ],
         ),
       ),
@@ -492,13 +496,12 @@ class HomePageView extends StatelessWidget{
   }
 }
 
-class RatingsPageView extends StatefulWidget{
+class RatingsPageView extends StatefulWidget {
   @override
   State<RatingsPageView> createState() => _RatingsPageViewState();
 }
 
 class _RatingsPageViewState extends State<RatingsPageView> {
-
   final TextEditingController _searchController = TextEditingController();
 
   final List<Map<String, dynamic>> ratedAlbums = [
@@ -506,39 +509,39 @@ class _RatingsPageViewState extends State<RatingsPageView> {
       "title": "When The Pawn...",
       "artist": "Fiona Apple",
       "image": "assets/when_the_pawn.jpg",
-      "rating": 5.0
+      "rating": 5.0,
     },
     {
       "title": "brat",
       "artist": "Charli XCX",
       "image": "assets/brat.png",
-      "rating": 5.0
+      "rating": 5.0,
     },
     {
       "title": "Dummy",
       "artist": "Portishead",
       "image": "assets/dummy.jpg",
-      "rating": 4.5
+      "rating": 4.5,
     },
     {
       "title": "Underground",
       "artist": "Thelonious Monk",
       "image": "assets/underground.png",
-      "rating": 4.0
+      "rating": 4.0,
     },
     {
       "title": "Goodbye Yellow Brick Road",
       "artist": "Elton John",
       "image": "assets/goodbye_yellow_brick_road.jpg",
-      "rating": 5.0
+      "rating": 5.0,
     },
   ];
 
   String _searchQuery = '';
 
-  List<Map<String, dynamic>>get _filteredAlbums{
-    if(_searchQuery.isEmpty) return ratedAlbums;
-    return ratedAlbums.where((album){
+  List<Map<String, dynamic>> get _filteredAlbums {
+    if (_searchQuery.isEmpty) return ratedAlbums;
+    return ratedAlbums.where((album) {
       final title = album['title']!.toLowerCase();
       final artist = album['artist']!.toLowerCase();
       final query = _searchQuery.toLowerCase();
@@ -549,34 +552,32 @@ class _RatingsPageViewState extends State<RatingsPageView> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Color(0xFF0E0F11),
+      backgroundColor: AppColors.buttonSelected,
       body: SafeArea(
         child: Padding(
           padding: EdgeInsets.symmetric(horizontal: 14),
           child: Column(
             children: [
-              SizedBox(height: 25,),
+              SizedBox(height: 25),
               Container(
                 height: 36,
                 padding: EdgeInsets.symmetric(horizontal: 3),
                 decoration: BoxDecoration(
-                  color: Color(0xFF151618),
+                  color: AppColors.cardBackground,
                   borderRadius: BorderRadius.circular(21),
                 ),
                 child: Row(
                   children: [
-                    SizedBox(width: 12.5,),
-                    Icon(Icons.search, color: Color(0xFFAAAAAA), size: 21,),
+                    SizedBox(width: 12.5),
+                    Icon(Icons.search, color: AppColors.text, size: 21),
                     SizedBox(width: 8),
                     Expanded(
                       child: TextField(
                         controller: _searchController,
-                        style: TextStyle(
-                          color: Colors.white,
-                        ),
+                        style: TextStyle(color: Colors.white),
                         decoration: InputDecoration(
                           hintText: "Search in ratings...",
-                          hintStyle: TextStyle(color: Color(0xFFAAAAAA)),
+                          hintStyle: TextStyle(color: AppColors.text),
                           border: InputBorder.none,
                         ),
                         onChanged: (value) {
@@ -589,62 +590,63 @@ class _RatingsPageViewState extends State<RatingsPageView> {
                   ],
                 ),
               ),
-              SizedBox(height: 25,),
+              SizedBox(height: 25),
               Expanded(
-                  child: GridView.builder(
-                    itemCount: _filteredAlbums.length,
-                    gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                        crossAxisCount: 2,
-                        crossAxisSpacing: 14,
-                        mainAxisSpacing: 14,
-                        childAspectRatio: 0.71
+                child: GridView.builder(
+                  itemCount: _filteredAlbums.length,
+                  gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisCount: 2,
+                    crossAxisSpacing: 14,
+                    mainAxisSpacing: 14,
+                    childAspectRatio: 0.71,
+                  ),
+                  itemBuilder: (context, index) {
+                    final album = _filteredAlbums[index];
+                    return Column(
+                      crossAxisAlignment: CrossAxisAlignment.center,
 
-                    ),
-                    itemBuilder: (context,index){
-                      final album = _filteredAlbums[index];
-                      return Column(
-                        crossAxisAlignment: CrossAxisAlignment.center,
-
-                        children: [
-                          ClipRRect(
-                            borderRadius: BorderRadius.circular(10),
-                            child: Image.asset(album["image"]!,
-                              height: 183,
-                              width: double.infinity,
-                              fit: BoxFit.cover,
-                            ),
+                      children: [
+                        ClipRRect(
+                          borderRadius: BorderRadius.circular(10),
+                          child: Image.asset(
+                            album["image"]!,
+                            height: 183,
+                            width: double.infinity,
+                            fit: BoxFit.cover,
                           ),
-                          SizedBox(height: 16,),
-                          RatingBarIndicator(
-                            rating: album["rating"]!,
-                            itemBuilder: (context, index) => Icon(
-                              Icons.star,
-                              color: Colors.amber,
-                            ),
-                            itemCount: 5,
-                            itemSize: 18,
-                            direction: Axis.horizontal,
+                        ),
+                        SizedBox(height: 16),
+                        RatingBarIndicator(
+                          rating: album["rating"]!,
+                          itemBuilder:
+                              (context, index) =>
+                                  Icon(Icons.star, color: Colors.amber),
+                          itemCount: 5,
+                          itemSize: 18,
+                          direction: Axis.horizontal,
+                        ),
+                        Text(
+                          album["title"]!,
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold,
                           ),
-                          Text(album["title"]!,
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontWeight: FontWeight.bold,
-                            ),
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                        Text(
+                          album["artist"]!,
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontWeight: FontWeight.normal,
                           ),
-                          Text(album["artist"]!,
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontWeight: FontWeight.normal,
-                            ),
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                        ],
-                      );
-                    },
-                  )
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ],
+                    );
+                  },
+                ),
               ),
             ],
           ),

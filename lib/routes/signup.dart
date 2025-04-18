@@ -63,7 +63,7 @@ class _SignupState extends State<Signup> {
                         keyboardType: TextInputType.emailAddress,
                         decoration: InputDecoration(
                           labelText: 'Email',
-                          fillColor: AppColors.w_box,
+                          fillColor: AppColors.button,
                           filled: true,
                           border: AppBorders.formBorder,
                           focusedBorder: AppBorders.focusedFormBorder,
@@ -87,7 +87,7 @@ class _SignupState extends State<Signup> {
                         keyboardType: TextInputType.text,
                         decoration: InputDecoration(
                           labelText: 'Username',
-                          fillColor: AppColors.w_box,
+                          fillColor: AppColors.button,
                           filled: true,
                           border: AppBorders.formBorder,
                           focusedBorder: AppBorders.focusedFormBorder,
@@ -101,7 +101,7 @@ class _SignupState extends State<Signup> {
                         enableSuggestions: false,
                         decoration: InputDecoration(
                           labelText: 'Password',
-                          fillColor: AppColors.w_box,
+                          fillColor: AppColors.button,
                           filled: true,
                           suffixIcon: IconButton(
                             icon: Icon(

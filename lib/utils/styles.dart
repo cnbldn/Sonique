@@ -9,7 +9,7 @@ class AppTextStyles {
 
   /// text inside textboxes
   static const welcomeSmall = TextStyle(
-    color: AppColors.w_text,
+    color: AppColors.text,
     fontSize: 16,
     fontWeight: FontWeight.w400,
     height: 1.16,
@@ -33,6 +33,6 @@ class AppBorders {
   );
 
   static const focusedFormBorder = OutlineInputBorder(
-    borderSide: BorderSide(color: AppColors.w_loginBox, width: 2),
+    borderSide: BorderSide(color: AppColors.sonique_purple, width: 2),
   );
 }

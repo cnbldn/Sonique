@@ -64,7 +64,7 @@ class _LoginState extends State<Login> {
                         keyboardType: TextInputType.emailAddress,
                         decoration: InputDecoration(
                           labelText: 'Email',
-                          fillColor: AppColors.w_box,
+                          fillColor: AppColors.button,
                           filled: true,
                           border: AppBorders.formBorder,
                           focusedBorder: AppBorders.focusedFormBorder,
@@ -91,7 +91,7 @@ class _LoginState extends State<Login> {
                         enableSuggestions: false,
                         decoration: InputDecoration(
                           labelText: 'Password',
-                          fillColor: AppColors.w_box,
+                          fillColor: AppColors.button,
                           filled: true,
                           suffixIcon: IconButton(
                             icon: Icon(
@@ -150,7 +150,7 @@ class _LoginState extends State<Login> {
                     _formKey.currentState!.save();
                     print('Email $email Password $pass');
                     setState(() {
-                      Navigator.pushNamed(context, '/');
+                      Navigator.pushNamed(context, '/home');
                     });
                   } else {
                     _loginErrorDialogBuilder(

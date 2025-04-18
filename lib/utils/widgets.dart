@@ -19,8 +19,8 @@ class WelcomeButton extends StatelessWidget {
     return ElevatedButton(
       onPressed: onPressed,
       style: ElevatedButton.styleFrom(
-        backgroundColor: inverted ? AppColors.w_loginBox : Colors.white,
-        foregroundColor: inverted ? Colors.white : AppColors.w_text,
+        backgroundColor: inverted ? AppColors.sonique_purple : Colors.white,
+        foregroundColor: inverted ? Colors.white : AppColors.text,
         textStyle: TextStyle(fontWeight: FontWeight.w700, fontSize: 20),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
       ),
