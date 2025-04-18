@@ -6,6 +6,8 @@ import 'package:sonique/routes/home.dart';
 import 'package:sonique/routes/rate.dart';
 import 'package:sonique/routes/artist_page.dart';
 import 'package:sonique/routes/search.dart';
+import 'package:sonique/routes/my_profile.dart';
+import'package:sonique/routes/profile.dart';
 
 void main() {
   runApp(
@@ -20,6 +22,8 @@ void main() {
         '/rate': (context) => Rate(),
         '/artist': (context) => ArtistPage(),
         '/search': (context) => Search(),
+        '/my_profile': (context) => myProfile(),
+        '/profile': (context) => Profile(),
       },
     ),
   );
