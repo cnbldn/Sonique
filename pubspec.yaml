@@ -75,6 +75,16 @@ flutter:
     - assets/firtinayt.png
     - assets/fullfaca.png
     - assets/aysuramhalaagriyor.png
+    - assets/new_releases.png
+    - assets/popular.png
+    - assets/pop.png
+    - assets/rap.png
+    - assets/rock.png
+    - assets/alternative.png
+    - assets/rnb.png
+    - assets/electronic.png
+    - assets/folk.png
+    - assets/jazz.png
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/to/resolution-aware-images
