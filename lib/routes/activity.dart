@@ -9,6 +9,8 @@ class Activity extends StatefulWidget {
 
 class _ActivityState extends State<Activity> {
   int _selectedIndex = 0;
+  Map<String, bool> _expandedReviews = {};
+
 
   Widget buildFollowRectangle({
     required String username,
@@ -93,129 +95,138 @@ class _ActivityState extends State<Activity> {
     required String profileImage,
     required String timeAgo,
   }) {
+    final isExpanded = _expandedReviews[album] ?? false;
+    final displayText = isExpanded
+        ? comment
+        : (comment.length > 60 ? "${comment.substring(0, 60)}..." : comment);
+
     return Container(
       width: 428,
-      height: 210,
-      decoration: const BoxDecoration(
-        color: Color(0xFF242527),
-      ),
-      child: Stack(
+      color: const Color(0xFF242527),
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
+          Row(
+            children: [
+              ClipRRect(
+                borderRadius: BorderRadius.circular(28),
+                child: Image.asset(
+                  profileImage,
+                  width: 28,
+                  height: 28,
+                  fit: BoxFit.cover,
+                ),
+              ),
+              const SizedBox(width: 8),
+              Text.rich(
+                TextSpan(
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 14,
+                    fontFamily: 'Roboto',
+                    height: 1.16168,
+                  ),
                   children: [
-                    ClipRRect(
-                      borderRadius: BorderRadius.circular(28),
-                      child: Image.asset(
-                        profileImage,
-                        width: 28,
-                        height: 28,
-                        fit: BoxFit.cover,
+                    TextSpan(
+                      text: "$username ",
+                      style: const TextStyle(fontWeight: FontWeight.w400),
+                    ),
+                    const TextSpan(
+                      text: "rated",
+                      style: TextStyle(fontWeight: FontWeight.w400),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 8),
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const SizedBox(width: 36),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(album,
+                        style: const TextStyle(
+                            color: Colors.white,
+                            fontWeight: FontWeight.w700,
+                            fontSize: 16,
+                            fontFamily: "Roboto")),
+                    Text(artist,
+                        style: const TextStyle(
+                            color: Colors.white,
+                            fontWeight: FontWeight.w400,
+                            fontSize: 16,
+                            fontFamily: "Roboto")),
+                    const SizedBox(height: 8),
+
+                    Row(
+                      children: List.generate(5, (index) {
+                        return Icon(
+                          Icons.star,
+                          color: index < rating
+                              ? const Color(0xFFD7CE7C)
+                              : const Color(0xFFD9D9D9),
+                          size: 18,
+                        );
+                      }),
+                    ),
+                    const SizedBox(height: 8),
+
+                    Text(
+                      displayText,
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 14,
+                        fontWeight: FontWeight.w400,
+                        fontFamily: "Roboto",
                       ),
                     ),
-                    const SizedBox(width: 8),
-                    Text.rich(
-                      TextSpan(
+
+                    const SizedBox(height: 4),
+
+                    GestureDetector(
+                      onTap: () {
+                        setState(() {
+                          _expandedReviews[album] = !isExpanded;
+                        });
+                      },
+                      child: Text(
+                        isExpanded ? "Read Less" : "Read More...",
                         style: const TextStyle(
                           color: Colors.white,
                           fontSize: 14,
-                          fontFamily: 'Roboto',
-                          height: 1.16168,
+                          fontWeight: FontWeight.w700,
+                          fontFamily: "Roboto",
                         ),
-                        children: [
-                          TextSpan(
-                            text: "$username ",
-                            style: const TextStyle(fontWeight: FontWeight.w400),
-                          ),
-                          const TextSpan(
-                            text: "rated",
-                            style: TextStyle(fontWeight: FontWeight.w400),
-                          ),
-                        ],
                       ),
                     ),
                   ],
                 ),
-                const SizedBox(height: 8),
-                Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const SizedBox(width: 36),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(album,
-                              style: const TextStyle(
-                                  color: Colors.white,
-                                  fontWeight: FontWeight.w700,
-                                  fontSize: 16,
-                                  fontFamily: "Roboto")),
-                          Text(artist,
-                              style: const TextStyle(
-                                  color: Colors.white,
-                                  fontWeight: FontWeight.w400,
-                                  fontSize: 16,
-                                  fontFamily: "Roboto")),
-                          const SizedBox(height: 8),
-                          Row(
-                            children: List.generate(5, (index) {
-                              return Icon(
-                                index < rating ? Icons.star : Icons.star_border,
-                                color: index < rating
-                                    ? const Color(0xFFD7CE7C)
-                                    : const Color(0xFFD9D9D9),
-                                size: 18,
-                              );
-                            }),
-                          ),
-                          const SizedBox(height: 8),
-                          Text(
-                            comment,
-                            style: const TextStyle(
-                              color: Colors.white,
-                              fontSize: 14,
-                              fontWeight: FontWeight.w400,
-                              fontFamily: "Roboto",
-                            ),
-                            maxLines: 2,
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                          const SizedBox(height: 4),
-                          const Text(
-                            "Read More...",
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontSize: 14,
-                              fontWeight: FontWeight.w700,
-                              fontFamily: "Roboto",
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    const SizedBox(width: 10),
-                    ClipRRect(
-                      borderRadius: BorderRadius.circular(10),
-                      child: Image.asset(
-                        imageAssetPath,
-                        width: 70,
-                        height: 70,
-                        fit: BoxFit.cover,
-                      ),
-                    ),
-                  ],
+              ),
+
+              const SizedBox(width: 10),
+
+              ClipRRect(
+                borderRadius: BorderRadius.circular(10),
+                child: Image.asset(
+                  imageAssetPath,
+                  width: 70,
+                  height: 70,
+                  fit: BoxFit.cover,
                 ),
-              ],
-            ),
+              ),
+            ],
           ),
-          Positioned(
-            right: 20,
-            bottom: 20,
+
+          const SizedBox(height: 8),
+
+          Align(
+            alignment: Alignment.bottomRight,
             child: Text(
               timeAgo,
               style: const TextStyle(
@@ -230,6 +241,7 @@ class _ActivityState extends State<Activity> {
       ),
     );
   }
+
 
   Widget buildCustomTabs() {
     final BorderRadiusGeometry friendsRadius = _selectedIndex == 0
@@ -336,7 +348,7 @@ class _ActivityState extends State<Activity> {
               ],
             ),
           ),
-
+ 
           if (_selectedIndex == 0) ...[
             buildFollowRectangle(
               username: "umaylovesmus1c",
@@ -349,7 +361,7 @@ class _ActivityState extends State<Activity> {
               album: "DeBÍ TiRAR MáS FOToS",
               artist: "Bad Bunny",
               rating: 4,
-              comment: "THE summer album of 2025, manifesting its energy for me and...",
+              comment: "THE summer album of 2025, manifesting this energy for me and my girlies. Cover photo is so meaningful too i love this album so much omg. Bad Bunny rly created a masterpiece i will be blasting this song all day everyday",
               imageAssetPath: "assets/dtmf.png",
               profileImage: "assets/umay.png",
               timeAgo: "3h",
