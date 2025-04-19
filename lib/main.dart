@@ -8,6 +8,7 @@ import 'package:sonique/routes/artist_page.dart';
 import 'package:sonique/routes/search.dart';
 import 'package:sonique/routes/my_profile.dart';
 import'package:sonique/routes/profile.dart';
+import 'package:sonique/routes/activity.dart';
 
 void main() {
   runApp(
@@ -24,6 +25,7 @@ void main() {
         '/search': (context) => Search(),
         '/my_profile': (context) => myProfile(),
         '/profile': (context) => Profile(),
+        '/activity': (context) => Activity(),
       },
     ),
   );
