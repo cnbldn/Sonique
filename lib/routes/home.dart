@@ -223,7 +223,6 @@ class _HomeState extends State<Home> {
       color: const Color(0xFF151618),
       child: Stack(
         children: [
-          // Title & Artist
           Positioned(
             top: 19,
             left: 20,
@@ -253,8 +252,7 @@ class _HomeState extends State<Home> {
               ],
             ),
           ),
-
-          // Album Art
+          
           Positioned(
             top: 19,
             right: 20,
@@ -269,7 +267,6 @@ class _HomeState extends State<Home> {
             ),
           ),
 
-          // Stars
           Positioned(
             top: 71,
             left: 20,
@@ -284,7 +281,6 @@ class _HomeState extends State<Home> {
             ),
           ),
 
-          // Review & Read More
           Positioned(
             top: 103,
             left: 20,
@@ -324,7 +320,6 @@ class _HomeState extends State<Home> {
             ),
           ),
 
-          // Profile Picture & Username
           Positioned(
             bottom: 57,
             left: 16,
@@ -353,7 +348,6 @@ class _HomeState extends State<Home> {
             ),
           ),
 
-          // Icons
           Positioned(
             bottom: 20,
             left: 13,
