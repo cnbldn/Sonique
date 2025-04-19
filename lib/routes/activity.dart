@@ -336,7 +336,7 @@ class _ActivityState extends State<Activity> {
               ],
             ),
           ),
-          // Conditional rendering based on selected index
+
           if (_selectedIndex == 0) ...[
             buildFollowRectangle(
               username: "umaylovesmus1c",
