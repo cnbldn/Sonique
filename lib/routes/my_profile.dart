@@ -332,20 +332,6 @@ class _myProfileState extends State<myProfile> {
           ),
         ),
       ),
-      bottomNavigationBar: BottomNavigationBar(
-        backgroundColor: AppColors.w_background,
-        selectedItemColor: AppColors.linkBlue,
-        unselectedItemColor: Colors.white70,
-        currentIndex: 0, // mock index
-        onTap: (index) {
-          // You can show a snackbar or update UI if needed
-        },
-        items: [
-          BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
-          BottomNavigationBarItem(icon: Icon(Icons.star), label: 'Ratings'),
-          BottomNavigationBarItem(icon: Icon(Icons.person), label: 'Profile'),
-        ],
-      ),
     );
   }
 }
@@ -392,55 +378,59 @@ class HomePageView extends StatelessWidget {
                   SizedBox(height: 20),
                   SizedBox(
                     height: 177,
-                    child: ListView.builder(
-                      scrollDirection: Axis.horizontal,
-                      itemCount: favoriteAlbums.length,
-                      itemBuilder: (context, index) {
-                        return Padding(
-                          padding: const EdgeInsets.only(right: 17),
-                          child: Column(
-                            children: [
-                              ClipRRect(
-                                borderRadius: BorderRadius.circular(10),
-                                child: Image.asset(
-                                  favoriteAlbums[index]["image"]!,
-                                  height: 110,
+                    child: Card(
+                      color: AppColors.buttonSelected,
+                      shadowColor: Color(0x00000000),
+                      child: ListView.builder(
+                        scrollDirection: Axis.horizontal,
+                        itemCount: favoriteAlbums.length,
+                        itemBuilder: (context, index) {
+                          return Padding(
+                            padding: const EdgeInsets.only(right: 17),
+                            child: Column(
+                              children: [
+                                ClipRRect(
+                                  borderRadius: BorderRadius.circular(10),
+                                  child: Image.asset(
+                                    favoriteAlbums[index]["image"]!,
+                                    height: 110,
+                                    width: 110,
+                                    fit: BoxFit.cover,
+                                  ),
+                                ),
+                                SizedBox(height: 11),
+                                SizedBox(
                                   width: 110,
-                                  fit: BoxFit.cover,
-                                ),
-                              ),
-                              SizedBox(height: 11),
-                              SizedBox(
-                                width: 110,
-                                child: Text(
-                                  favoriteAlbums[index]["title"]!,
-                                  style: TextStyle(
-                                    color: Colors.white,
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: 16,
+                                  child: Text(
+                                    favoriteAlbums[index]["title"]!,
+                                    style: TextStyle(
+                                      color: Colors.white,
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 16,
+                                    ),
+                                    textAlign: TextAlign.center,
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
                                   ),
-                                  textAlign: TextAlign.center,
-                                  maxLines: 1,
-                                  overflow: TextOverflow.ellipsis,
                                 ),
-                              ),
-                              SizedBox(
-                                width: 120,
-                                child: Text(
-                                  favoriteAlbums[index]["artist"]!,
-                                  style: TextStyle(
-                                    color: Colors.white,
-                                    fontSize: 16,
+                                SizedBox(
+                                  width: 120,
+                                  child: Text(
+                                    favoriteAlbums[index]["artist"]!,
+                                    style: TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 16,
+                                    ),
+                                    textAlign: TextAlign.center,
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
                                   ),
-                                  textAlign: TextAlign.center,
-                                  maxLines: 1,
-                                  overflow: TextOverflow.ellipsis,
                                 ),
-                              ),
-                            ],
-                          ),
-                        );
-                      },
+                              ],
+                            ),
+                          );
+                        },
+                      ),
                     ),
                   ),
                 ],

@@ -306,20 +306,6 @@ class _ProfileState extends State<Profile> {
           ),
         ),
       ),
-      bottomNavigationBar: BottomNavigationBar(
-        backgroundColor: AppColors.w_background,
-        selectedItemColor: AppColors.linkBlue,
-        unselectedItemColor: Colors.white70,
-        currentIndex: 0, // mock index
-        onTap: (index) {
-          // You can show a snackbar or update UI if needed
-        },
-        items: [
-          BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
-          BottomNavigationBarItem(icon: Icon(Icons.star), label: 'Ratings'),
-          BottomNavigationBarItem(icon: Icon(Icons.person), label: 'Profile'),
-        ],
-      ),
     );
   }
 }
@@ -421,14 +407,17 @@ class HomePageView extends StatelessWidget {
               ),
             ),
             SizedBox(height: 22),
-            Align(
-              alignment: Alignment.centerLeft,
-              child: Text(
-                "Recent Activity",
-                style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 20,
-                  fontWeight: FontWeight.bold,
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 17.0),
+              child: Align(
+                alignment: Alignment.centerLeft,
+                child: Text(
+                  "Recent Activity",
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
               ),
             ),

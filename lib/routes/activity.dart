@@ -11,7 +11,6 @@ class _ActivityState extends State<Activity> {
   int _selectedIndex = 0;
   Map<String, bool> _expandedReviews = {};
 
-
   Widget buildFollowRectangle({
     required String username,
     required String followedUser,
@@ -24,9 +23,7 @@ class _ActivityState extends State<Activity> {
       padding: const EdgeInsets.symmetric(horizontal: 16),
       decoration: const BoxDecoration(
         color: Color(0xFF242527),
-        border: Border(
-          bottom: BorderSide(color: Color(0xFF0E0F11), width: 1),
-        ),
+        border: Border(bottom: BorderSide(color: Color(0xFF0E0F11), width: 1)),
       ),
       child: Row(
         children: [
@@ -46,7 +43,6 @@ class _ActivityState extends State<Activity> {
                 style: const TextStyle(
                   color: Colors.white,
                   fontSize: 14,
-                  fontFamily: 'Roboto',
                   height: 1.16168,
                 ),
                 children: [
@@ -76,7 +72,6 @@ class _ActivityState extends State<Activity> {
                 color: Color(0xFFAAAAAA),
                 fontSize: 14,
                 fontWeight: FontWeight.w400,
-                fontFamily: "Roboto",
               ),
             ),
           ),
@@ -96,9 +91,12 @@ class _ActivityState extends State<Activity> {
     required String timeAgo,
   }) {
     final isExpanded = _expandedReviews[album] ?? false;
-    final displayText = isExpanded
-        ? comment
-        : (comment.length > 60 ? "${comment.substring(0, 60)}..." : comment);
+    final displayText =
+        isExpanded
+            ? comment
+            : (comment.length > 60
+                ? "${comment.substring(0, 60)}..."
+                : comment);
 
     return Container(
       width: 428,
@@ -124,7 +122,6 @@ class _ActivityState extends State<Activity> {
                   style: const TextStyle(
                     color: Colors.white,
                     fontSize: 14,
-                    fontFamily: 'Roboto',
                     height: 1.16168,
                   ),
                   children: [
@@ -150,27 +147,32 @@ class _ActivityState extends State<Activity> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(album,
-                        style: const TextStyle(
-                            color: Colors.white,
-                            fontWeight: FontWeight.w700,
-                            fontSize: 16,
-                            fontFamily: "Roboto")),
-                    Text(artist,
-                        style: const TextStyle(
-                            color: Colors.white,
-                            fontWeight: FontWeight.w400,
-                            fontSize: 16,
-                            fontFamily: "Roboto")),
+                    Text(
+                      album,
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontWeight: FontWeight.w700,
+                        fontSize: 16,
+                      ),
+                    ),
+                    Text(
+                      artist,
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontWeight: FontWeight.w400,
+                        fontSize: 16,
+                      ),
+                    ),
                     const SizedBox(height: 8),
 
                     Row(
                       children: List.generate(5, (index) {
                         return Icon(
                           Icons.star,
-                          color: index < rating
-                              ? const Color(0xFFD7CE7C)
-                              : const Color(0xFFD9D9D9),
+                          color:
+                              index < rating
+                                  ? const Color(0xFFD7CE7C)
+                                  : const Color(0xFFD9D9D9),
                           size: 18,
                         );
                       }),
@@ -183,7 +185,6 @@ class _ActivityState extends State<Activity> {
                         color: Colors.white,
                         fontSize: 14,
                         fontWeight: FontWeight.w400,
-                        fontFamily: "Roboto",
                       ),
                     ),
 
@@ -201,7 +202,6 @@ class _ActivityState extends State<Activity> {
                           color: Colors.white,
                           fontSize: 14,
                           fontWeight: FontWeight.w700,
-                          fontFamily: "Roboto",
                         ),
                       ),
                     ),
@@ -233,7 +233,6 @@ class _ActivityState extends State<Activity> {
                 color: Color(0xFFAAAAAA),
                 fontSize: 14,
                 fontWeight: FontWeight.w400,
-                fontFamily: "Roboto",
               ),
             ),
           ),
@@ -242,16 +241,21 @@ class _ActivityState extends State<Activity> {
     );
   }
 
-
   Widget buildCustomTabs() {
-    final BorderRadiusGeometry friendsRadius = _selectedIndex == 0
-        ? BorderRadius.circular(6)
-        : const BorderRadius.only(
-        topLeft: Radius.circular(6), bottomLeft: Radius.circular(6));
-    final BorderRadiusGeometry youRadius = _selectedIndex == 1
-        ? BorderRadius.circular(6)
-        : const BorderRadius.only(
-        topRight: Radius.circular(6), bottomRight: Radius.circular(6));
+    final BorderRadiusGeometry friendsRadius =
+        _selectedIndex == 0
+            ? BorderRadius.circular(6)
+            : const BorderRadius.only(
+              topLeft: Radius.circular(6),
+              bottomLeft: Radius.circular(6),
+            );
+    final BorderRadiusGeometry youRadius =
+        _selectedIndex == 1
+            ? BorderRadius.circular(6)
+            : const BorderRadius.only(
+              topRight: Radius.circular(6),
+              bottomRight: Radius.circular(6),
+            );
 
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 9),
@@ -272,19 +276,22 @@ class _ActivityState extends State<Activity> {
                     child: ElevatedButton(
                       onPressed: () => setState(() => _selectedIndex = 0),
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: _selectedIndex == 0
-                            ? const Color(0xFF242527)
-                            : const Color(0xFF0E0F11),
+                        backgroundColor:
+                            _selectedIndex == 0
+                                ? const Color(0xFF242527)
+                                : const Color(0xFF0E0F11),
                         padding: EdgeInsets.zero,
                         shape: RoundedRectangleBorder(
-                            borderRadius: friendsRadius),
+                          borderRadius: friendsRadius,
+                        ),
                       ),
                       child: const Text(
                         "Friends",
                         style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 14,
-                            fontWeight: FontWeight.bold),
+                          color: Colors.white,
+                          fontSize: 14,
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
                     ),
                   ),
@@ -295,19 +302,20 @@ class _ActivityState extends State<Activity> {
                     child: ElevatedButton(
                       onPressed: () => setState(() => _selectedIndex = 1),
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: _selectedIndex == 1
-                            ? const Color(0xFF242527)
-                            : const Color(0xFF0E0F11),
+                        backgroundColor:
+                            _selectedIndex == 1
+                                ? const Color(0xFF242527)
+                                : const Color(0xFF0E0F11),
                         padding: EdgeInsets.zero,
-                        shape: RoundedRectangleBorder(
-                            borderRadius: youRadius),
+                        shape: RoundedRectangleBorder(borderRadius: youRadius),
                       ),
                       child: const Text(
                         "You",
                         style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 14,
-                            fontWeight: FontWeight.bold),
+                          color: Colors.white,
+                          fontSize: 14,
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
                     ),
                   ),
@@ -340,7 +348,6 @@ class _ActivityState extends State<Activity> {
                     fontSize: 25,
                     fontWeight: FontWeight.bold,
                     color: Colors.white,
-                    fontFamily: "Roboto",
                   ),
                 ),
                 const SizedBox(height: 5),
@@ -348,7 +355,7 @@ class _ActivityState extends State<Activity> {
               ],
             ),
           ),
- 
+
           if (_selectedIndex == 0) ...[
             buildFollowRectangle(
               username: "umaylovesmus1c",
@@ -361,7 +368,8 @@ class _ActivityState extends State<Activity> {
               album: "DeBÍ TiRAR MáS FOToS",
               artist: "Bad Bunny",
               rating: 4,
-              comment: "THE summer album of 2025, manifesting this energy for me and my girlies. Cover photo is so meaningful too i love this album so much omg. Bad Bunny rly created a masterpiece i will be blasting this song all day everyday",
+              comment:
+                  "THE summer album of 2025, manifesting this energy for me and my girlies. Cover photo is so meaningful too i love this album so much omg. Bad Bunny rly created a masterpiece i will be blasting this song all day everyday",
               imageAssetPath: "assets/dtmf.png",
               profileImage: "assets/umay.png",
               timeAgo: "3h",
@@ -374,8 +382,8 @@ class _ActivityState extends State<Activity> {
                   style: TextStyle(color: Colors.white, fontSize: 16),
                 ),
               ),
-            )
-          ]
+            ),
+          ],
         ],
       ),
     );

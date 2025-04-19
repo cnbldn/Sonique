@@ -31,7 +31,9 @@ class _ArtistPageState extends State<ArtistPage> {
                   height: 322,
                   decoration: const BoxDecoration(
                     image: DecorationImage(
-                      image: AssetImage('assets/buyukevablukada_headerimage.jpg'),
+                      image: AssetImage(
+                        'assets/buyukevablukada_headerimage.jpg',
+                      ),
                       fit: BoxFit.cover,
                     ),
                   ),
@@ -77,7 +79,7 @@ class _ArtistPageState extends State<ArtistPage> {
                             style: const TextStyle(
                               color: Colors.white,
                               fontSize: 32,
-                              fontFamily: 'Roboto',
+
                               fontWeight: FontWeight.w700,
                             ),
                           ),
@@ -97,11 +99,11 @@ class _ArtistPageState extends State<ArtistPage> {
                                 children: [
                                   TextSpan(
                                     text:
-                                    'Büyük Ev Ablukada is a Turkish music group founded in ',
+                                        'Büyük Ev Ablukada is a Turkish music group founded in ',
                                     style: TextStyle(
                                       color: Color(0xFFAAAAAA),
                                       fontSize: 14,
-                                      fontFamily: 'Roboto',
+
                                       fontWeight: FontWeight.w700,
                                     ),
                                   ),
@@ -110,19 +112,19 @@ class _ArtistPageState extends State<ArtistPage> {
                                     style: TextStyle(
                                       color: Color(0xFFAAAAAA),
                                       fontSize: 14,
-                                      fontFamily: 'Roboto',
+
                                       fontWeight: FontWeight.w700,
                                       decoration: TextDecoration.underline,
                                     ),
                                   ),
                                   TextSpan(
                                     text:
-                                    ' in 2008. The band was started by Cem Yılmazer (a.k.a. Afordisman Salihins) '
+                                        ' in 2008. The band was started by Cem Yılmazer (a.k.a. Afordisman Salihins) '
                                         'and Bartu Küçükçağlayan (a.k.a. Canavar Banavar.) After some time the band...',
                                     style: TextStyle(
                                       color: Color(0xFFAAAAAA),
                                       fontSize: 14,
-                                      fontFamily: 'Roboto',
+
                                       fontWeight: FontWeight.w700,
                                     ),
                                   ),
@@ -143,7 +145,7 @@ class _ArtistPageState extends State<ArtistPage> {
                           style: TextStyle(
                             color: Color(0xFFAAAAAA),
                             fontSize: 20,
-                            fontFamily: 'Roboto',
+
                             fontWeight: FontWeight.w700,
                           ),
                         ),
@@ -156,7 +158,7 @@ class _ArtistPageState extends State<ArtistPage> {
                           style: TextStyle(
                             color: Color(0xFFAAAAAA),
                             fontSize: 14,
-                            fontFamily: 'Roboto',
+
                             fontWeight: FontWeight.w400,
                           ),
                         ),
@@ -170,7 +172,7 @@ class _ArtistPageState extends State<ArtistPage> {
                           style: TextStyle(
                             color: Color(0xFFAAAAAA),
                             fontSize: 20,
-                            fontFamily: 'Roboto',
+
                             fontWeight: FontWeight.w700,
                           ),
                         ),
@@ -183,7 +185,7 @@ class _ArtistPageState extends State<ArtistPage> {
                           style: TextStyle(
                             color: Color(0xFFAAAAAA),
                             fontSize: 14,
-                            fontFamily: 'Roboto',
+
                             fontWeight: FontWeight.w400,
                           ),
                         ),
@@ -198,7 +200,7 @@ class _ArtistPageState extends State<ArtistPage> {
                           style: TextStyle(
                             color: Colors.white,
                             fontSize: 20,
-                            fontFamily: 'Roboto',
+
                             fontWeight: FontWeight.w700,
                           ),
                         ),
@@ -212,7 +214,7 @@ class _ArtistPageState extends State<ArtistPage> {
                           style: TextStyle(
                             color: Colors.white,
                             fontSize: 14,
-                            fontFamily: 'Roboto',
+
                             fontWeight: FontWeight.w700,
                           ),
                         ),
@@ -242,7 +244,7 @@ class _ArtistPageState extends State<ArtistPage> {
                   style: TextStyle(
                     color: Colors.white,
                     fontSize: 20,
-                    fontFamily: 'Roboto',
+
                     fontWeight: FontWeight.w700,
                   ),
                 ),
@@ -254,21 +256,33 @@ class _ArtistPageState extends State<ArtistPage> {
               Positioned(
                 top: 640,
                 left: 0,
-                child: _buildSongRow(index: '1', title: 'Hoşçakal Kadar', rating: '4.2 / 5'),
+                child: _buildSongRow(
+                  index: '1',
+                  title: 'Hoşçakal Kadar',
+                  rating: '4.2 / 5',
+                ),
               ),
 
               // Song 2 => top: 716
               Positioned(
                 top: 706,
                 left: 0,
-                child: _buildSongRow(index: '2', title: 'En Güzel Yerinde Evin', rating: '4 / 5'),
+                child: _buildSongRow(
+                  index: '2',
+                  title: 'En Güzel Yerinde Evin',
+                  rating: '4 / 5',
+                ),
               ),
 
               // Song 3 => top: 792
               Positioned(
                 top: 772,
                 left: 0,
-                child: _buildSongRow(index: '3', title: 'Güneş Yerinde', rating: '4.1 / 5'),
+                child: _buildSongRow(
+                  index: '3',
+                  title: 'Güneş Yerinde',
+                  rating: '4.1 / 5',
+                ),
               ),
 
               // =============== 5) OPTIONAL: SONG 4 + SONG 5 ==============
@@ -277,13 +291,21 @@ class _ArtistPageState extends State<ArtistPage> {
                 Positioned(
                   top: 838, // 792 + 64 + 12 = 868 (some spacing after 3rd song)
                   left: 0,
-                  child: _buildSongRow(index: '4', title: 'İhtimallerin Heyecanına Üzülüyorum', rating: '3.8 / 5'),
+                  child: _buildSongRow(
+                    index: '4',
+                    title: 'İhtimallerin Heyecanına Üzülüyorum',
+                    rating: '3.8 / 5',
+                  ),
                 ),
               if (_expanded)
                 Positioned(
                   top: 904, // 868 + 64 + 12 = 944
                   left: 0,
-                  child: _buildSongRow(index: '5', title: 'Beklediğim Gibiyim', rating: '4.6 / 5'),
+                  child: _buildSongRow(
+                    index: '5',
+                    title: 'Beklediğim Gibiyim',
+                    rating: '4.6 / 5',
+                  ),
                 ),
 
               // =============== 6) The Toggle Arrow Container =============
@@ -330,7 +352,7 @@ class _ArtistPageState extends State<ArtistPage> {
                   style: TextStyle(
                     color: Colors.white,
                     fontSize: 20,
-                    fontFamily: 'Roboto',
+
                     fontWeight: FontWeight.w700,
                   ),
                 ),
@@ -340,19 +362,20 @@ class _ArtistPageState extends State<ArtistPage> {
               // you keep your older approach. For demonstration:
               // top => +some offset from the heading
               Positioned(
-                top: _expanded ? 1070 : 930,   // keep your original Y‑offsets
+                top: _expanded ? 1070 : 930, // keep your original Y‑offsets
                 left: 16,
-                right: 16,                      // 16‑px margin ⇒ 4/3 × 12‑px middle gap
+                right: 16, // 16‑px margin ⇒ 4/3 × 12‑px middle gap
                 child: Builder(
                   builder: (context) {
-                    final double screen   = MediaQuery.of(context).size.width;
-                    const double leftPad  = 16;
+                    final double screen = MediaQuery.of(context).size.width;
+                    const double leftPad = 16;
                     const double rightPad = 16;
-                    const double midGap   = 12;
-                    final double cardW    = (screen - leftPad - rightPad - midGap) / 2;
+                    const double midGap = 12;
+                    final double cardW =
+                        (screen - leftPad - rightPad - midGap) / 2;
 
                     return Wrap(
-                      spacing: midGap,          // gap between the two cards
+                      spacing: midGap, // gap between the two cards
                       runSpacing: 12,
                       children: [
                         _buildAlbumCard(
@@ -395,7 +418,6 @@ class _ArtistPageState extends State<ArtistPage> {
                   },
                 ),
               ),
-
             ],
           ),
         ),
@@ -403,7 +425,7 @@ class _ArtistPageState extends State<ArtistPage> {
     );
   }
 
-// --- SONG ROW (64 px) -------------------------------------------------
+  // --- SONG ROW (64 px) -------------------------------------------------
   Widget _buildSongRow({
     required String index,
     required String title,
@@ -423,7 +445,7 @@ class _ArtistPageState extends State<ArtistPage> {
               style: const TextStyle(
                 color: Color(0xFFAAAAAA),
                 fontSize: 14,
-                fontFamily: 'Roboto',
+
                 fontWeight: FontWeight.w400,
               ),
             ),
@@ -440,7 +462,7 @@ class _ArtistPageState extends State<ArtistPage> {
                     style: const TextStyle(
                       color: Colors.white,
                       fontSize: 14,
-                      fontFamily: 'Roboto',
+
                       fontWeight: FontWeight.w500,
                     ),
                   ),
@@ -449,7 +471,7 @@ class _ArtistPageState extends State<ArtistPage> {
                     style: TextStyle(
                       color: Color(0xFFAAAAAA),
                       fontSize: 14,
-                      fontFamily: 'Roboto',
+
                       fontWeight: FontWeight.w400,
                     ),
                   ),
@@ -470,7 +492,7 @@ class _ArtistPageState extends State<ArtistPage> {
                   style: const TextStyle(
                     color: Colors.white,
                     fontSize: 14,
-                    fontFamily: 'Roboto',
+
                     fontWeight: FontWeight.w700,
                   ),
                 ),
@@ -482,18 +504,18 @@ class _ArtistPageState extends State<ArtistPage> {
     );
   }
 
-// ---------- ALBUM CARD (dynamic width + big stars + tint) -------------
+  // ---------- ALBUM CARD (dynamic width + big stars + tint) -------------
   Widget _buildAlbumCard({
-    required double width,           // calculated in the Wrap
+    required double width, // calculated in the Wrap
     required String cover,
     required String albumTitle,
     required String artist,
-    int greyCount = 0,               // ← number of stars to tint #D9D9D9 (0‑5)
+    int greyCount = 0, // ← number of stars to tint #D9D9D9 (0‑5)
   }) {
-    const double starSize = 24;      // same size as the Average‑Rating star
-    final double coverSize = width;  // square cover
-    final double starsTop  = coverSize + 8;
-    final double titleTop  = starsTop + starSize + 6;
+    const double starSize = 24; // same size as the Average‑Rating star
+    final double coverSize = width; // square cover
+    final double starsTop = coverSize + 8;
+    final double titleTop = starsTop + starSize + 6;
     final double artistTop = titleTop + 19;
 
     return Container(
@@ -535,7 +557,7 @@ class _ArtistPageState extends State<ArtistPage> {
                     ),
                     child: Image.asset(
                       'assets/star.png',
-                      width: starSize/1.25,
+                      width: starSize / 1.25,
                       height: starSize,
                     ),
                   ),
@@ -555,7 +577,7 @@ class _ArtistPageState extends State<ArtistPage> {
               style: const TextStyle(
                 color: Colors.white,
                 fontSize: 14,
-                fontFamily: 'Roboto',
+
                 fontWeight: FontWeight.w700,
               ),
             ),
@@ -572,7 +594,7 @@ class _ArtistPageState extends State<ArtistPage> {
               style: const TextStyle(
                 color: Color(0xFFAAAAAA),
                 fontSize: 14,
-                fontFamily: 'Roboto',
+
                 fontWeight: FontWeight.w400,
               ),
             ),
@@ -581,7 +603,6 @@ class _ArtistPageState extends State<ArtistPage> {
       ),
     );
   }
-
 
   // Example single album "row" or "card"
   Widget _buildAlbum(String title) {
@@ -596,7 +617,7 @@ class _ArtistPageState extends State<ArtistPage> {
           style: const TextStyle(
             color: Colors.white,
             fontSize: 14,
-            fontFamily: 'Roboto',
+
             fontWeight: FontWeight.w500,
           ),
         ),

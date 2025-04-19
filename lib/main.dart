@@ -1,32 +1,21 @@
 import 'package:flutter/material.dart';
+import 'package:sonique/navigator.dart';
 import 'package:sonique/routes/welcome.dart';
 import 'package:sonique/routes/login.dart';
 import 'package:sonique/routes/signup.dart';
-import 'package:sonique/routes/home.dart';
-import 'package:sonique/routes/rate.dart';
-import 'package:sonique/routes/artist_page.dart';
-import 'package:sonique/routes/search.dart';
-import 'package:sonique/routes/my_profile.dart';
-import'package:sonique/routes/profile.dart';
-import 'package:sonique/routes/activity.dart';
 
 void main() {
   runApp(
     MaterialApp(
+      theme: ThemeData(fontFamily: 'Inter'),
       title: 'Sonique',
-      initialRoute: '/login',
       routes: {
         '/': (context) => Welcome(),
         '/signup': (context) => Signup(),
         '/login': (context) => Login(),
-        '/home': (context) => Home(),
-        '/rate': (context) => Rate(),
-        '/artist': (context) => ArtistPage(),
-        '/search': (context) => Search(),
-        '/my_profile': (context) => myProfile(),
-        '/profile': (context) => Profile(),
-        '/activity': (context) => Activity(),
+        '/mainNavigator': (context) => MainNavigator(),
       },
+      initialRoute: '/',
     ),
   );
 }

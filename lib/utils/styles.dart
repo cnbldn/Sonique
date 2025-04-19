@@ -24,6 +24,14 @@ class AppTextStyles {
   );
 
   //home
+
+  // general
+  static const sectionHeader = TextStyle(
+    color: Colors.white,
+    fontSize: 20,
+    fontFamily: 'Inter',
+    fontWeight: FontWeight.w700,
+  );
 }
 
 class AppBorders {

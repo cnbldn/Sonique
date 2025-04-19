@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:sonique/utils/colors.dart';
+import 'package:sonique/utils/widgets.dart';
+import 'package:sonique/utils/styles.dart';
 
 class Search extends StatelessWidget {
   const Search({Key? key}) : super(key: key);
@@ -59,7 +61,6 @@ class Search extends StatelessWidget {
                       style: TextStyle(
                         color: Colors.white,
                         fontSize: 25,
-                        fontFamily: 'Roboto',
                         fontWeight: FontWeight.w700,
                       ),
                     ),
@@ -99,7 +100,7 @@ class Search extends StatelessWidget {
                 Positioned(
                   top: _Offsets.trendingTop + 40,
                   left: hPad,
-                  child: _header('Trending'),
+                  child: Text('Trending', style: AppTextStyles.sectionHeader),
                 ),
                 Positioned(
                   top: _Offsets.trendingTop + 30 + 55,
@@ -107,14 +108,14 @@ class Search extends StatelessWidget {
                   right: hPad,
                   child: Row(
                     children: [
-                      _tile(
+                      genreTile(
                         'assets/new_releases.png',
                         'New\nReleases',
                         tileW,
                         tileH,
                       ),
                       const SizedBox(width: gap),
-                      _tile(
+                      genreTile(
                         'assets/popular.png',
                         'Popular\nThis Week',
                         tileW,
@@ -126,7 +127,7 @@ class Search extends StatelessWidget {
                 Positioned(
                   top: _Offsets.genresTop + 15,
                   left: hPad,
-                  child: _header('Genres'),
+                  child: Text('Genres', style: AppTextStyles.sectionHeader),
                 ),
                 Positioned(
                   top: _Offsets.genresTop + 60,
@@ -140,7 +141,12 @@ class Search extends StatelessWidget {
                         SizedBox(
                           width: tileW,
                           height: tileH,
-                          child: _tile(genre.asset, genre.label, tileW, tileH),
+                          child: genreTile(
+                            genre.asset,
+                            genre.label,
+                            tileW,
+                            tileH,
+                          ),
                         ),
                     ],
                   ),
@@ -148,46 +154,6 @@ class Search extends StatelessWidget {
               ],
             ),
           ),
-        ),
-      ),
-    );
-  }
-
-  Widget _header(String txt) => Text(
-    txt,
-    style: const TextStyle(
-      color: Colors.white,
-      fontSize: 20,
-      fontFamily: 'Roboto',
-      fontWeight: FontWeight.w700,
-    ),
-  );
-
-  Widget _tile(String asset, String label, double w, double h) {
-    return GestureDetector(
-      onTap: () => debugPrint('Tapped $label'),
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(10),
-        child: Stack(
-          children: [
-            Image.asset(asset, width: w, height: h, fit: BoxFit.cover),
-            Container(color: const Color(0x55000000)),
-            Padding(
-              padding: const EdgeInsets.all(12),
-              child: Align(
-                alignment: Alignment.topLeft,
-                child: Text(
-                  label,
-                  style: const TextStyle(
-                    color: Colors.white,
-                    fontSize: 18,
-                    fontFamily: 'Roboto',
-                    fontWeight: FontWeight.w700,
-                  ),
-                ),
-              ),
-            ),
-          ],
         ),
       ),
     );
