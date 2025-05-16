@@ -16,7 +16,7 @@ class AuthService{
       final user = result.user;
 
       await _firestore.collection('users').doc(user!.uid).set({
-        'email:': email,
+        'email': email,
         'username': username,
         'createdAt': FieldValue.serverTimestamp(),
       });
@@ -24,7 +24,7 @@ class AuthService{
       return user;
 
     } on FirebaseAuthException catch (e) {
-      throw Exception(e);
+      throw Exception(e.message);
     }
   }
 
@@ -63,4 +63,6 @@ class AuthService{
   }
 
   Stream<User?> get authStateChanges => _auth.authStateChanges();
+  User? get currentUser => _auth.currentUser;
+
 }
