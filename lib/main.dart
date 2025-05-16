@@ -3,8 +3,12 @@ import 'package:sonique/navigator.dart';
 import 'package:sonique/routes/welcome.dart';
 import 'package:sonique/routes/login.dart';
 import 'package:sonique/routes/signup.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'firebase_options.dart';
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
   runApp(
     MaterialApp(
       theme: ThemeData(fontFamily: 'Inter'),

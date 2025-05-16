@@ -32,7 +32,7 @@ class _ArtistPageState extends State<ArtistPage> {
                   decoration: const BoxDecoration(
                     image: DecorationImage(
                       image: AssetImage(
-                        'assets/buyukevablukada_headerimage.jpg',
+                        'assets/buyukievablukada_headerimage.jpg',
                       ),
                       fit: BoxFit.cover,
                     ),
