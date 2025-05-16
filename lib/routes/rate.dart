@@ -4,7 +4,9 @@ import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:intl/intl.dart';
 
 class Rate extends StatefulWidget {
-  const Rate({super.key});
+  final dynamic album;
+  const Rate({super.key, required this.album});
+
   @override
   State<Rate> createState() => _RateState();
 }
@@ -44,24 +46,13 @@ class _RateState extends State<Rate> {
         ),
         backgroundColor: AppColors.w_background,
         centerTitle: true,
-        leading: IconButton(
-          onPressed: () {
-            Navigator.pop(context);
-          },
-          icon: Icon(Icons.arrow_back_ios),
-          color: Colors.white,
-        ),
 
         actions: [
           Padding(
             padding: const EdgeInsets.all(8.0),
             child: ElevatedButton(
               onPressed: () {
-                print("Published");
-                print("$_rating");
-                print(_reviewController.text);
-                print("$_selectedDate");
-                print("$_isChecked");
+                // PUSH TO DATABASE
               },
               style: ElevatedButton.styleFrom(
                 backgroundColor: AppColors.sonique_purple,
@@ -88,7 +79,7 @@ class _RateState extends State<Rate> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          "Aç Kurtlar Mixtape",
+                          widget.album['name'],
                           style: TextStyle(
                             color: Colors.white,
                             fontSize: 16.0,
@@ -96,7 +87,9 @@ class _RateState extends State<Rate> {
                           ),
                         ),
                         Text(
-                          "APL",
+                          widget.album['artists']
+                              .map((a) => a['name'])
+                              .join(', '),
                           style: TextStyle(
                             color: Colors.white,
                             fontSize: 16.0,
@@ -140,10 +133,13 @@ class _RateState extends State<Rate> {
                     children: [
                       ClipRRect(
                         borderRadius: BorderRadius.circular(10.0),
-                        child: Image.asset(
-                          'assets/kapak.png',
-                          width: 70,
-                          height: 70,
+                        child: Image.network(
+                          widget.album['images'] != null &&
+                                  widget.album['images'].isNotEmpty
+                              ? widget.album['images'][0]['url']
+                              : 'https://via.placeholder.com/100', // fallback if no image
+                          width: 100,
+                          height: 100,
                           fit: BoxFit.cover,
                         ),
                       ),

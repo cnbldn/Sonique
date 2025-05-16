@@ -1,18 +1,19 @@
-import 'dart:convert';
 import 'package:flutter/material.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'dart:convert';
 import 'package:http/http.dart' as http;
-import 'package:sonique/routes/rate.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 
-class search_songs extends StatefulWidget {
-  const search_songs({super.key});
+class search_albums extends StatefulWidget {
+  final Function(dynamic) onAlbumSelected;
+  const search_albums({super.key, required this.onAlbumSelected});
+
   @override
-  State<search_songs> createState() => _search_songsState();
+  State<search_albums> createState() => _search_albumsState();
 }
 
-class _search_songsState extends State<search_songs> {
+class _search_albumsState extends State<search_albums> {
   final TextEditingController _controller = TextEditingController();
-  List<dynamic> _songs = [];
+  List<dynamic> _albums = [];
   String? _accessToken;
 
   @override
@@ -53,14 +54,14 @@ class _search_songsState extends State<search_songs> {
     }
   }
 
-  Future<void> _searchSongs(String query) async {
+  Future<void> _searchAlbums(String query) async {
     if (_accessToken == null || query.isEmpty) {
       print('Access token is null or query is empty');
       return;
     }
 
     final url = Uri.parse(
-      'https://api.spotify.com/v1/search?q=$query&type=track&limit=10',
+      'https://api.spotify.com/v1/search?q=$query&type=album&limit=10',
     );
 
     try {
@@ -75,9 +76,9 @@ class _search_songsState extends State<search_songs> {
       if (response.statusCode == 200) {
         final data = json.decode(response.body);
         setState(() {
-          _songs = data['tracks']['items'];
+          _albums = data['albums']['items'];
         });
-        print('Songs found: ${_songs.length}');
+        print('Albums found: ${_albums.length}');
       } else {
         debugPrint('Search failed: ${response.body}');
       }
@@ -89,7 +90,7 @@ class _search_songsState extends State<search_songs> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Spotify Song Search')),
+      appBar: AppBar(title: const Text('Spotify Albums Search')),
       body: Padding(
         padding: const EdgeInsets.all(12.0),
         child: Column(
@@ -97,32 +98,39 @@ class _search_songsState extends State<search_songs> {
             TextField(
               controller: _controller,
               decoration: InputDecoration(
-                hintText: 'Search for songs...',
+                hintText: 'Search for albums...',
                 suffixIcon: IconButton(
                   icon: const Icon(Icons.search),
-                  onPressed: () => _searchSongs(_controller.text),
+                  onPressed: () => _searchAlbums(_controller.text),
                 ),
               ),
-              onSubmitted: _searchSongs,
+              onSubmitted: _searchAlbums,
             ),
             const SizedBox(height: 10),
             Expanded(
               child: ListView.builder(
-                itemCount: _songs.length,
+                itemCount: _albums.length,
                 itemBuilder: (context, index) {
-                  final track = _songs[index];
+                  final album = _albums[index];
                   return ListTile(
-                    leading: Image.network(
-                      track['album']['images'][0]['url'],
-                      width: 50,
-                      height: 50,
-                      fit: BoxFit.cover,
-                    ),
-                    title: Text(track['name']),
+                    leading:
+                        album['images'] != null && album['images'].isNotEmpty
+                            ? Image.network(
+                              album['images'][0]['url'],
+                              width: 50,
+                              height: 50,
+                              fit: BoxFit.cover,
+                            )
+                            : SizedBox(width: 50, height: 50),
+                    title: Text(album['name']),
                     subtitle: Text(
-                      track['artists'].map((a) => a['name']).join(', '),
+                      album['artists'].map((a) => a['name']).join(', '),
                     ),
-                    onTap: () {},
+                    onTap: () {
+                      widget.onAlbumSelected(
+                        album,
+                      ); // this passes the album back
+                    },
                   );
                 },
               ),
