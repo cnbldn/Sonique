@@ -150,7 +150,10 @@ class _LoginState extends State<Login> {
                     _formKey.currentState!.save();
                     print('Email $email Password $pass');
                     setState(() {
-                      Navigator.pushNamed(context, '/mainNavigator');
+                      Navigator.of(context).pushNamedAndRemoveUntil(
+                        '/mainNavigator',
+                        (Route<dynamic> route) => false,
+                      );
                     });
                   } else {
                     _loginErrorDialogBuilder(

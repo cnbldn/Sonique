@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:sonique/routes/add_rating.dart';
 import 'package:sonique/routes/welcome.dart';
 import 'package:sonique/routes/login.dart';
 import 'package:sonique/routes/signup.dart';
@@ -8,6 +9,7 @@ import 'package:sonique/routes/artist_page.dart';
 import 'package:sonique/routes/search.dart';
 import 'package:sonique/routes/my_profile.dart';
 import 'package:sonique/routes/profile.dart';
+import 'package:sonique/routes/search_songs.dart';
 import 'package:sonique/routes/activity.dart';
 import 'package:sonique/utils/colors.dart';
 import 'package:sonique/utils/widgets.dart';
@@ -26,7 +28,7 @@ class _MainNavigatorState extends State<MainNavigator> {
   final List<Widget> _screens = [
     Home(),
     Search(),
-    Rate(),
+    add_rating(),
     Activity(),
     myProfile(),
   ];
