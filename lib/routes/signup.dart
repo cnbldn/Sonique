@@ -1,5 +1,4 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:email_validator/email_validator.dart';
 import 'package:sonique/utils/colors.dart';
@@ -82,6 +81,7 @@ class _SignupState extends State<Signup> {
                               return 'E-mail not valid';
                             }
                           }
+                          return null;
                         },
                         onSaved: (value) {
                           email = value ?? '';
@@ -103,6 +103,7 @@ class _SignupState extends State<Signup> {
                               return 'username cannot be empty';
                             }
                           }
+                          return null;
                         },
                         onSaved: (value) {
                           username = value ?? '';
@@ -142,6 +143,7 @@ class _SignupState extends State<Signup> {
                               return 'Password must contain at least 6 characters';
                             }
                           }
+                          return null;
                         },
                         onSaved: (value) {
                           pass = value ?? '';
