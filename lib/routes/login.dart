@@ -1,4 +1,3 @@
-import 'package:email_validator/email_validator.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:sonique/utils/colors.dart';
@@ -104,17 +103,15 @@ class _LoginState extends State<Login> {
                           focusedBorder: AppBorders.focusedFormBorder,
                         ),
                         style: AppTextStyles.welcomeSmall,
-                        validator: (value) {
-                          if (value != null) {
-                            if (value.isEmpty) {
+                          validator: (value) {
+                            if (value == null || value.isEmpty) {
                               return 'Password cannot be empty';
-                            }
-                            if (value.length < 6) {
+                            } else if (value.length < 6) {
                               return 'Password must contain at least 6 characters';
                             }
-                          }
-                        },
-                        onSaved: (value) {
+                            return null;
+                          },
+                          onSaved: (value) {
                           pass = value ?? '';
                         },
                       ),
