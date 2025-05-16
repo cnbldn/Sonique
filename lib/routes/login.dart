@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:sonique/utils/colors.dart';
 import 'package:sonique/utils/styles.dart';
 import 'package:sonique/utils/widgets.dart';
+import 'package:sonique/services/auth_service.dart';
 
 class Login extends StatefulWidget {
   const Login({super.key});
@@ -61,7 +62,7 @@ class _LoginState extends State<Login> {
                     spacing: 15,
                     children: [
                       TextFormField(
-                        keyboardType: TextInputType.emailAddress,
+                        keyboardType: TextInputType.text,
                         decoration: InputDecoration(
                           labelText: 'Email',
                           fillColor: AppColors.button,
@@ -71,18 +72,12 @@ class _LoginState extends State<Login> {
                         ),
                         style: AppTextStyles.welcomeSmall,
                         validator: (value) {
-                          if (value != null) {
-                            if (value.isEmpty) {
-                              return 'E-mail cannot be empty';
-                            }
-                            if (!EmailValidator.validate(value)) {
-                              return 'E-mail not valid';
-                            }
+                          if (value == null || value.isEmpty) {
+                            return 'Email cannot be empty';
                           }
+                          return null;
                         },
-                        onSaved: (value) {
-                          email = value ?? '';
-                        },
+                        onSaved: (value) => email = value ?? '',
                       ),
                       TextFormField(
                         keyboardType: TextInputType.text,
@@ -109,17 +104,15 @@ class _LoginState extends State<Login> {
                           focusedBorder: AppBorders.focusedFormBorder,
                         ),
                         style: AppTextStyles.welcomeSmall,
-                        validator: (value) {
-                          if (value != null) {
-                            if (value.isEmpty) {
+                          validator: (value) {
+                            if (value == null || value.isEmpty) {
                               return 'Password cannot be empty';
-                            }
-                            if (value.length < 6) {
+                            } else if (value.length < 6) {
                               return 'Password must contain at least 6 characters';
                             }
-                          }
-                        },
-                        onSaved: (value) {
+                            return null;
+                          },
+                          onSaved: (value) {
                           pass = value ?? '';
                         },
                       ),
@@ -144,18 +137,28 @@ class _LoginState extends State<Login> {
               child: WelcomeButton(
                 text: 'Log In',
                 inverted: true,
-                onPressed: () {
-                  if (_formKey.currentState!.validate()) {
-                    print('Email $email Password $pass');
+                onPressed: () async{
+                  if(_formKey.currentState!.validate()){
                     _formKey.currentState!.save();
-                    print('Email $email Password $pass');
-                    setState(() {
-                      Navigator.of(context).pushNamedAndRemoveUntil(
-                        '/mainNavigator',
-                        (Route<dynamic> route) => false,
+
+                    try{
+                      final user = await AuthService().logIn(email, pass);
+
+                      if(user != null){
+                        Navigator.of(context).pushNamedAndRemoveUntil(
+                          '/mainNavigator',
+                              (Route<dynamic> route) => false,
+                        );
+                      }
+                    }
+                    catch (e) {
+                      _loginErrorDialogBuilder(
+                          'Login Failed',
+                          e.toString().replaceAll('Exception:', '').trim()
                       );
-                    });
-                  } else {
+                    }
+                  }
+                  else {
                     _loginErrorDialogBuilder(
                       'Form Error',
                       'Your form is invalid',

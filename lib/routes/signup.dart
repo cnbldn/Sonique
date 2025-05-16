@@ -1,8 +1,10 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:email_validator/email_validator.dart';
 import 'package:sonique/utils/colors.dart';
 import 'package:sonique/utils/styles.dart';
 import 'package:sonique/utils/widgets.dart';
+import 'package:sonique/services/auth_service.dart';
 
 class Signup extends StatefulWidget {
   const Signup({super.key});
@@ -16,6 +18,7 @@ class _SignupState extends State<Signup> {
   bool _passwordVisible = false;
   String email = '';
   String pass = '';
+  String username = '';
 
   Future<void> _loginErrorDialogBuilder(String title, String content) async {
     return showDialog(
@@ -78,6 +81,7 @@ class _SignupState extends State<Signup> {
                               return 'E-mail not valid';
                             }
                           }
+                          return null;
                         },
                         onSaved: (value) {
                           email = value ?? '';
@@ -93,6 +97,17 @@ class _SignupState extends State<Signup> {
                           focusedBorder: AppBorders.focusedFormBorder,
                         ),
                         style: AppTextStyles.welcomeSmall,
+                        validator: (value) {
+                          if (value != null) {
+                            if (value.isEmpty) {
+                              return 'username cannot be empty';
+                            }
+                          }
+                          return null;
+                        },
+                        onSaved: (value) {
+                          username = value ?? '';
+                        },
                       ),
                       TextFormField(
                         keyboardType: TextInputType.text,
@@ -128,6 +143,7 @@ class _SignupState extends State<Signup> {
                               return 'Password must contain at least 6 characters';
                             }
                           }
+                          return null;
                         },
                         onSaved: (value) {
                           pass = value ?? '';
@@ -143,20 +159,40 @@ class _SignupState extends State<Signup> {
               child: WelcomeButton(
                 text: 'Sign Up',
                 inverted: true,
-                onPressed: () {
-                  if (_signupFormKey.currentState!.validate()) {
-                    print('Email $email Password $pass');
+                onPressed: () async {
+                  if(_signupFormKey.currentState!.validate()){
                     _signupFormKey.currentState!.save();
-                    print('Email $email Password $pass');
-                    setState(() {
-                      print('signup successful');
-                      Navigator.pushNamed(context, '/');
-                    });
+
+                    try{
+                      final existing = await FirebaseFirestore.instance
+                          .collection('users')
+                          .where('username', isEqualTo: username)
+                          .limit(1)
+                          .get();
+
+                      if(existing.docs.isNotEmpty){
+                        _signupFormKey.currentState!.validate();
+                        setState(() {});
+                        throw Exception("Username taken");
+                      }
+
+                      final user = await AuthService().signUp(email, pass, username);
+
+                      if(user != null){
+                        Navigator.of(context).pushNamedAndRemoveUntil(
+                          "/",
+                              (Route<dynamic> route) => false,
+                        );
+                      }
+                    }
+                    catch (e) {
+                      _loginErrorDialogBuilder(
+                      "Signup Failed",
+                          e.toString().replaceAll("Exception:", '').trim(),
+                      );
+                    }
                   } else {
-                    _loginErrorDialogBuilder(
-                      'Form Error',
-                      'Your form is invalid',
-                    );
+                    _loginErrorDialogBuilder('Form Error','Your form is invalid');
                   }
                 },
               ),
