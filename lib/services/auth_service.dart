@@ -34,7 +34,7 @@ class AuthService{
 
       if (!input.contains('@')) {
         final query = await _firestore
-            .collectio('users')
+            .collection('users')
             .where('username', isEqualTo: input)
             .limit(1)
             .get();
