@@ -1,7 +1,11 @@
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:sonique/utils/colors.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:image_picker/image_picker.dart';
 
 class myProfile extends StatefulWidget {
   const myProfile({super.key});
@@ -53,7 +57,64 @@ class _myProfileState extends State<myProfile> {
     );
   }
 
+  String? _username;
+  String? _displayName;
+  String? _bio;
+  bool _isLoading = true;
+  final ImagePicker _picker = ImagePicker();
+  String? _profilePicUrl;
+  int _followersCount = 0;
+  int _followingCount = 0;
+  int _ratingsCount = 0;
+
+  Future<void> pickAndLoadImage() async{
+    final uid = FirebaseAuth.instance.currentUser?.uid;
+    final pickedFile = await _picker .pickImage(source: ImageSource.gallery);
+
+    if (pickedFile != null && uid != null){
+      final file = pickedFile.readAsBytes();
+      final ref = FirebaseStorage.instance.ref().child('profile_pics/$uid.jpg');
+
+      await ref.putData(await file);
+      final downloadUrl = await ref.getDownloadURL();
+
+      await FirebaseFirestore.instance.collection('users').doc(uid).update({
+        'profilePic': downloadUrl,
+      });
+
+      setState(() {
+        _profilePicUrl = downloadUrl;
+      });
+    }
+  }
+
   @override
+  void initState() {
+    super.initState();
+    _loadUserInfo();
+  }
+
+  Future<void> _loadUserInfo() async{
+    final uid = FirebaseAuth.instance.currentUser?.uid;
+    if(uid !=  null){
+      final doc = await FirebaseFirestore.instance.collection('users').doc(uid).get();
+      final data = doc.data();
+
+      final reviewsQuerry = await FirebaseFirestore.instance.collection('users').doc(uid).collection('reviews').get();
+
+      setState(() {
+        _username = data?['username'] ?? "User";
+        _displayName = data?['displayName'] ?? _username;
+        _bio = data?['bio'] ?? "Hey, I'm a Sonique user!";
+        _profilePicUrl = data?['profilePic'];
+        _followersCount = (data?['followersCount'] ?? 0);
+        _followingCount = (data?['followingCount'] ?? 0);
+        _ratingsCount = reviewsQuerry.size;
+        _isLoading = false;
+      });
+    }
+  }
+
   Widget build(BuildContext context) {
     final BorderRadiusGeometry homeButtonRadius =
         _selectedIndex == 0
@@ -88,7 +149,7 @@ class _myProfileState extends State<myProfile> {
 
                     Center(
                       child: Text(
-                        "batuhanbaydar",
+                        _isLoading ? "Loading..." : "$_username",
                         style: TextStyle(
                           color: Colors.white,
                           fontWeight: FontWeight.w500,
@@ -99,15 +160,26 @@ class _myProfileState extends State<myProfile> {
                     SizedBox(height: 33),
                     Row(
                       children: [
-                        CircleAvatar(
-                          radius: 39.5,
-                          backgroundImage: AssetImage('assets/batu_pfp.jpeg'),
+                        Container(
+                          width: 79,
+                          height: 79,
+                          decoration: BoxDecoration(
+                            color: Colors.black,
+                            shape: BoxShape.circle
+                          ),
+                          child: CircleAvatar(
+                            radius: 39.5,
+                            backgroundColor: Colors.transparent,
+                            backgroundImage: _profilePicUrl != null
+                                ? NetworkImage(_profilePicUrl!)
+                                : AssetImage('assets/default_pfp.png') as ImageProvider,
+                          ),
                         ),
                         Spacer(),
                         Column(
                           children: [
                             Text(
-                              "24",
+                              _isLoading ? "" : _ratingsCount.toString(),
                               style: TextStyle(
                                 color: AppColors.text,
                                 fontSize: 20,
@@ -128,7 +200,7 @@ class _myProfileState extends State<myProfile> {
                         Column(
                           children: [
                             Text(
-                              "4",
+                              _followersCount.toString(),
                               style: TextStyle(
                                 color: AppColors.text,
                                 fontSize: 20,
@@ -149,7 +221,7 @@ class _myProfileState extends State<myProfile> {
                         Column(
                           children: [
                             Text(
-                              "12",
+                              _followingCount.toString(),
                               style: TextStyle(
                                 color: AppColors.text,
                                 fontSize: 20,
@@ -170,7 +242,7 @@ class _myProfileState extends State<myProfile> {
                     ),
                     SizedBox(height: 15),
                     Text(
-                      "Batu",
+                      _isLoading ? "" : _displayName ?? "",
                       style: TextStyle(
                         color: Colors.white,
                         fontSize: 20,
@@ -179,7 +251,7 @@ class _myProfileState extends State<myProfile> {
                     ),
                     SizedBox(height: 9),
                     Text(
-                      "what can i say i just love music",
+                      _isLoading ? "" :_bio ?? "",
                       style: TextStyle(color: Colors.white, fontSize: 14),
                     ),
                     SizedBox(height: 9),
@@ -520,52 +592,55 @@ class RatingsPageView extends StatefulWidget {
 class _RatingsPageViewState extends State<RatingsPageView> {
   final TextEditingController _searchController = TextEditingController();
 
-  final List<Map<String, dynamic>> ratedAlbums = [
-    {
-      "title": "When The Pawn...",
-      "artist": "Fiona Apple",
-      "image": "assets/when_the_pawn.jpg",
-      "rating": 5.0,
-    },
-    {
-      "title": "brat",
-      "artist": "Charli XCX",
-      "image": "assets/brat.png",
-      "rating": 5.0,
-    },
-    {
-      "title": "Dummy",
-      "artist": "Portishead",
-      "image": "assets/dummy.jpg",
-      "rating": 4.5,
-    },
-    {
-      "title": "Underground",
-      "artist": "Thelonious Monk",
-      "image": "assets/underground.png",
-      "rating": 4.0,
-    },
-    {
-      "title": "Goodbye Yellow Brick Road",
-      "artist": "Elton John",
-      "image": "assets/goodbye_yellow_brick_road.jpg",
-      "rating": 5.0,
-    },
-  ];
-
+  List<Map<String, dynamic>> _ratedAlbums = [];
   String _searchQuery = '';
+  bool _isLoading = true;
 
-  List<Map<String, dynamic>> get _filteredAlbums {
-    if (_searchQuery.isEmpty) return ratedAlbums;
-    return ratedAlbums.where((album) {
-      final title = album['title']!.toLowerCase();
-      final artist = album['artist']!.toLowerCase();
+
+  @override
+
+  void initState() {
+    super.initState();
+    _fetchReviews();
+  }
+
+  Future<void> _fetchReviews() async{
+    final uid = FirebaseAuth.instance.currentUser?.uid;
+    if (uid == null) return;
+
+    final cover = await FirebaseFirestore.instance
+        .collection('users')
+        .doc(uid)
+        .collection('reviews')
+        .orderBy('listenedDate', descending: true)
+        .get();
+
+    final reviews = cover.docs.map((doc) {
+      final data = doc.data();
+      return{
+        "title": data['albumName'] ?? '',
+        "artist": data['artist'] ?? '',
+        "image": data['coverUrl'] ?? '',
+        "rating": data['rating'] ?? 0.0,
+      };
+    }).toList();
+
+    setState(() {
+      _ratedAlbums = reviews;
+      _isLoading = false;
+    });
+  }
+
+  List<Map<String, dynamic>> get _filteredAlbums{
+    if(_searchQuery.isEmpty) return _ratedAlbums;
+    return _ratedAlbums.where((album){
+      final title = album['title'].toLowerCase();
+      final artist = album['artist'].toLowerCase();
       final query = _searchQuery.toLowerCase();
       return title.contains(query) || artist.contains(query);
     }).toList();
   }
 
-  @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.buttonSelected,
@@ -608,7 +683,22 @@ class _RatingsPageViewState extends State<RatingsPageView> {
               ),
               SizedBox(height: 25),
               Expanded(
-                child: GridView.builder(
+                child: _isLoading
+                  ? Center(
+                    child: CircularProgressIndicator(color: Colors.white),
+                )
+                : _filteredAlbums.isEmpty
+                  ? Center(
+                    child: Text(
+                      "No reviews yet",
+                      style: TextStyle(
+                        color: Colors.white70,
+                        fontSize: 18,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                )
+                : GridView.builder(
                   itemCount: _filteredAlbums.length,
                   gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                     crossAxisCount: 2,
@@ -624,11 +714,16 @@ class _RatingsPageViewState extends State<RatingsPageView> {
                       children: [
                         ClipRRect(
                           borderRadius: BorderRadius.circular(10),
-                          child: Image.asset(
+                          child: Image.network(
                             album["image"]!,
                             height: 183,
                             width: double.infinity,
                             fit: BoxFit.cover,
+                            errorBuilder: (context, error, stackTrace) => Container(
+                              height: 183,
+                              color: Colors.grey[900],
+                              child: Icon(Icons.broken_image, color: Colors.white),
+                            ),
                           ),
                         ),
                         SizedBox(height: 16),

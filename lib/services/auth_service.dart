@@ -18,7 +18,11 @@ class AuthService{
       await _firestore.collection('users').doc(user!.uid).set({
         'email': email,
         'username': username,
+        'displayName': username,
+        'bio': "Hey, I'm a Sonique user!",
+        'profilePic': null,
         'createdAt': FieldValue.serverTimestamp(),
+
       });
 
       return user;

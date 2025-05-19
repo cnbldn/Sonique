@@ -57,7 +57,6 @@ class _RateState extends State<Rate> {
             padding: const EdgeInsets.all(8.0),
             child: ElevatedButton(
               onPressed: () async{
-                // PUSH TO DATABASE
                 if (user == null) return;
 
                 final uid = user!.uid;
@@ -73,6 +72,8 @@ class _RateState extends State<Rate> {
                 final comment = _reviewController.text;
                 final isRelisten = _isChecked;
                 final listenedDate = _selectedDate;
+                final artist = widget.album['artists'][0]['name'];
+                final coverUrl = widget.album['images'][0]['url'];
 
                 await firestoreService.postReview
                   (uid: uid,
@@ -82,7 +83,9 @@ class _RateState extends State<Rate> {
                     rating: rating,
                     comment: comment,
                     listenedDate: listenedDate,
-                    isRelisten: isRelisten);
+                    isRelisten: isRelisten,
+                    coverUrl: coverUrl,
+                    artist: artist);
 
                 ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Review Published!")));
               },

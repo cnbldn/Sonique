@@ -12,6 +12,8 @@ class FirestoreService {
     required String comment,
     required DateTime listenedDate,
     required bool isRelisten,
+    required String coverUrl,
+    required String artist
   }) async {
     final _db = FirebaseFirestore.instance;
 
@@ -27,6 +29,8 @@ class FirestoreService {
       'comment': comment,
       'listenedDate': listenedDate,
       'isRelisten': isRelisten,
+      'coverUrl': coverUrl,
+      'artist': artist,
       'createdAt': FieldValue.serverTimestamp(),
     };
 
