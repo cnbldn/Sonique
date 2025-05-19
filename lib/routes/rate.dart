@@ -2,6 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:sonique/utils/colors.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:intl/intl.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:sonique/services/firestore_service.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 class Rate extends StatefulWidget {
   final dynamic album;
@@ -16,6 +19,8 @@ class _RateState extends State<Rate> {
   DateTime _selectedDate = DateTime.now();
   final TextEditingController _reviewController = TextEditingController();
   bool _isChecked = false;
+  final FirestoreService firestoreService = FirestoreService();
+  final User? user = FirebaseAuth.instance.currentUser;
 
   Future<void> _pickDate(BuildContext context) async {
     final DateTime? picked = await showDatePicker(
@@ -51,8 +56,35 @@ class _RateState extends State<Rate> {
           Padding(
             padding: const EdgeInsets.all(8.0),
             child: ElevatedButton(
-              onPressed: () {
+              onPressed: () async{
                 // PUSH TO DATABASE
+                if (user == null) return;
+
+                final uid = user!.uid;
+                final userDoc = await FirebaseFirestore.instance
+                    .collection('users')
+                    .doc(user!.uid)
+                    .get();
+                final username = userDoc.data()?['username'] ?? 'anonymous';
+
+                final albumId = widget.album['id'];
+                final albumName = widget.album['name'];
+                final rating = _rating;
+                final comment = _reviewController.text;
+                final isRelisten = _isChecked;
+                final listenedDate = _selectedDate;
+
+                await firestoreService.postReview
+                  (uid: uid,
+                    username: username,
+                    albumId: albumId,
+                    albumName: albumName,
+                    rating: rating,
+                    comment: comment,
+                    listenedDate: listenedDate,
+                    isRelisten: isRelisten);
+
+                ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Review Published!")));
               },
               style: ElevatedButton.styleFrom(
                 backgroundColor: AppColors.sonique_purple,

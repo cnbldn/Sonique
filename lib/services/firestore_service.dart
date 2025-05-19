@@ -10,16 +10,42 @@ class FirestoreService {
     required String albumName,
     required double rating,
     required String comment,
+    required DateTime listenedDate,
+    required bool isRelisten,
   }) async {
-    await _db.collection('reviews').add({
+    final _db = FirebaseFirestore.instance;
+
+    final reviewId = _db.collection('reviews').doc().id; // 🔥 generate once
+
+    final reviewData = {
+      'id': reviewId, // optional: store the ID in the data
       'userId': uid,
       'username': username,
       'albumId': albumId,
       'albumName': albumName,
       'rating': rating,
       'comment': comment,
+      'listenedDate': listenedDate,
+      'isRelisten': isRelisten,
       'createdAt': FieldValue.serverTimestamp(),
-    });
+    };
+
+    final batch = _db.batch();
+
+    final userReviewRef = _db
+        .collection('users')
+        .doc(uid)
+        .collection('reviews')
+        .doc(reviewId);
+
+    final globalReviewRef = _db
+        .collection('reviews')
+        .doc(reviewId);
+
+    batch.set(userReviewRef, reviewData);
+    batch.set(globalReviewRef, reviewData);
+
+    await batch.commit();
   }
 
   Future<void> followUser(String currentUid, String targetUid) async{
