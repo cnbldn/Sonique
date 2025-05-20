@@ -5,6 +5,7 @@ import 'package:sonique/services/spotify_auth.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:sonique/routes/artist_page.dart';
+import 'package:sonique/routes/profile.dart';
 
 
 class Search extends StatefulWidget {
@@ -153,6 +154,14 @@ class _SearchState extends State<Search> with SingleTickerProviderStateMixin{
             final photoUrl = data['photoUrl'];
 
             return ListTile(
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => Profile(uid: doc.id),
+                  ),
+                );
+              },
               leading: photoUrl != null
                   ? ClipOval(
                 child: Image.network(

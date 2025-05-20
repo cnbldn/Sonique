@@ -2,9 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:sonique/utils/colors.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 class Profile extends StatefulWidget {
-  const Profile({super.key});
+  final String uid;
+
+  const Profile({Key? key, required this.uid}) : super(key: key);
 
   @override
   State<Profile> createState() => _ProfileState();
@@ -14,6 +17,7 @@ class _ProfileState extends State<Profile> {
   int _selectedIndex = 0;
   String? _userLink;
   final TextEditingController _linkController = TextEditingController();
+  Map<String, dynamic>? _userData;
 
   void _showLinkDialog() {
     showDialog(
@@ -54,6 +58,21 @@ class _ProfileState extends State<Profile> {
   }
 
   @override
+
+  void initState() {
+    super.initState();
+    _fetchUserData();
+  }
+
+  Future<void> _fetchUserData() async{
+    final doc = await FirebaseFirestore.instance.collection('users').doc(widget.uid).get();
+    if (doc.exists) {
+      setState(() {
+        _userData = doc.data();
+      });
+    }
+  }
+
   Widget build(BuildContext context) {
     final BorderRadiusGeometry homeButtonRadius =
         _selectedIndex == 0
@@ -88,7 +107,7 @@ class _ProfileState extends State<Profile> {
 
                     Center(
                       child: Text(
-                        "batuhanbaydar",
+                        _userData?['username'] ?? 'username',
                         style: TextStyle(
                           color: Colors.white,
                           fontWeight: FontWeight.w500,
@@ -101,7 +120,9 @@ class _ProfileState extends State<Profile> {
                       children: [
                         CircleAvatar(
                           radius: 39.5,
-                          backgroundImage: AssetImage('assets/batu_pfp.jpeg'),
+                          backgroundImage: _userData?['photoUrl'] != null
+                              ? NetworkImage(_userData!['photoUrl'])
+                              : AssetImage('assets/default_pfp.jpg') as ImageProvider,
                         ),
                         Spacer(),
                         Column(
@@ -170,7 +191,7 @@ class _ProfileState extends State<Profile> {
                     ),
                     SizedBox(height: 15),
                     Text(
-                      "Batu",
+                      _userData?['displayName'] ?? 'User',
                       style: TextStyle(
                         color: Colors.white,
                         fontSize: 20,
@@ -179,7 +200,7 @@ class _ProfileState extends State<Profile> {
                     ),
                     SizedBox(height: 9),
                     Text(
-                      "what can i say i just love music",
+                      _userData?['bio'] ?? 'No bio',
                       style: TextStyle(color: Colors.white, fontSize: 14),
                     ),
                     SizedBox(height: 9),
