@@ -75,20 +75,20 @@ class _ProfileState extends State<Profile> {
 
   Widget build(BuildContext context) {
     final BorderRadiusGeometry homeButtonRadius =
-        _selectedIndex == 0
-            ? BorderRadius.circular(6) // Fully rounded when selected
-            : BorderRadius.only(
-              topLeft: Radius.circular(6),
-              bottomLeft: Radius.circular(6),
-            );
+    _selectedIndex == 0
+        ? BorderRadius.circular(6) // Fully rounded when selected
+        : BorderRadius.only(
+      topLeft: Radius.circular(6),
+      bottomLeft: Radius.circular(6),
+    );
 
     final BorderRadiusGeometry ratingsButtonRadius =
-        _selectedIndex == 1
-            ? BorderRadius.circular(6)
-            : BorderRadius.only(
-              topRight: Radius.circular(6),
-              bottomRight: Radius.circular(6),
-            );
+    _selectedIndex == 1
+        ? BorderRadius.circular(6)
+        : BorderRadius.only(
+      topRight: Radius.circular(6),
+      bottomRight: Radius.circular(6),
+    );
 
     return Scaffold(
       body: Container(
@@ -104,6 +104,15 @@ class _ProfileState extends State<Profile> {
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
                     SizedBox(height: 10),
+
+                    Align(
+                      alignment: Alignment.centerLeft,
+                      child: IconButton(
+                        icon: Icon(Icons.arrow_back, color: Colors.white),
+                        onPressed: () => Navigator.pop(context),
+                      ),
+                    ),
+
 
                     Center(
                       child: Text(
@@ -233,9 +242,9 @@ class _ProfileState extends State<Profile> {
                               fontWeight: FontWeight.bold,
                               fontStyle: FontStyle.italic,
                               decoration:
-                                  _userLink != null
-                                      ? TextDecoration.underline
-                                      : TextDecoration.none,
+                              _userLink != null
+                                  ? TextDecoration.underline
+                                  : TextDecoration.none,
                             ),
                           ),
                         ],
@@ -261,9 +270,9 @@ class _ProfileState extends State<Profile> {
                           },
                           style: ElevatedButton.styleFrom(
                             backgroundColor:
-                                _selectedIndex == 0
-                                    ? AppColors.buttonSelected
-                                    : AppColors.button,
+                            _selectedIndex == 0
+                                ? AppColors.buttonSelected
+                                : AppColors.button,
                             padding: EdgeInsets.zero,
                             shape: RoundedRectangleBorder(
                               borderRadius: homeButtonRadius,
@@ -291,9 +300,9 @@ class _ProfileState extends State<Profile> {
                           },
                           style: ElevatedButton.styleFrom(
                             backgroundColor:
-                                _selectedIndex == 0
-                                    ? AppColors.button
-                                    : AppColors.buttonSelected,
+                            _selectedIndex == 0
+                                ? AppColors.button
+                                : AppColors.buttonSelected,
                             padding: EdgeInsets.zero,
                             shape: RoundedRectangleBorder(
                               borderRadius: ratingsButtonRadius,
@@ -477,7 +486,7 @@ class HomePageView extends StatelessWidget {
                               rating: 5,
                               itemBuilder:
                                   (context, index) =>
-                                      Icon(Icons.star, color: Colors.amber),
+                                  Icon(Icons.star, color: Colors.amber),
                               itemCount: 5,
                               itemSize: 18,
                               direction: Axis.horizontal,
@@ -630,7 +639,7 @@ class _RatingsPageViewState extends State<RatingsPageView> {
                           rating: album["rating"]!,
                           itemBuilder:
                               (context, index) =>
-                                  Icon(Icons.star, color: Colors.amber),
+                              Icon(Icons.star, color: Colors.amber),
                           itemCount: 5,
                           itemSize: 18,
                           direction: Axis.horizontal,
