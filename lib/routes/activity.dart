@@ -109,7 +109,7 @@ class _ActivityState extends State<Activity> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // top row: avatar + text + delete button
+          
           Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -173,7 +173,7 @@ class _ActivityState extends State<Activity> {
             ],
           ),
           const SizedBox(height: 8),
-          // middle row: text + cover
+          
           Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -275,8 +275,7 @@ class _ActivityState extends State<Activity> {
     );
   }
 
-  // ───────────────────────── build ────────────────────────────
-
+  
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -284,12 +283,12 @@ class _ActivityState extends State<Activity> {
       body: Column(
         children: [
           Container(
-            width: double.infinity,          // stretches full screen
-            height: 131,                     // old static height
-            color: const Color(0xFF181A1C),  // old static background
+            width: double.infinity,          
+            height: 131,                     
+            color: const Color(0xFF181A1C),  
             child: Column(
               children: [
-                const SizedBox(height: 50),  // status-bar / spacer
+                const SizedBox(height: 50),  
                 const Text(
                   'Activity',
                   style: TextStyle(
@@ -299,7 +298,7 @@ class _ActivityState extends State<Activity> {
                   ),
                 ),
                 const SizedBox(height: 5),
-                _tabs(),                     // ← uses the tabs widget below
+                _tabs(),                     
               ],
             ),
           ),
