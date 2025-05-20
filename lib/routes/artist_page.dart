@@ -14,24 +14,24 @@ class ArtistPage extends StatefulWidget {
   }) : super(key: key);
 
   @override
-  State<ArtistPage> createState() => _ArtistPageState(); // <-- THIS WAS MISSING
+  State<ArtistPage> createState() => _ArtistPageState(); 
 }
 
 class _ArtistPageState extends State<ArtistPage> {
-  bool _expanded = false; // controls whether extra songs are shown
+  bool _expanded = false; 
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFF0E0F11), // matches your w_background
+      backgroundColor: const Color(0xFF0E0F11), 
       body: SingleChildScrollView(
         child: SizedBox(
           width: 428,
-          // Increase the height to accommodate possible extra songs
+        
           height: _expanded ? 1930 : 1800,
           child: Stack(
             children: [
-              // =============== 1) HEADER IMAGE =========================
+          
               Positioned(
                 top: 0,
                 left: 0,
@@ -49,24 +49,22 @@ class _ArtistPageState extends State<ArtistPage> {
                 ),
               ),
 
-              // =============== 1A) BACK BUTTON ON HEADER IMAGE =========
+             
               Positioned(
                 top: 50,
                 left: 16,
                 child: GestureDetector(
                   onTap: () {
-                    Navigator.pop(context); // go back
+                    Navigator.pop(context); 
                   },
                   child: Image.asset(
-                    'assets/backarrow.png', // your backarrow image
+                    'assets/backarrow.png', 
                     width: 32,
                     height: 32,
                   ),
                 ),
               ),
 
-              // =============== 2) DARK CONTAINER with TEXTS =============
-              // (unchanged from your code, just keep it)
               Positioned(
                 top: 320,
                 left: 0,
@@ -76,7 +74,7 @@ class _ArtistPageState extends State<ArtistPage> {
                   color: const Color(0xFF151618),
                   child: Stack(
                     children: [
-                      // “Büyük Ev Ablukada” Title
+                   
                       Positioned(
                         top: 20,
                         left: 0,
@@ -145,7 +143,6 @@ class _ArtistPageState extends State<ArtistPage> {
                         ),
                       ),
 
-                      // Stats: 3088, Albums, 5693, etc.
                       Positioned(
                         top: 170 + 7,
                         left: 53,
@@ -243,8 +240,6 @@ class _ArtistPageState extends State<ArtistPage> {
                 ),
               ),
 
-              // =============== 3) “Most Popular Songs” title =============
-              // 24 px after that container => top ~ (320+250) + 24 = 594
               Positioned(
                 top: 600,
                 left: 16,
@@ -259,9 +254,7 @@ class _ArtistPageState extends State<ArtistPage> {
                 ),
               ),
 
-              // =============== 4) SONG 1, SONG 2, SONG 3  ===============
-              // we place them with your existing logic
-              // Song 1 => top: 640
+        
               Positioned(
                 top: 640,
                 left: 0,
@@ -272,7 +265,7 @@ class _ArtistPageState extends State<ArtistPage> {
                 ),
               ),
 
-              // Song 2 => top: 716
+
               Positioned(
                 top: 706,
                 left: 0,
@@ -283,7 +276,7 @@ class _ArtistPageState extends State<ArtistPage> {
                 ),
               ),
 
-              // Song 3 => top: 792
+
               Positioned(
                 top: 772,
                 left: 0,
@@ -294,11 +287,10 @@ class _ArtistPageState extends State<ArtistPage> {
                 ),
               ),
 
-              // =============== 5) OPTIONAL: SONG 4 + SONG 5 ==============
-              // Show only if _expanded == true
+      
               if (_expanded)
                 Positioned(
-                  top: 838, // 792 + 64 + 12 = 868 (some spacing after 3rd song)
+                  top: 838, 
                   left: 0,
                   child: _buildSongRow(
                     index: '4',
@@ -308,7 +300,7 @@ class _ArtistPageState extends State<ArtistPage> {
                 ),
               if (_expanded)
                 Positioned(
-                  top: 904, // 868 + 64 + 12 = 944
+                  top: 904, 
                   left: 0,
                   child: _buildSongRow(
                     index: '5',
@@ -317,9 +309,7 @@ class _ArtistPageState extends State<ArtistPage> {
                   ),
                 ),
 
-              // =============== 6) The Toggle Arrow Container =============
-              // If not expanded, arrow is under the 3rd song (top: 860)
-              // If expanded, arrow moves below 5th song => top: 1020 or so
+           
               Positioned(
                 top: _expanded ? 965 : 830,
                 left: 0,
@@ -332,9 +322,9 @@ class _ArtistPageState extends State<ArtistPage> {
                   child: Container(
                     width: 428,
                     height: 25,
-                    color: const Color(0xFF151618), // same background
+                    color: const Color(0xFF151618), 
                     child: Center(
-                      // if expanded => rotate by pi, else => 0
+               
                       child: Transform.rotate(
                         angle: _expanded ? pi : 0,
                         child: Image.asset(
@@ -348,11 +338,7 @@ class _ArtistPageState extends State<ArtistPage> {
                 ),
               ),
 
-              // =============== 7) ALBUM DISCOGRAPHY (EXAMPLE) ============
-              // Suppose you want it to appear below the arrow
-              // If not expanded, arrow is at 860 => let’s add ~40 => 900
-              // If expanded, arrow is at 1020 => add ~40 => 1060
-              // so we do an if/else or a small function
+      
               Positioned(
                 top: _expanded ? 1025 : 885,
                 left: 16,
@@ -367,13 +353,11 @@ class _ArtistPageState extends State<ArtistPage> {
                 ),
               ),
 
-              // We can place 5 albums below that heading or
-              // you keep your older approach. For demonstration:
-              // top => +some offset from the heading
+
               Positioned(
-                top: _expanded ? 1070 : 930, // keep your original Y‑offsets
+                top: _expanded ? 1070 : 930, 
                 left: 16,
-                right: 16, // 16‑px margin ⇒ 4/3 × 12‑px middle gap
+                right: 16, 
                 child: Builder(
                   builder: (context) {
                     final double screen = MediaQuery.of(context).size.width;
@@ -384,7 +368,7 @@ class _ArtistPageState extends State<ArtistPage> {
                         (screen - leftPad - rightPad - midGap) / 2;
 
                     return Wrap(
-                      spacing: midGap, // gap between the two cards
+                      spacing: midGap, 
                       runSpacing: 12,
                       children: [
                         _buildAlbumCard(
@@ -434,7 +418,7 @@ class _ArtistPageState extends State<ArtistPage> {
     );
   }
 
-  // --- SONG ROW (64 px) -------------------------------------------------
+ 
   Widget _buildSongRow({
     required String index,
     required String title,
@@ -446,7 +430,7 @@ class _ArtistPageState extends State<ArtistPage> {
       color: const Color(0xFF151618),
       child: Row(
         children: [
-          // index
+
           Padding(
             padding: const EdgeInsets.only(left: 20),
             child: Text(
@@ -461,7 +445,7 @@ class _ArtistPageState extends State<ArtistPage> {
           ),
           const SizedBox(width: 20),
 
-          // title + artist
+
           Expanded(
             child: Text.rich(
               TextSpan(
@@ -489,7 +473,6 @@ class _ArtistPageState extends State<ArtistPage> {
             ),
           ),
 
-          // ★  rating
           Padding(
             padding: const EdgeInsets.only(right: 40),
             child: Row(
@@ -513,16 +496,15 @@ class _ArtistPageState extends State<ArtistPage> {
     );
   }
 
-  // ---------- ALBUM CARD (dynamic width + big stars + tint) -------------
   Widget _buildAlbumCard({
-    required double width, // calculated in the Wrap
+    required double width, 
     required String cover,
     required String albumTitle,
     required String artist,
-    int greyCount = 0, // ← number of stars to tint #D9D9D9 (0‑5)
+    int greyCount = 0, 
   }) {
-    const double starSize = 24; // same size as the Average‑Rating star
-    final double coverSize = width; // square cover
+    const double starSize = 24; 
+    final double coverSize = width; 
     final double starsTop = coverSize + 8;
     final double titleTop = starsTop + starSize + 6;
     final double artistTop = titleTop + 19;
@@ -533,7 +515,7 @@ class _ArtistPageState extends State<ArtistPage> {
       margin: const EdgeInsets.only(bottom: 12),
       child: Stack(
         children: [
-          // album cover
+      
           Positioned(
             left: 0,
             top: 0,
@@ -548,7 +530,7 @@ class _ArtistPageState extends State<ArtistPage> {
             ),
           ),
 
-          // ★★★★★  (24 px, some can be grey)
+
           Positioned(
             top: starsTop,
             left: 0,
@@ -575,7 +557,7 @@ class _ArtistPageState extends State<ArtistPage> {
             ),
           ),
 
-          // album title
+  
           Positioned(
             top: titleTop,
             left: 0,
@@ -592,7 +574,7 @@ class _ArtistPageState extends State<ArtistPage> {
             ),
           ),
 
-          // artist
+
           Positioned(
             top: artistTop,
             left: 0,
@@ -613,10 +595,9 @@ class _ArtistPageState extends State<ArtistPage> {
     );
   }
 
-  // Example single album "row" or "card"
   Widget _buildAlbum(String title) {
     return Container(
-      width: 396, // 428 - 32 for horizontal padding
+      width: 396, 
       height: 40,
       color: const Color(0xFF151618),
       child: Padding(
