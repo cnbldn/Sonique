@@ -405,8 +405,8 @@ class _ProfileState extends State<Profile> {
                 child: IndexedStack(
                   index: _selectedIndex,
                   children: [
-                    HomePageView(), // <- Replace with your actual home content widget
-                    RatingsPageView(), // <- Replace with your actual ratings content widget
+                    HomePageView(),
+                    RatingsPageView(uid: widget.uid),
                   ],
                 ),
               ),
@@ -594,53 +594,46 @@ class HomePageView extends StatelessWidget {
 }
 
 class RatingsPageView extends StatefulWidget {
+  final String uid;
+  const RatingsPageView({Key? key, required this.uid}) : super(key: key);
+
   @override
   State<RatingsPageView> createState() => _RatingsPageViewState();
 }
 
 class _RatingsPageViewState extends State<RatingsPageView> {
   final TextEditingController _searchController = TextEditingController();
-
-  final List<Map<String, dynamic>> ratedAlbums = [
-    {
-      "title": "When The Pawn...",
-      "artist": "Fiona Apple",
-      "image": "assets/when_the_pawn.jpg",
-      "rating": 5.0,
-    },
-    {
-      "title": "brat",
-      "artist": "Charli XCX",
-      "image": "assets/brat.png",
-      "rating": 5.0,
-    },
-    {
-      "title": "Dummy",
-      "artist": "Portishead",
-      "image": "assets/dummy.jpg",
-      "rating": 4.5,
-    },
-    {
-      "title": "Underground",
-      "artist": "Thelonious Monk",
-      "image": "assets/underground.png",
-      "rating": 4.0,
-    },
-    {
-      "title": "Goodbye Yellow Brick Road",
-      "artist": "Elton John",
-      "image": "assets/goodbye_yellow_brick_road.jpg",
-      "rating": 5.0,
-    },
-  ];
-
   String _searchQuery = '';
+  List<Map<String, dynamic>> ratedAlbums = [];
+  bool _isLoading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchRatedAlbums();
+  }
+
+  Future<void> _fetchRatedAlbums() async {
+    final snapshot = await FirebaseFirestore.instance
+        .collection('users')
+        .doc(widget.uid)
+        .collection('reviews')
+        .orderBy('listenedDate', descending: true)
+        .get();
+
+    final data = snapshot.docs.map((doc) => doc.data() as Map<String, dynamic>).toList();
+
+    setState(() {
+      ratedAlbums = data;
+      _isLoading = false;
+    });
+  }
 
   List<Map<String, dynamic>> get _filteredAlbums {
     if (_searchQuery.isEmpty) return ratedAlbums;
     return ratedAlbums.where((album) {
-      final title = album['title']!.toLowerCase();
-      final artist = album['artist']!.toLowerCase();
+      final title = (album['albumName'] ?? '').toLowerCase();
+      final artist = (album['artist'] ?? '').toLowerCase();
       final query = _searchQuery.toLowerCase();
       return title.contains(query) || artist.contains(query);
     }).toList();
@@ -688,7 +681,9 @@ class _RatingsPageViewState extends State<RatingsPageView> {
                 ),
               ),
               SizedBox(height: 25),
-              Expanded(
+              _isLoading
+                  ? CircularProgressIndicator(color: Colors.white)
+                  : Expanded(
                 child: GridView.builder(
                   itemCount: _filteredAlbums.length,
                   gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
@@ -701,12 +696,11 @@ class _RatingsPageViewState extends State<RatingsPageView> {
                     final album = _filteredAlbums[index];
                     return Column(
                       crossAxisAlignment: CrossAxisAlignment.center,
-
                       children: [
                         ClipRRect(
                           borderRadius: BorderRadius.circular(10),
-                          child: Image.asset(
-                            album["image"]!,
+                          child: Image.network(
+                            album["coverUrl"] ?? '',
                             height: 183,
                             width: double.infinity,
                             fit: BoxFit.cover,
@@ -714,16 +708,15 @@ class _RatingsPageViewState extends State<RatingsPageView> {
                         ),
                         SizedBox(height: 16),
                         RatingBarIndicator(
-                          rating: album["rating"]!,
-                          itemBuilder:
-                              (context, index) =>
+                          rating: (album["rating"] ?? 0).toDouble(),
+                          itemBuilder: (context, index) =>
                               Icon(Icons.star, color: Colors.amber),
                           itemCount: 5,
                           itemSize: 18,
                           direction: Axis.horizontal,
                         ),
                         Text(
-                          album["title"]!,
+                          album["albumName"] ?? '',
                           style: TextStyle(
                             color: Colors.white,
                             fontWeight: FontWeight.bold,
@@ -732,7 +725,7 @@ class _RatingsPageViewState extends State<RatingsPageView> {
                           overflow: TextOverflow.ellipsis,
                         ),
                         Text(
-                          album["artist"]!,
+                          album["artist"] ?? '',
                           style: TextStyle(
                             color: Colors.white,
                             fontWeight: FontWeight.normal,
