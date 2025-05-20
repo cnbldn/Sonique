@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 class Activity extends StatefulWidget {
   const Activity({super.key});
@@ -9,13 +11,108 @@ class Activity extends StatefulWidget {
 
 class _ActivityState extends State<Activity> {
   int _selectedIndex = 0;
-  Map<String, bool> _expandedReviews = {};
+ // Map<String, bool> _expandedReviews = {}; // Sonradan düzeltelim
+
+  String _formatTimestamp(Timestamp ts) {
+    final diff = DateTime.now().difference(ts.toDate());
+    if (diff.inDays >= 1) return '${diff.inDays}d';
+    if (diff.inHours >= 1) return '${diff.inHours}h';
+    if (diff.inMinutes >= 1) return '${diff.inMinutes}m';
+    return 'now';
+  }
+
+  Widget _imageFrom(String path,
+      {double? width, double? height, double radius = 0}) {
+    final img = path.startsWith('http')
+        ? Image.network(
+      path,
+      width: width,
+      height: height,
+      fit: BoxFit.cover,
+      errorBuilder: (_, __, ___) =>
+          Container(width: width, height: height, color: Colors.grey),
+    )
+        : Image.asset(path, width: width, height: height, fit: BoxFit.cover);
+
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(radius),
+      child: img,
+    );
+  }
+
+
+  Widget _buildYouTab() {
+
+    final uid = FirebaseAuth.instance.currentUser?.uid;
+    if (uid == null) {
+      return const Expanded(
+        child: Center(
+          child: Text('Not signed in',
+              style: TextStyle(color: Colors.white, fontSize: 16)),
+        ),
+      );
+    }
+
+    return Expanded(
+      child: StreamBuilder<QuerySnapshot>(
+        stream: FirebaseFirestore.instance
+            .collection('reviews')
+            .where('userId', isEqualTo: uid)
+            .orderBy('createdAt', descending: true)
+            .snapshots(),
+        builder: (context, snap) {
+          if (snap.connectionState == ConnectionState.waiting) {
+            return const Center(child: CircularProgressIndicator());
+          }
+          if (snap.hasError) {
+            return Center(
+              child: Text('Error: ${snap.error}',
+                  style: const TextStyle(color: Colors.white)),
+            );
+          }
+          final docs = snap.data?.docs ?? [];
+          if (docs.isEmpty) {
+            return const Center(
+              child: Text('Your activity will show up here',
+                  style: TextStyle(color: Colors.white, fontSize: 16)),
+            );
+          }
+
+          return ListView.separated(
+            padding: EdgeInsets.zero,
+            itemCount: docs.length,
+            separatorBuilder: (_, __) =>
+            const Divider(height: 1, color: Color(0xFF0E0F11)),
+            itemBuilder: (context, i) {
+              final d = docs[i].data() as Map<String, dynamic>;
+
+              return buildRateRectangle(
+                username: d['username'] ?? 'You',
+                album: d['albumName'] ?? '',
+                artist: d['artist'] ?? '',
+                rating: (d['rating'] ?? 0).toDouble(),
+                comment: d['comment'] ?? '',
+                coverUrl: d['coverUrl'] ?? 'assets/placeholder_album.png',
+                profilePic:
+                d['profilePic'] ?? 'assets/default_pfp.png',
+                timeAgo: d['createdAt'] is Timestamp
+                    ? _formatTimestamp(d['createdAt'])
+                    : '',
+              );
+            },
+          );
+        },
+      ),
+    );
+  }
+
+
 
   Widget buildFollowRectangle({
     required String username,
     required String followedUser,
     required String timeAgo,
-    required String imageAssetPath,
+    required String coverUrl,
   }) {
     return Container(
       width: 428,
@@ -30,7 +127,7 @@ class _ActivityState extends State<Activity> {
           ClipRRect(
             borderRadius: BorderRadius.circular(28),
             child: Image.asset(
-              imageAssetPath,
+              coverUrl,
               width: 28,
               height: 28,
               fit: BoxFit.cover,
@@ -86,17 +183,12 @@ class _ActivityState extends State<Activity> {
     required String artist,
     required double rating,
     required String comment,
-    required String imageAssetPath,
-    required String profileImage,
+    required String coverUrl,
+    required String profilePic,
     required String timeAgo,
   }) {
-    final isExpanded = _expandedReviews[album] ?? false;
-    final displayText =
-        isExpanded
-            ? comment
-            : (comment.length > 60
-                ? "${comment.substring(0, 60)}..."
-                : comment);
+    // final isExpanded = _expandedReviews[album] ?? false; Sonradan düzeltelim
+    final displayText = comment;
 
     return Container(
       width: 428,
@@ -107,33 +199,28 @@ class _ActivityState extends State<Activity> {
         children: [
           Row(
             children: [
-              ClipRRect(
-                borderRadius: BorderRadius.circular(28),
-                child: Image.asset(
-                  profileImage,
-                  width: 28,
-                  height: 28,
-                  fit: BoxFit.cover,
-                ),
-              ),
+              _imageFrom(profilePic, width: 28, height: 28, radius: 28),
               const SizedBox(width: 8),
-              Text.rich(
-                TextSpan(
+              Flexible(
+                child: Text.rich(
+                  TextSpan(
+                    children: [
+                      TextSpan(
+                        text: "$username ",
+                        style: const TextStyle(fontWeight: FontWeight.w400),
+                      ),
+                      const TextSpan(
+                        text: "rated",
+                        style: TextStyle(fontWeight: FontWeight.w400),
+                      ),
+                    ],
+                  ),
                   style: const TextStyle(
                     color: Colors.white,
                     fontSize: 14,
                     height: 1.16168,
                   ),
-                  children: [
-                    TextSpan(
-                      text: "$username ",
-                      style: const TextStyle(fontWeight: FontWeight.w400),
-                    ),
-                    const TextSpan(
-                      text: "rated",
-                      style: TextStyle(fontWeight: FontWeight.w400),
-                    ),
-                  ],
+                  overflow: TextOverflow.ellipsis,
                 ),
               ),
             ],
@@ -181,6 +268,8 @@ class _ActivityState extends State<Activity> {
 
                     Text(
                       displayText,
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
                       style: const TextStyle(
                         color: Colors.white,
                         fontSize: 14,
@@ -190,36 +279,14 @@ class _ActivityState extends State<Activity> {
 
                     const SizedBox(height: 4),
 
-                    GestureDetector(
-                      onTap: () {
-                        setState(() {
-                          _expandedReviews[album] = !isExpanded;
-                        });
-                      },
-                      child: Text(
-                        isExpanded ? "Read Less" : "Read More...",
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontSize: 14,
-                          fontWeight: FontWeight.w700,
-                        ),
-                      ),
-                    ),
+
                   ],
                 ),
               ),
 
               const SizedBox(width: 10),
 
-              ClipRRect(
-                borderRadius: BorderRadius.circular(10),
-                child: Image.asset(
-                  imageAssetPath,
-                  width: 70,
-                  height: 70,
-                  fit: BoxFit.cover,
-                ),
-              ),
+              _imageFrom(coverUrl, width: 70, height: 70, radius: 10),
             ],
           ),
 
@@ -361,7 +428,7 @@ class _ActivityState extends State<Activity> {
               username: "umaylovesmus1c",
               followedUser: "thisisaras",
               timeAgo: "3h",
-              imageAssetPath: "assets/umay.png",
+              coverUrl: "assets/umay.png",
             ),
             buildRateRectangle(
               username: "umaylovesmus1c",
@@ -370,19 +437,12 @@ class _ActivityState extends State<Activity> {
               rating: 4,
               comment:
                   "THE summer album of 2025, manifesting this energy for me and my girlies. Cover photo is so meaningful too i love this album so much omg. Bad Bunny rly created a masterpiece i will be blasting this song all day everyday",
-              imageAssetPath: "assets/dtmf.png",
-              profileImage: "assets/umay.png",
+              coverUrl: "assets/dtmf.png",
+              profilePic: "assets/umay.png",
               timeAgo: "3h",
             ),
           ] else ...[
-            const Expanded(
-              child: Center(
-                child: Text(
-                  "Your activity will show up here",
-                  style: TextStyle(color: Colors.white, fontSize: 16),
-                ),
-              ),
-            ),
+            _buildYouTab(),
           ],
         ],
       ),
