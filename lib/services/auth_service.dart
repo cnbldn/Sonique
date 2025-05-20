@@ -21,8 +21,6 @@ class AuthService{
         'displayName': username,
         'bio': "Hey, I'm a Sonique user!",
         'profilePic': null,
-        'followerCount': 0,
-        'followingCount': 0,
         'createdAt': FieldValue.serverTimestamp(),
 
       });

@@ -1,13 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:sonique/utils/colors.dart';
-import 'package:sonique/services/spotify_auth.dart';
-import 'package:http/http.dart' as http;
 import 'dart:convert';
-import 'package:sonique/routes/rate.dart';
+import 'package:http/http.dart' as http;
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 class search_albums extends StatefulWidget {
-  final Function(dynamic)? onAlbumSelected;
-  const search_albums({super.key, this.onAlbumSelected});
+  final Function(dynamic) onAlbumSelected;
+  const search_albums({super.key, required this.onAlbumSelected});
 
   @override
   State<search_albums> createState() => _search_albumsState();
@@ -25,14 +23,42 @@ class _search_albumsState extends State<search_albums> {
   }
 
   Future<void> _authenticate() async {
-    final accessToken = await getSpotifyAccessToken();
-    setState(() {
-      _accessToken = accessToken;
-    });
+    final clientId = dotenv.env['SPOTIFY_CLIENT_ID'];
+    final clientSecret = dotenv.env['SPOTIFY_CLIENT_SECRET'];
+    final credentials = base64.encode(utf8.encode('$clientId:$clientSecret'));
+
+    try {
+      final response = await http.post(
+        Uri.parse('https://accounts.spotify.com/api/token'),
+        headers: {
+          'Authorization': 'Basic $credentials',
+          'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        body: {'grant_type': 'client_credentials'},
+      );
+
+      print('Auth status: ${response.statusCode}');
+      print('Auth body: ${response.body}');
+
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+        setState(() {
+          _accessToken = data['access_token'];
+        });
+        print('Access Token: $_accessToken');
+      } else {
+        debugPrint('Failed to authenticate: ${response.body}');
+      }
+    } catch (e) {
+      debugPrint('Auth error: $e');
+    }
   }
 
   Future<void> _searchAlbums(String query) async {
-    if (_accessToken == null || query.isEmpty) return;
+    if (_accessToken == null || query.isEmpty) {
+      print('Access token is null or query is empty');
+      return;
+    }
 
     final url = Uri.parse(
       'https://api.spotify.com/v1/search?q=$query&type=album&limit=10',
@@ -44,11 +70,15 @@ class _search_albumsState extends State<search_albums> {
         headers: {'Authorization': 'Bearer $_accessToken'},
       );
 
+      print('Search status: ${response.statusCode}');
+      print('Search body: ${response.body}');
+
       if (response.statusCode == 200) {
         final data = json.decode(response.body);
         setState(() {
           _albums = data['albums']['items'];
         });
+        print('Albums found: ${_albums.length}');
       } else {
         debugPrint('Search failed: ${response.body}');
       }
@@ -57,109 +87,55 @@ class _search_albumsState extends State<search_albums> {
     }
   }
 
-  void _onSearchChanged(String value) {
-    if (value.trim().isNotEmpty) {
-      _searchAlbums(value);
-    } else {
-      setState(() {
-        _albums.clear();
-      });
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFF0E0F11),
-      appBar: AppBar(
-        backgroundColor: const Color(0xFF181A1C),
-        elevation: 0,
-        centerTitle: true,
-        automaticallyImplyLeading: false,
-        title: const Text(
-          'Spotify Albums Search',
-          style: TextStyle(
-            color: Colors.white,
-            fontSize: 22,
-            fontWeight: FontWeight.w600,
-          ),
-        ),
-      ),
-      body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
-          child: Column(
-            children: [
-              Container(
-                height: 36,
-                decoration: BoxDecoration(
-                  color: AppColors.cardBackground,
-                  borderRadius: BorderRadius.circular(18),
+      appBar: AppBar(title: const Text('Spotify Albums Search')),
+      body: Padding(
+        padding: const EdgeInsets.all(12.0),
+        child: Column(
+          children: [
+            TextField(
+              controller: _controller,
+              decoration: InputDecoration(
+                hintText: 'Search for albums...',
+                suffixIcon: IconButton(
+                  icon: const Icon(Icons.search),
+                  onPressed: () => _searchAlbums(_controller.text),
                 ),
-                padding: const EdgeInsets.symmetric(horizontal: 14),
-                child: Row(
-                  children: [
-                    const Icon(Icons.search, color: AppColors.text, size: 18),
-                    const SizedBox(width: 6),
-                    Expanded(
-                      child: TextField(
-                        controller: _controller,
-                        onChanged: _onSearchChanged,
-                        style: const TextStyle(color: Colors.white, fontSize: 14),
-                        cursorColor: Colors.white,
-                        decoration: const InputDecoration(
-                          hintText: 'Search for albums...',
-                          hintStyle: TextStyle(color: AppColors.text),
-                          border: InputBorder.none,
-                          isDense: true,
-                        ),
-                      ),
+              ),
+              onSubmitted: _searchAlbums,
+            ),
+            const SizedBox(height: 10),
+            Expanded(
+              child: ListView.builder(
+                itemCount: _albums.length,
+                itemBuilder: (context, index) {
+                  final album = _albums[index];
+                  return ListTile(
+                    leading:
+                        album['images'] != null && album['images'].isNotEmpty
+                            ? Image.network(
+                              album['images'][0]['url'],
+                              width: 50,
+                              height: 50,
+                              fit: BoxFit.cover,
+                            )
+                            : SizedBox(width: 50, height: 50),
+                    title: Text(album['name']),
+                    subtitle: Text(
+                      album['artists'].map((a) => a['name']).join(', '),
                     ),
-                  ],
-                ),
+                    onTap: () {
+                      widget.onAlbumSelected(
+                        album,
+                      ); // this passes the album back
+                    },
+                  );
+                },
               ),
-              const SizedBox(height: 16),
-              Expanded(
-                child: ListView.builder(
-                  itemCount: _albums.length,
-                  itemBuilder: (context, index) {
-                    final album = _albums[index];
-                    final imageUrl = album['images'] != null && album['images'].isNotEmpty
-                        ? album['images'][0]['url']
-                        : null;
-
-                    return ListTile(
-                      leading: imageUrl != null
-                          ? Image.network(
-                        imageUrl,
-                        width: 50,
-                        height: 50,
-                        fit: BoxFit.cover,
-                      )
-                          : const SizedBox(width: 50, height: 50),
-                      title: Text(album['name'], style: const TextStyle(color: Colors.white)),
-                      subtitle: Text(
-                        album['artists'].map((a) => a['name']).join(', '),
-                        style: const TextStyle(color: Colors.grey),
-                      ),
-                      onTap: () {
-                        if (widget.onAlbumSelected != null) {
-                          widget.onAlbumSelected!(album);
-                        } else {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (_) => Rate(album: album),
-                            ),
-                          );
-                        }
-                      },
-                    );
-                  },
-                ),
-              ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );

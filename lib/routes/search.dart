@@ -4,8 +4,6 @@ import 'package:sonique/utils/colors.dart';
 import 'package:sonique/services/spotify_auth.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
-import 'package:sonique/routes/artist_page.dart';
-import 'package:sonique/routes/profile.dart';
 
 
 class Search extends StatefulWidget {
@@ -92,93 +90,21 @@ class _SearchState extends State<Search> with SingleTickerProviderStateMixin{
       case 0:
         return Column(
           children: _albums.map((album) => ListTile(
-            leading: album['images'] != null && album['images'].isNotEmpty
-              ? Image.network(
-              album['images'][0]['url'],
-              width: 50,
-              height: 50,
-              fit: BoxFit.cover,
-            )
-            : const SizedBox(width: 50, height: 50),
             title: Text(album['name'], style: TextStyle(color: Colors.white)),
             subtitle: Text(album['artists'][0]['name'], style: TextStyle(color: Colors.grey)),
           )).toList(),
         );
       case 1:
         return Column(
-          children: _artists.map((artist) {
-            final name = artist['name'] ?? 'Unknown';
-            final imageUrl = artist['images'] != null && artist['images'].isNotEmpty
-                ? artist['images'][0]['url']
-                : null;
-            final genres = (artist['genres'] is List)
-                ? List<String>.from(artist['genres'])
-                : <String>[];
-
-            return ListTile(
-              onTap: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (_) => ArtistPage(
-                      artistName: name,
-                      artistImageUrl: imageUrl,
-                      genres: genres,
-                    ),
-                  ),
-                );
-              },
-              leading: imageUrl != null
-                  ? ClipOval(
-                child: Image.network(
-                  imageUrl,
-                  width: 50,
-                  height: 50,
-                  fit: BoxFit.cover,
-                ),
-              )
-                  : const CircleAvatar(
-                backgroundColor: Colors.grey,
-                radius: 25,
-                child: Icon(Icons.person, color: Colors.black),
-              ),
-              title: Text(name, style: const TextStyle(color: Colors.white)),
-            );
-          }).toList(),
+          children: _artists.map((artist) => ListTile(
+            title: Text(artist['name'], style: TextStyle(color: Colors.white)),
+          )).toList(),
         );
       case 2:
         return Column(
-          children: _users.map((doc) {
-            final data = doc.data() as Map<String, dynamic>;
-            final displayName = data['displayName'] ?? 'Unknown';
-            final photoUrl = data['photoUrl'];
-
-            return ListTile(
-              onTap: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (_) => Profile(uid: doc.id),
-                  ),
-                );
-              },
-              leading: photoUrl != null
-                  ? ClipOval(
-                child: Image.network(
-                  photoUrl,
-                  width: 50,
-                  height: 50,
-                  fit: BoxFit.cover,
-                ),
-              )
-                  : const CircleAvatar(
-                backgroundColor: Colors.grey,
-                radius: 25,
-                child: Icon(Icons.person, color: Colors.black),
-              ),
-              title: Text(displayName, style: const TextStyle(color: Colors.white)),
-            );
-          }).toList(),
+          children: _users.map((doc) => ListTile(
+            title: Text(doc['displayName'], style: TextStyle(color: Colors.white),),
+          )).toList(),
         );
       default:
         return SizedBox();
@@ -190,10 +116,10 @@ class _SearchState extends State<Search> with SingleTickerProviderStateMixin{
     return Scaffold(
       backgroundColor: Color(0xFF0E0F11),
       appBar: AppBar(
-        backgroundColor: const Color(0xFF181A1C),
-        elevation: 0,
+        backgroundColor: const Color(0xFF181A1C), // match your background
+        elevation: 0, // removes shadow line
         centerTitle: true,
-        automaticallyImplyLeading: false,
+        automaticallyImplyLeading: false, // removes back button
         title: const Text(
           'Search',
           style: TextStyle(

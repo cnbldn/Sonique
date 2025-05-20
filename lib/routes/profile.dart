@@ -2,12 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:sonique/utils/colors.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 
 class Profile extends StatefulWidget {
-  final String uid;
-
-  const Profile({Key? key, required this.uid}) : super(key: key);
+  const Profile({super.key});
 
   @override
   State<Profile> createState() => _ProfileState();
@@ -17,7 +14,6 @@ class _ProfileState extends State<Profile> {
   int _selectedIndex = 0;
   String? _userLink;
   final TextEditingController _linkController = TextEditingController();
-  Map<String, dynamic>? _userData;
 
   void _showLinkDialog() {
     showDialog(
@@ -58,37 +54,22 @@ class _ProfileState extends State<Profile> {
   }
 
   @override
-
-  void initState() {
-    super.initState();
-    _fetchUserData();
-  }
-
-  Future<void> _fetchUserData() async{
-    final doc = await FirebaseFirestore.instance.collection('users').doc(widget.uid).get();
-    if (doc.exists) {
-      setState(() {
-        _userData = doc.data();
-      });
-    }
-  }
-
   Widget build(BuildContext context) {
     final BorderRadiusGeometry homeButtonRadius =
-    _selectedIndex == 0
-        ? BorderRadius.circular(6) // Fully rounded when selected
-        : BorderRadius.only(
-      topLeft: Radius.circular(6),
-      bottomLeft: Radius.circular(6),
-    );
+        _selectedIndex == 0
+            ? BorderRadius.circular(6) // Fully rounded when selected
+            : BorderRadius.only(
+              topLeft: Radius.circular(6),
+              bottomLeft: Radius.circular(6),
+            );
 
     final BorderRadiusGeometry ratingsButtonRadius =
-    _selectedIndex == 1
-        ? BorderRadius.circular(6)
-        : BorderRadius.only(
-      topRight: Radius.circular(6),
-      bottomRight: Radius.circular(6),
-    );
+        _selectedIndex == 1
+            ? BorderRadius.circular(6)
+            : BorderRadius.only(
+              topRight: Radius.circular(6),
+              bottomRight: Radius.circular(6),
+            );
 
     return Scaffold(
       body: Container(
@@ -105,18 +86,9 @@ class _ProfileState extends State<Profile> {
                   children: [
                     SizedBox(height: 10),
 
-                    Align(
-                      alignment: Alignment.centerLeft,
-                      child: IconButton(
-                        icon: Icon(Icons.arrow_back, color: Colors.white),
-                        onPressed: () => Navigator.pop(context),
-                      ),
-                    ),
-
-
                     Center(
                       child: Text(
-                        _userData?['username'] ?? 'username',
+                        "batuhanbaydar",
                         style: TextStyle(
                           color: Colors.white,
                           fontWeight: FontWeight.w500,
@@ -129,9 +101,7 @@ class _ProfileState extends State<Profile> {
                       children: [
                         CircleAvatar(
                           radius: 39.5,
-                          backgroundImage: _userData?['photoUrl'] != null
-                              ? NetworkImage(_userData!['photoUrl'])
-                              : AssetImage('assets/default_pfp.jpg') as ImageProvider,
+                          backgroundImage: AssetImage('assets/batu_pfp.jpeg'),
                         ),
                         Spacer(),
                         Column(
@@ -200,7 +170,7 @@ class _ProfileState extends State<Profile> {
                     ),
                     SizedBox(height: 15),
                     Text(
-                      _userData?['displayName'] ?? 'User',
+                      "Batu",
                       style: TextStyle(
                         color: Colors.white,
                         fontSize: 20,
@@ -209,7 +179,7 @@ class _ProfileState extends State<Profile> {
                     ),
                     SizedBox(height: 9),
                     Text(
-                      _userData?['bio'] ?? 'No bio',
+                      "what can i say i just love music",
                       style: TextStyle(color: Colors.white, fontSize: 14),
                     ),
                     SizedBox(height: 9),
@@ -242,9 +212,9 @@ class _ProfileState extends State<Profile> {
                               fontWeight: FontWeight.bold,
                               fontStyle: FontStyle.italic,
                               decoration:
-                              _userLink != null
-                                  ? TextDecoration.underline
-                                  : TextDecoration.none,
+                                  _userLink != null
+                                      ? TextDecoration.underline
+                                      : TextDecoration.none,
                             ),
                           ),
                         ],
@@ -270,9 +240,9 @@ class _ProfileState extends State<Profile> {
                           },
                           style: ElevatedButton.styleFrom(
                             backgroundColor:
-                            _selectedIndex == 0
-                                ? AppColors.buttonSelected
-                                : AppColors.button,
+                                _selectedIndex == 0
+                                    ? AppColors.buttonSelected
+                                    : AppColors.button,
                             padding: EdgeInsets.zero,
                             shape: RoundedRectangleBorder(
                               borderRadius: homeButtonRadius,
@@ -300,9 +270,9 @@ class _ProfileState extends State<Profile> {
                           },
                           style: ElevatedButton.styleFrom(
                             backgroundColor:
-                            _selectedIndex == 0
-                                ? AppColors.button
-                                : AppColors.buttonSelected,
+                                _selectedIndex == 0
+                                    ? AppColors.button
+                                    : AppColors.buttonSelected,
                             padding: EdgeInsets.zero,
                             shape: RoundedRectangleBorder(
                               borderRadius: ratingsButtonRadius,
@@ -486,7 +456,7 @@ class HomePageView extends StatelessWidget {
                               rating: 5,
                               itemBuilder:
                                   (context, index) =>
-                                  Icon(Icons.star, color: Colors.amber),
+                                      Icon(Icons.star, color: Colors.amber),
                               itemCount: 5,
                               itemSize: 18,
                               direction: Axis.horizontal,
@@ -639,7 +609,7 @@ class _RatingsPageViewState extends State<RatingsPageView> {
                           rating: album["rating"]!,
                           itemBuilder:
                               (context, index) =>
-                              Icon(Icons.star, color: Colors.amber),
+                                  Icon(Icons.star, color: Colors.amber),
                           itemCount: 5,
                           itemSize: 18,
                           direction: Axis.horizontal,
