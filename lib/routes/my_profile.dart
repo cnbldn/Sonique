@@ -6,6 +6,9 @@ import 'package:sonique/utils/colors.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:sonique/routes/welcome.dart';
+
 
 class myProfile extends StatefulWidget {
   const myProfile({super.key});
@@ -117,20 +120,20 @@ class _myProfileState extends State<myProfile> {
 
   Widget build(BuildContext context) {
     final BorderRadiusGeometry homeButtonRadius =
-        _selectedIndex == 0
-            ? BorderRadius.circular(6) // Fully rounded when selected
-            : BorderRadius.only(
-              topLeft: Radius.circular(6),
-              bottomLeft: Radius.circular(6),
-            );
+    _selectedIndex == 0
+        ? BorderRadius.circular(6) // Fully rounded when selected
+        : BorderRadius.only(
+      topLeft: Radius.circular(6),
+      bottomLeft: Radius.circular(6),
+    );
 
     final BorderRadiusGeometry ratingsButtonRadius =
-        _selectedIndex == 1
-            ? BorderRadius.circular(6)
-            : BorderRadius.only(
-              topRight: Radius.circular(6),
-              bottomRight: Radius.circular(6),
-            );
+    _selectedIndex == 1
+        ? BorderRadius.circular(6)
+        : BorderRadius.only(
+      topRight: Radius.circular(6),
+      bottomRight: Radius.circular(6),
+    );
 
     return Scaffold(
       body: Container(
@@ -147,16 +150,43 @@ class _myProfileState extends State<myProfile> {
                   children: [
                     SizedBox(height: 10),
 
-                    Center(
-                      child: Text(
-                        _isLoading ? "Loading..." : "$_username",
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontWeight: FontWeight.w500,
-                          fontSize: 14,
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        const SizedBox(width: 40), // spacer to balance layout
+
+                        Text(
+                          _isLoading ? "Loading..." : "$_username",
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontWeight: FontWeight.w500,
+                            fontSize: 14,
+                          ),
                         ),
-                      ),
+
+                        PopupMenuButton<String>(
+                          onSelected: (value) async {
+                            if (value == 'logout') {
+                              await FirebaseAuth.instance.signOut();
+                              if (!mounted) return;
+                              Navigator.of(context).pushAndRemoveUntil(
+                                MaterialPageRoute(builder: (_) => Welcome()),
+                                    (route) => false,
+                              );
+                            }
+                          },
+                          color: AppColors.cardBackground,
+                          icon: Icon(Icons.more_vert, color: Colors.white),
+                          itemBuilder: (BuildContext context) => [
+                            PopupMenuItem<String>(
+                              value: 'logout',
+                              child: Text('Log out', style: TextStyle(color: Colors.white)),
+                            ),
+                          ],
+                        ),
+                      ],
                     ),
+
                     SizedBox(height: 33),
                     Row(
                       children: [
@@ -164,8 +194,8 @@ class _myProfileState extends State<myProfile> {
                           width: 79,
                           height: 79,
                           decoration: BoxDecoration(
-                            color: Colors.black,
-                            shape: BoxShape.circle
+                              color: Colors.black,
+                              shape: BoxShape.circle
                           ),
                           child: CircleAvatar(
                             radius: 39.5,
@@ -284,9 +314,9 @@ class _myProfileState extends State<myProfile> {
                               fontWeight: FontWeight.bold,
                               fontStyle: FontStyle.italic,
                               decoration:
-                                  _userLink != null
-                                      ? TextDecoration.underline
-                                      : TextDecoration.none,
+                              _userLink != null
+                                  ? TextDecoration.underline
+                                  : TextDecoration.none,
                             ),
                           ),
                         ],
@@ -338,9 +368,9 @@ class _myProfileState extends State<myProfile> {
                           },
                           style: ElevatedButton.styleFrom(
                             backgroundColor:
-                                _selectedIndex == 0
-                                    ? AppColors.buttonSelected
-                                    : AppColors.button,
+                            _selectedIndex == 0
+                                ? AppColors.buttonSelected
+                                : AppColors.button,
                             padding: EdgeInsets.zero,
                             shape: RoundedRectangleBorder(
                               borderRadius: homeButtonRadius,
@@ -368,9 +398,9 @@ class _myProfileState extends State<myProfile> {
                           },
                           style: ElevatedButton.styleFrom(
                             backgroundColor:
-                                _selectedIndex == 0
-                                    ? AppColors.button
-                                    : AppColors.buttonSelected,
+                            _selectedIndex == 0
+                                ? AppColors.button
+                                : AppColors.buttonSelected,
                             padding: EdgeInsets.zero,
                             shape: RoundedRectangleBorder(
                               borderRadius: ratingsButtonRadius,
@@ -430,12 +460,12 @@ class _HomePageViewState extends State<HomePageView> {
     if (uid == null) return;
 
     final snapshot = await FirebaseFirestore.instance
-      .collection('users')
-      .doc(uid)
-      .collection('reviews')
-      .orderBy('listenedDate', descending: true)
-      .limit(3)
-      .get();
+        .collection('users')
+        .doc(uid)
+        .collection('reviews')
+        .orderBy('listenedDate', descending: true)
+        .limit(3)
+        .get();
 
     final reviews = snapshot.docs.map((doc){
       final data = doc.data();
@@ -750,21 +780,21 @@ class _RatingsPageViewState extends State<RatingsPageView> {
               SizedBox(height: 25),
               Expanded(
                 child: _isLoading
-                  ? Center(
-                    child: CircularProgressIndicator(color: Colors.white),
+                    ? Center(
+                  child: CircularProgressIndicator(color: Colors.white),
                 )
-                : _filteredAlbums.isEmpty
-                  ? Center(
-                    child: Text(
-                      "No reviews yet",
-                      style: TextStyle(
-                        color: Colors.white70,
-                        fontSize: 18,
-                        fontWeight: FontWeight.w500,
-                      ),
+                    : _filteredAlbums.isEmpty
+                    ? Center(
+                  child: Text(
+                    "No reviews yet",
+                    style: TextStyle(
+                      color: Colors.white70,
+                      fontSize: 18,
+                      fontWeight: FontWeight.w500,
                     ),
+                  ),
                 )
-                : GridView.builder(
+                    : GridView.builder(
                   itemCount: _filteredAlbums.length,
                   gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                     crossAxisCount: 2,
@@ -797,7 +827,7 @@ class _RatingsPageViewState extends State<RatingsPageView> {
                           rating: album["rating"]!,
                           itemBuilder:
                               (context, index) =>
-                                  Icon(Icons.star, color: Colors.amber),
+                              Icon(Icons.star, color: Colors.amber),
                           itemCount: 5,
                           itemSize: 18,
                           direction: Axis.horizontal,
