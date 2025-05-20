@@ -2,9 +2,15 @@ import 'package:flutter/material.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:sonique/utils/colors.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:sonique/services/firestore_service.dart';
+
 
 class Profile extends StatefulWidget {
-  const Profile({super.key});
+  final String uid;
+
+  const Profile({Key? key, required this.uid}) : super(key: key);
 
   @override
   State<Profile> createState() => _ProfileState();
@@ -14,6 +20,10 @@ class _ProfileState extends State<Profile> {
   int _selectedIndex = 0;
   String? _userLink;
   final TextEditingController _linkController = TextEditingController();
+  Map<String, dynamic>? _userData;
+  bool _isFollowing = false;
+  final String _currentUid = FirebaseAuth.instance.currentUser!.uid;
+
 
   void _showLinkDialog() {
     showDialog(
@@ -54,22 +64,90 @@ class _ProfileState extends State<Profile> {
   }
 
   @override
+  void initState() {
+    super.initState();
+    _fetchUserData();
+    _checkIfFollowing();
+  }
+
+  Future<void> _fetchUserData() async {
+    final doc = await FirebaseFirestore.instance.collection('users').doc(widget.uid).get();
+    if (doc.exists) {
+      setState(() {
+        _userData = doc.data();
+      });
+    }
+  }
+
+  Future<void> _checkIfFollowing() async {
+    if (_currentUid == widget.uid) return;
+    final result = await FirestoreService().isFollowing(widget.uid, _currentUid);
+    setState(() {
+      _isFollowing = result;
+    });
+  }
+
+  void _toggleFollow() async {
+    final firestore = FirebaseFirestore.instance;
+    final currentUserRef = firestore.collection('users').doc(_currentUid);
+    final targetUserRef = firestore.collection('users').doc(widget.uid);
+
+    final followingRef = currentUserRef.collection('following').doc(widget.uid);
+    final followerRef = targetUserRef.collection('followers').doc(_currentUid);
+
+    final batch = firestore.batch();
+
+    if (_isFollowing) {
+      // Unfollow
+      batch.delete(followingRef);
+      batch.delete(followerRef);
+
+      batch.update(currentUserRef, {
+        'followingCount': FieldValue.increment(-1),
+      });
+      batch.update(targetUserRef, {
+        'followersCount': FieldValue.increment(-1),
+      });
+    } else {
+      // Follow
+      batch.set(followingRef, {'followedAt': FieldValue.serverTimestamp()});
+      batch.set(followerRef, {'followedAt': FieldValue.serverTimestamp()});
+
+      batch.update(currentUserRef, {
+        'followingCount': FieldValue.increment(1),
+      });
+      batch.update(targetUserRef, {
+        'followersCount': FieldValue.increment(1),
+      });
+    }
+
+    await batch.commit();
+
+    setState(() {
+      _isFollowing = !_isFollowing;
+    });
+
+    _fetchUserData();
+  }
+
+
+
   Widget build(BuildContext context) {
     final BorderRadiusGeometry homeButtonRadius =
-        _selectedIndex == 0
-            ? BorderRadius.circular(6) // Fully rounded when selected
-            : BorderRadius.only(
-              topLeft: Radius.circular(6),
-              bottomLeft: Radius.circular(6),
-            );
+    _selectedIndex == 0
+        ? BorderRadius.circular(6) // Fully rounded when selected
+        : BorderRadius.only(
+      topLeft: Radius.circular(6),
+      bottomLeft: Radius.circular(6),
+    );
 
     final BorderRadiusGeometry ratingsButtonRadius =
-        _selectedIndex == 1
-            ? BorderRadius.circular(6)
-            : BorderRadius.only(
-              topRight: Radius.circular(6),
-              bottomRight: Radius.circular(6),
-            );
+    _selectedIndex == 1
+        ? BorderRadius.circular(6)
+        : BorderRadius.only(
+      topRight: Radius.circular(6),
+      bottomRight: Radius.circular(6),
+    );
 
     return Scaffold(
       body: Container(
@@ -86,9 +164,18 @@ class _ProfileState extends State<Profile> {
                   children: [
                     SizedBox(height: 10),
 
+                    Align(
+                      alignment: Alignment.centerLeft,
+                      child: IconButton(
+                        icon: Icon(Icons.arrow_back, color: Colors.white),
+                        onPressed: () => Navigator.pop(context),
+                      ),
+                    ),
+
+
                     Center(
                       child: Text(
-                        "batuhanbaydar",
+                        _userData?['username'] ?? 'username',
                         style: TextStyle(
                           color: Colors.white,
                           fontWeight: FontWeight.w500,
@@ -101,7 +188,9 @@ class _ProfileState extends State<Profile> {
                       children: [
                         CircleAvatar(
                           radius: 39.5,
-                          backgroundImage: AssetImage('assets/batu_pfp.jpeg'),
+                          backgroundImage: _userData?['photoUrl'] != null
+                              ? NetworkImage(_userData!['photoUrl'])
+                              : AssetImage('assets/default_pfp.jpg') as ImageProvider,
                         ),
                         Spacer(),
                         Column(
@@ -128,7 +217,7 @@ class _ProfileState extends State<Profile> {
                         Column(
                           children: [
                             Text(
-                              "4",
+                              (_userData?['followersCount'] ?? 0).toString(),
                               style: TextStyle(
                                 color: AppColors.text,
                                 fontSize: 20,
@@ -149,7 +238,7 @@ class _ProfileState extends State<Profile> {
                         Column(
                           children: [
                             Text(
-                              "12",
+                              (_userData?['followingCount'] ?? 0).toString(),
                               style: TextStyle(
                                 color: AppColors.text,
                                 fontSize: 20,
@@ -170,7 +259,7 @@ class _ProfileState extends State<Profile> {
                     ),
                     SizedBox(height: 15),
                     Text(
-                      "Batu",
+                      _userData?['displayName'] ?? 'User',
                       style: TextStyle(
                         color: Colors.white,
                         fontSize: 20,
@@ -179,7 +268,7 @@ class _ProfileState extends State<Profile> {
                     ),
                     SizedBox(height: 9),
                     Text(
-                      "what can i say i just love music",
+                      _userData?['bio'] ?? 'No bio',
                       style: TextStyle(color: Colors.white, fontSize: 14),
                     ),
                     SizedBox(height: 9),
@@ -212,9 +301,9 @@ class _ProfileState extends State<Profile> {
                               fontWeight: FontWeight.bold,
                               fontStyle: FontStyle.italic,
                               decoration:
-                                  _userLink != null
-                                      ? TextDecoration.underline
-                                      : TextDecoration.none,
+                              _userLink != null
+                                  ? TextDecoration.underline
+                                  : TextDecoration.none,
                             ),
                           ),
                         ],
@@ -224,6 +313,25 @@ class _ProfileState extends State<Profile> {
                   ],
                 ),
               ),
+
+              if (_currentUid != widget.uid)
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 20.0),
+                  child: ElevatedButton(
+                    onPressed: _toggleFollow,
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: _isFollowing ? Colors.grey[700] : AppColors.button,
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                      minimumSize: Size(double.infinity, 36),
+                    ),
+                    child: Text(
+                      _isFollowing ? "Following" : "Follow",
+                      style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+                    ),
+                  ),
+                ),
+              const SizedBox(height: 10),
+
               Container(
                 width: MediaQuery.of(context).size.width,
                 padding: EdgeInsets.symmetric(horizontal: 9),
@@ -240,9 +348,9 @@ class _ProfileState extends State<Profile> {
                           },
                           style: ElevatedButton.styleFrom(
                             backgroundColor:
-                                _selectedIndex == 0
-                                    ? AppColors.buttonSelected
-                                    : AppColors.button,
+                            _selectedIndex == 0
+                                ? AppColors.buttonSelected
+                                : AppColors.button,
                             padding: EdgeInsets.zero,
                             shape: RoundedRectangleBorder(
                               borderRadius: homeButtonRadius,
@@ -270,9 +378,9 @@ class _ProfileState extends State<Profile> {
                           },
                           style: ElevatedButton.styleFrom(
                             backgroundColor:
-                                _selectedIndex == 0
-                                    ? AppColors.button
-                                    : AppColors.buttonSelected,
+                            _selectedIndex == 0
+                                ? AppColors.button
+                                : AppColors.buttonSelected,
                             padding: EdgeInsets.zero,
                             shape: RoundedRectangleBorder(
                               borderRadius: ratingsButtonRadius,
@@ -456,7 +564,7 @@ class HomePageView extends StatelessWidget {
                               rating: 5,
                               itemBuilder:
                                   (context, index) =>
-                                      Icon(Icons.star, color: Colors.amber),
+                                  Icon(Icons.star, color: Colors.amber),
                               itemCount: 5,
                               itemSize: 18,
                               direction: Axis.horizontal,
@@ -609,7 +717,7 @@ class _RatingsPageViewState extends State<RatingsPageView> {
                           rating: album["rating"]!,
                           itemBuilder:
                               (context, index) =>
-                                  Icon(Icons.star, color: Colors.amber),
+                              Icon(Icons.star, color: Colors.amber),
                           itemCount: 5,
                           itemSize: 18,
                           direction: Axis.horizontal,
