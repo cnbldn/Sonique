@@ -408,8 +408,51 @@ class _myProfileState extends State<myProfile> {
   }
 }
 
-class HomePageView extends StatelessWidget {
+class HomePageView extends StatefulWidget {
   @override
+  State<HomePageView> createState() => _HomePageViewState();
+}
+
+class _HomePageViewState extends State<HomePageView> {
+
+  List<Map<String, dynamic>> _recentReviews = [];
+  bool _isLoading = true;
+
+  @override
+
+  void initState(){
+    super.initState();
+    _fetchRecentReviews();
+  }
+
+  Future<void> _fetchRecentReviews() async{
+    final uid = FirebaseAuth.instance.currentUser?.uid;
+    if (uid == null) return;
+
+    final snapshot = await FirebaseFirestore.instance
+      .collection('users')
+      .doc(uid)
+      .collection('reviews')
+      .orderBy('listenedDate', descending: true)
+      .limit(3)
+      .get();
+
+    final reviews = snapshot.docs.map((doc){
+      final data = doc.data();
+      return {
+        "title": data['albumName'] ?? '',
+        "artist": data['artist'] ?? '',
+        "image": data['coverUrl'] ?? '',
+        "rating": data['rating']?.toDouble() ?? 0.0,
+      };
+    }).toList();
+
+    setState(() {
+      _recentReviews = reviews;
+      _isLoading = false;
+    });
+  }
+
   Widget build(BuildContext context) {
     final List<Map<String, String>> favoriteAlbums = [
       {
@@ -520,63 +563,86 @@ class HomePageView extends StatelessWidget {
                 ),
               ),
             ),
-            SizedBox(height: 18),
+            SizedBox(height: 6),
             Expanded(
-              child: Container(
-                color: AppColors.cardBackground,
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 20.0),
-                  child: Row(
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      Expanded(
-                        child: Column(
-                          mainAxisSize: MainAxisSize.min,
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Text(
-                              "When The Pawn...",
-                              style: TextStyle(
-                                color: Colors.white,
-                                fontSize: 16,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                            Text(
-                              "Fiona Apple",
-                              style: TextStyle(
-                                color: Colors.white,
-                                fontSize: 16,
-                              ),
-                            ),
-                            SizedBox(height: 10),
-                            RatingBarIndicator(
-                              rating: 5,
-                              itemBuilder:
-                                  (context, index) =>
-                                      Icon(Icons.star, color: Colors.amber),
-                              itemCount: 5,
-                              itemSize: 18,
-                              direction: Axis.horizontal,
-                            ),
-                          ],
-                        ),
-                      ),
-                      ClipRRect(
-                        borderRadius: BorderRadius.circular(10),
-                        child: Image.asset(
-                          'assets/when_the_pawn.jpg',
-                          height: 70,
-                          width: 70,
-                          fit: BoxFit.cover,
-                        ),
-                      ),
-                    ],
+              child: _isLoading
+                  ? Center(child: CircularProgressIndicator(color: Colors.white))
+                  : _recentReviews.isEmpty
+                  ? Center(
+                child: Text(
+                  "No recent activity yet",
+                  style: TextStyle(
+                    color: Colors.white70,
+                    fontSize: 16,
                   ),
                 ),
+              )
+                  : ListView.builder(
+                itemCount: _recentReviews.length,
+                itemBuilder: (context, index) {
+                  final album = _recentReviews[index];
+                  return Padding(
+                    padding: const EdgeInsets.only(bottom: 18.0),
+                    child: Container(
+                      color: AppColors.cardBackground,
+                      child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  album["title"],
+                                  style: TextStyle(
+                                    color: Colors.white,
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 16,
+                                  ),
+                                ),
+                                Text(
+                                  album["artist"],
+                                  style: TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 14,
+                                  ),
+                                ),
+                                SizedBox(height: 8),
+                                RatingBarIndicator(
+                                  rating: album["rating"],
+                                  itemBuilder: (context, _) => Icon(Icons.star, color: Colors.amber),
+                                  itemCount: 5,
+                                  itemSize: 18,
+                                  direction: Axis.horizontal,
+                                ),
+                              ],
+                            ),
+                          ),
+                          SizedBox(width: 10),
+                          ClipRRect(
+                            borderRadius: BorderRadius.circular(10),
+                            child: Image.network(
+                              album["image"],
+                              height: 70,
+                              width: 70,
+                              fit: BoxFit.cover,
+                              errorBuilder: (context, error, stackTrace) =>
+                                  Container(
+                                    height: 70,
+                                    width: 70,
+                                    color: Colors.grey[900],
+                                    child: Icon(Icons.broken_image, color: Colors.white),
+                                  ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  );
+                },
               ),
-            ),
+            )
+
           ],
         ),
       ),
