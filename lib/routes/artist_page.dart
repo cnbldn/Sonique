@@ -2,10 +2,19 @@ import 'dart:math' show pi;
 import 'package:flutter/material.dart';
 
 class ArtistPage extends StatefulWidget {
-  const ArtistPage({Key? key}) : super(key: key);
+  final String artistName;
+  final String? artistImageUrl;
+  final List<String> genres;
+
+  const ArtistPage({
+    Key? key,
+    required this.artistName,
+    required this.artistImageUrl,
+    required this.genres,
+  }) : super(key: key);
 
   @override
-  State<ArtistPage> createState() => _ArtistPageState();
+  State<ArtistPage> createState() => _ArtistPageState(); // <-- THIS WAS MISSING
 }
 
 class _ArtistPageState extends State<ArtistPage> {
@@ -99,7 +108,7 @@ class _ArtistPageState extends State<ArtistPage> {
                                 children: [
                                   TextSpan(
                                     text:
-                                        'Büyük Ev Ablukada is a Turkish music group founded in ',
+                                    'Büyük Ev Ablukada is a Turkish music group founded in ',
                                     style: TextStyle(
                                       color: Color(0xFFAAAAAA),
                                       fontSize: 14,
@@ -119,7 +128,7 @@ class _ArtistPageState extends State<ArtistPage> {
                                   ),
                                   TextSpan(
                                     text:
-                                        ' in 2008. The band was started by Cem Yılmazer (a.k.a. Afordisman Salihins) '
+                                    ' in 2008. The band was started by Cem Yılmazer (a.k.a. Afordisman Salihins) '
                                         'and Bartu Küçükçağlayan (a.k.a. Canavar Banavar.) After some time the band...',
                                     style: TextStyle(
                                       color: Color(0xFFAAAAAA),
