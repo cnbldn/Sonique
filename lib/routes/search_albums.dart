@@ -3,67 +3,68 @@ import 'package:sonique/utils/colors.dart';
 import 'package:sonique/services/spotify_auth.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+import 'package:sonique/routes/rate.dart';
 
 class search_albums extends StatefulWidget {
-  final Function(dynamic) onAlbumSelected;
-
-  const search_albums({Key? key, required this.onAlbumSelected}) : super(key: key);
+  final Function(dynamic)? onAlbumSelected;
+  const search_albums({super.key, this.onAlbumSelected});
 
   @override
   State<search_albums> createState() => _search_albumsState();
 }
 
-
 class _search_albumsState extends State<search_albums> {
-  final TextEditingController _searchController = TextEditingController();
-  String _query = '';
+  final TextEditingController _controller = TextEditingController();
   List<dynamic> _albums = [];
+  String? _accessToken;
 
   @override
-  void dispose() {
-    _searchController.dispose();
-    super.dispose();
+  void initState() {
+    super.initState();
+    _authenticate();
   }
 
-  void _onSearchChanged(String value) async {
-    setState(() => _query = value);
-    if (value.trim().isEmpty) return;
-    await _searchSpotifyAlbums(value);
-  }
-
-  Future<void> _searchSpotifyAlbums(String query) async {
+  Future<void> _authenticate() async {
     final accessToken = await getSpotifyAccessToken();
-    final uri = Uri.parse('https://api.spotify.com/v1/search?q=$query&type=album&limit=10');
-
-    final res = await http.get(uri, headers: {
-      'Authorization': 'Bearer $accessToken',
+    setState(() {
+      _accessToken = accessToken;
     });
+  }
 
-    if (res.statusCode == 200) {
-      final data = json.decode(res.body);
-      setState(() {
-        _albums = data['albums']['items'];
-      });
+  Future<void> _searchAlbums(String query) async {
+    if (_accessToken == null || query.isEmpty) return;
+
+    final url = Uri.parse(
+      'https://api.spotify.com/v1/search?q=$query&type=album&limit=10',
+    );
+
+    try {
+      final response = await http.get(
+        url,
+        headers: {'Authorization': 'Bearer $_accessToken'},
+      );
+
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+        setState(() {
+          _albums = data['albums']['items'];
+        });
+      } else {
+        debugPrint('Search failed: ${response.body}');
+      }
+    } catch (e) {
+      debugPrint('Search error: $e');
     }
   }
 
-  Widget _buildAlbumTiles() {
-    if (_query.isEmpty) return const SizedBox();
-
-    return Column(
-      children: _albums.map((album) => ListTile(
-        leading: album['images'] != null && album['images'].isNotEmpty
-            ? Image.network(
-          album['images'][0]['url'],
-          width: 50,
-          height: 50,
-          fit: BoxFit.cover,
-        )
-            : const SizedBox(width: 50, height: 50),
-        title: Text(album['name'], style: const TextStyle(color: Colors.white)),
-        subtitle: Text(album['artists'][0]['name'], style: const TextStyle(color: Colors.grey)),
-      )).toList(),
-    );
+  void _onSearchChanged(String value) {
+    if (value.trim().isNotEmpty) {
+      _searchAlbums(value);
+    } else {
+      setState(() {
+        _albums.clear();
+      });
+    }
   }
 
   @override
@@ -102,7 +103,7 @@ class _search_albumsState extends State<search_albums> {
                     const SizedBox(width: 6),
                     Expanded(
                       child: TextField(
-                        controller: _searchController,
+                        controller: _controller,
                         onChanged: _onSearchChanged,
                         style: const TextStyle(color: Colors.white, fontSize: 14),
                         cursorColor: Colors.white,
@@ -119,7 +120,43 @@ class _search_albumsState extends State<search_albums> {
               ),
               const SizedBox(height: 16),
               Expanded(
-                child: SingleChildScrollView(child: _buildAlbumTiles()),
+                child: ListView.builder(
+                  itemCount: _albums.length,
+                  itemBuilder: (context, index) {
+                    final album = _albums[index];
+                    final imageUrl = album['images'] != null && album['images'].isNotEmpty
+                        ? album['images'][0]['url']
+                        : null;
+
+                    return ListTile(
+                      leading: imageUrl != null
+                          ? Image.network(
+                        imageUrl,
+                        width: 50,
+                        height: 50,
+                        fit: BoxFit.cover,
+                      )
+                          : const SizedBox(width: 50, height: 50),
+                      title: Text(album['name'], style: const TextStyle(color: Colors.white)),
+                      subtitle: Text(
+                        album['artists'].map((a) => a['name']).join(', '),
+                        style: const TextStyle(color: Colors.grey),
+                      ),
+                      onTap: () {
+                        if (widget.onAlbumSelected != null) {
+                          widget.onAlbumSelected!(album);
+                        } else {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) => Rate(album: album),
+                            ),
+                          );
+                        }
+                      },
+                    );
+                  },
+                ),
               ),
             ],
           ),
