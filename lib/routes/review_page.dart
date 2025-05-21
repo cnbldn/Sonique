@@ -104,7 +104,7 @@ class _ReviewPageState extends State<ReviewPage> {
           padding: const EdgeInsets.only(top: 25, left: 20, right: 20),
           child: Column(
             children: [
-              // ───────────────────────── HEADER ROW ─────────────────────────
+              // HEADER ROW
               Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -249,7 +249,7 @@ class _ReviewPageState extends State<ReviewPage> {
                 ),
               ],
               const SizedBox(height: 10),
-              // ── "Comments" heading ─────────────────────────────────
+              // "Comments" heading
               Align(
                 alignment: Alignment.centerLeft,
                 child: Text(
@@ -262,7 +262,7 @@ class _ReviewPageState extends State<ReviewPage> {
                 ),
               ),
               const SizedBox(height: 10),
-              // ───────────────────── COMMENTS LIST ───────────────────────
+              //  COMMENTS LIST 
               Expanded(
                 child: StreamBuilder<QuerySnapshot>(
                   stream: FirebaseFirestore.instance
@@ -324,7 +324,7 @@ class _ReviewPageState extends State<ReviewPage> {
                   },
                 ),
               ),
-              // ───────────────────── ADD COMMENT ROW ─────────────────────
+              // ADD COMMENT ROW
               const SizedBox(height: 10), // slightly higher off the bottom
               Row(
                 children: [
