@@ -10,10 +10,13 @@ class ReviewPage extends StatefulWidget {
   final Map<String, dynamic> review;   // whole Firestore doc data
   final String reviewId;               // doc id
 
+  final bool startWithKeyboard;
+
   const ReviewPage({
     super.key,
     required this.review,
     required this.reviewId,
+    this.startWithKeyboard = false,
   });
 
   @override
@@ -23,6 +26,7 @@ class ReviewPage extends StatefulWidget {
 class _ReviewPageState extends State<ReviewPage> {
   final _commentCtrl = TextEditingController();
   final _auth = FirebaseAuth.instance;
+  final _commentFocus = FocusNode();
 
   late Stream<DocumentSnapshot<Map<String, dynamic>>> _likeStream;
   late Stream<DocumentSnapshot<Map<String, dynamic>>> _reviewStream;
@@ -40,6 +44,13 @@ class _ReviewPageState extends State<ReviewPage> {
 
     _reviewStream =
         FirebaseFirestore.instance.collection('reviews').doc(widget.reviewId).snapshots();
+    // keyboard focus
+    if (widget.startWithKeyboard) {
+      // schedule after first build
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        _commentFocus.requestFocus();
+      });
+    }
   }
 
   Future<void> _toggleLike(bool liked) async {
@@ -331,6 +342,7 @@ class _ReviewPageState extends State<ReviewPage> {
                   Expanded(
                     child: TextField(
                       controller: _commentCtrl,
+                      focusNode: _commentFocus,
                       style: const TextStyle(
                           color: Colors.white, fontSize: 16),
                       decoration: InputDecoration(
