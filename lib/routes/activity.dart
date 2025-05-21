@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:sonique/routes/review_page.dart';
 
 class Activity extends StatefulWidget {
   const Activity({super.key});
@@ -71,17 +72,30 @@ class _ActivityState extends State<Activity> {
             itemBuilder: (context, i) {
               final doc = docs[i];
               final d = doc.data() as Map<String, dynamic>;
-              return _rateCard(
-                docId: doc.id,
-                canDelete: d['userId'] == uid,
-                username: d['username'] ?? 'You',
-                album: d['albumName'] ?? '',
-                artist: d['artist'] ?? '',
-                rating: (d['rating'] ?? 0).toDouble(),
-                comment: d['comment'] ?? '',
-                coverUrl: d['coverUrl'] ?? 'assets/placeholder_album.png',
-                profilePic: d['profilePic'] ?? 'assets/default_pfp.png',
-                timeAgo: d['createdAt'] is Timestamp ? _fmt(d['createdAt']) : '',
+              return GestureDetector(
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => ReviewPage(
+                        review: d,         // the map of fields you passed in _rateCard
+                        reviewId: doc.id,  // the document ID
+                      ),
+                    ),
+                  );
+                },
+                child: _rateCard(
+                  docId: doc.id,
+                  canDelete: d['userId'] == uid,
+                  username: d['username'] ?? 'You',
+                  album:    d['albumName'] ?? '',
+                  artist:   d['artist'] ?? '',
+                  rating:   (d['rating'] ?? 0).toDouble(),
+                  comment:  d['comment'] ?? '',
+                  coverUrl: d['coverUrl'] ?? 'assets/placeholder_album.png',
+                  profilePic: d['profilePic'] ?? 'assets/default_pfp.png',
+                  timeAgo:  d['createdAt'] is Timestamp ? _fmt(d['createdAt']) : '',
+                ),
               );
             },
           );
@@ -109,7 +123,7 @@ class _ActivityState extends State<Activity> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          
+
           Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -173,7 +187,7 @@ class _ActivityState extends State<Activity> {
             ],
           ),
           const SizedBox(height: 8),
-          
+
           Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -275,7 +289,7 @@ class _ActivityState extends State<Activity> {
     );
   }
 
-  
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -283,12 +297,12 @@ class _ActivityState extends State<Activity> {
       body: Column(
         children: [
           Container(
-            width: double.infinity,          
-            height: 131,                     
-            color: const Color(0xFF181A1C),  
+            width: double.infinity,
+            height: 131,
+            color: const Color(0xFF181A1C),
             child: Column(
               children: [
-                const SizedBox(height: 50),  
+                const SizedBox(height: 50),
                 const Text(
                   'Activity',
                   style: TextStyle(
@@ -298,7 +312,7 @@ class _ActivityState extends State<Activity> {
                   ),
                 ),
                 const SizedBox(height: 5),
-                _tabs(),                     
+                _tabs(),
               ],
             ),
           ),

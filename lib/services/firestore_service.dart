@@ -32,6 +32,8 @@ class FirestoreService {
       'coverUrl': coverUrl,
       'artist': artist,
       'createdAt': FieldValue.serverTimestamp(),
+      'likesCount'   : 0,
+      'commentsCount': 0,
     };
 
     final batch = _db.batch();
