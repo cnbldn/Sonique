@@ -56,14 +56,15 @@ class _RateState extends State<Rate> {
           Padding(
             padding: const EdgeInsets.all(8.0),
             child: ElevatedButton(
-              onPressed: () async{
+              onPressed: () async {
                 if (user == null) return;
 
                 final uid = user!.uid;
-                final userDoc = await FirebaseFirestore.instance
-                    .collection('users')
-                    .doc(user!.uid)
-                    .get();
+                final userDoc =
+                    await FirebaseFirestore.instance
+                        .collection('users')
+                        .doc(user!.uid)
+                        .get();
                 final username = userDoc.data()?['username'] ?? 'anonymous';
 
                 final albumId = widget.album['id'];
@@ -74,20 +75,25 @@ class _RateState extends State<Rate> {
                 final listenedDate = _selectedDate;
                 final artist = widget.album['artists'][0]['name'];
                 final coverUrl = widget.album['images'][0]['url'];
+                final isDeleted = false;
 
-                await firestoreService.postReview
-                  (uid: uid,
-                    username: username,
-                    albumId: albumId,
-                    albumName: albumName,
-                    rating: rating,
-                    comment: comment,
-                    listenedDate: listenedDate,
-                    isRelisten: isRelisten,
-                    coverUrl: coverUrl,
-                    artist: artist);
+                await firestoreService.postReview(
+                  uid: uid,
+                  username: username,
+                  albumId: albumId,
+                  albumName: albumName,
+                  rating: rating,
+                  comment: comment,
+                  listenedDate: listenedDate,
+                  isRelisten: isRelisten,
+                  coverUrl: coverUrl,
+                  artist: artist,
+                  isDeleted: isDeleted,
+                );
 
-                ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Review Published!")));
+                ScaffoldMessenger.of(
+                  context,
+                ).showSnackBar(SnackBar(content: Text("Review Published!")));
               },
               style: ElevatedButton.styleFrom(
                 backgroundColor: AppColors.sonique_purple,

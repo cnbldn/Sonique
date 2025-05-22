@@ -7,8 +7,8 @@ import 'package:intl/intl.dart';
 import '../utils/colors.dart';
 
 class ReviewPage extends StatefulWidget {
-  final Map<String, dynamic> review;   // whole Firestore doc data
-  final String reviewId;               // doc id
+  final Map<String, dynamic> review; // whole Firestore doc data
+  final String reviewId; // doc id
 
   final bool startWithKeyboard;
 
@@ -35,15 +35,19 @@ class _ReviewPageState extends State<ReviewPage> {
   void initState() {
     super.initState();
     final uid = _auth.currentUser?.uid ?? '';
-    _likeStream = FirebaseFirestore.instance
-        .collection('reviews')
-        .doc(widget.reviewId)
-        .collection('likes')
-        .doc(uid)
-        .snapshots();
+    _likeStream =
+        FirebaseFirestore.instance
+            .collection('reviews')
+            .doc(widget.reviewId)
+            .collection('likes')
+            .doc(uid)
+            .snapshots();
 
     _reviewStream =
-        FirebaseFirestore.instance.collection('reviews').doc(widget.reviewId).snapshots();
+        FirebaseFirestore.instance
+            .collection('reviews')
+            .doc(widget.reviewId)
+            .snapshots();
     // keyboard focus
     if (widget.startWithKeyboard) {
       // schedule after first build
@@ -57,8 +61,9 @@ class _ReviewPageState extends State<ReviewPage> {
     final uid = _auth.currentUser?.uid;
     if (uid == null) return;
 
-    final parent =
-    FirebaseFirestore.instance.collection('reviews').doc(widget.reviewId);
+    final parent = FirebaseFirestore.instance
+        .collection('reviews')
+        .doc(widget.reviewId);
     final likeDoc = parent.collection('likes').doc(uid);
 
     if (liked) {
@@ -75,11 +80,12 @@ class _ReviewPageState extends State<ReviewPage> {
     if (uid == null || _commentCtrl.text.trim().isEmpty) return;
 
     final userDoc =
-    await FirebaseFirestore.instance.collection('users').doc(uid).get();
+        await FirebaseFirestore.instance.collection('users').doc(uid).get();
     final username = userDoc['username'] ?? 'anonymous';
 
-    final parent =
-    FirebaseFirestore.instance.collection('reviews').doc(widget.reviewId);
+    final parent = FirebaseFirestore.instance
+        .collection('reviews')
+        .doc(widget.reviewId);
 
     await parent.collection('comments').add({
       'uid': uid,
@@ -129,9 +135,13 @@ class _ReviewPageState extends State<ReviewPage> {
                           children: [
                             CircleAvatar(
                               radius: 16,
-                              backgroundImage: NetworkImage(
-                                  r['profilePic'] ?? 'https://via.placeholder.com/32'),
+                              backgroundImage:
+                                  r['profilePic'] != null
+                                      ? NetworkImage(r['profilePic'])
+                                      : AssetImage('assets/default_pfp.png')
+                                          as ImageProvider,
                             ),
+
                             const SizedBox(width: 8),
                             Text(
                               r['username'] ?? '',
@@ -166,15 +176,18 @@ class _ReviewPageState extends State<ReviewPage> {
                           itemCount: 5,
                           itemSize: 32,
                           unratedColor: AppColors.starUnrated,
-                          itemBuilder: (_, __) =>
-                          const Icon(Icons.star, color: Colors.amber),
+                          itemBuilder:
+                              (_, __) =>
+                                  const Icon(Icons.star, color: Colors.amber),
                         ),
                         const SizedBox(height: 15),
                         // date + like btn + counters
                         Row(
                           children: [
                             // LIKE button (left of date)
-                            StreamBuilder<DocumentSnapshot<Map<String, dynamic>>>(
+                            StreamBuilder<
+                              DocumentSnapshot<Map<String, dynamic>>
+                            >(
                               stream: _likeStream,
                               builder: (_, likeSnap) {
                                 final liked =
@@ -185,9 +198,10 @@ class _ReviewPageState extends State<ReviewPage> {
                                     children: [
                                       Icon(
                                         Icons.favorite,
-                                        color: liked
-                                            ? const Color(0xFF7CCE80)
-                                            : AppColors.text,
+                                        color:
+                                            liked
+                                                ? const Color(0xFF7CCE80)
+                                                : AppColors.text,
                                         size: 24,
                                       ),
                                       const SizedBox(width: 15),
@@ -199,7 +213,8 @@ class _ReviewPageState extends State<ReviewPage> {
                             // DATE
                             Text(
                               DateFormat('EEEE, MMM d yyyy').format(
-                                  (r['listenedDate'] as Timestamp).toDate()),
+                                (r['listenedDate'] as Timestamp).toDate(),
+                              ),
                               style: TextStyle(
                                 color: AppColors.text,
                                 fontSize: 16,
@@ -247,8 +262,10 @@ class _ReviewPageState extends State<ReviewPage> {
                 const SizedBox(height: 10),
                 Container(
                   width: double.infinity,
-                  padding:
-                  const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 12,
+                    vertical: 12,
+                  ),
                   decoration: BoxDecoration(
                     color: AppColors.w_background,
                     borderRadius: BorderRadius.circular(10),
@@ -273,15 +290,16 @@ class _ReviewPageState extends State<ReviewPage> {
                 ),
               ),
               const SizedBox(height: 10),
-              //  COMMENTS LIST 
+              //  COMMENTS LIST
               Expanded(
                 child: StreamBuilder<QuerySnapshot>(
-                  stream: FirebaseFirestore.instance
-                      .collection('reviews')
-                      .doc(widget.reviewId)
-                      .collection('comments')
-                      .orderBy('createdAt', descending: true)
-                      .snapshots(),
+                  stream:
+                      FirebaseFirestore.instance
+                          .collection('reviews')
+                          .doc(widget.reviewId)
+                          .collection('comments')
+                          .orderBy('createdAt', descending: true)
+                          .snapshots(),
                   builder: (_, snap) {
                     if (snap.connectionState == ConnectionState.waiting) {
                       return const Center(child: CircularProgressIndicator());
@@ -291,8 +309,7 @@ class _ReviewPageState extends State<ReviewPage> {
                       return Center(
                         child: Text(
                           'No comments yet',
-                          style:
-                          TextStyle(color: AppColors.text, fontSize: 16),
+                          style: TextStyle(color: AppColors.text, fontSize: 16),
                         ),
                       );
                     }
@@ -343,8 +360,7 @@ class _ReviewPageState extends State<ReviewPage> {
                     child: TextField(
                       controller: _commentCtrl,
                       focusNode: _commentFocus,
-                      style: const TextStyle(
-                          color: Colors.white, fontSize: 16),
+                      style: const TextStyle(color: Colors.white, fontSize: 16),
                       decoration: InputDecoration(
                         hintText: 'Add a comment…',
                         hintStyle: const TextStyle(color: Colors.white70),
@@ -363,7 +379,9 @@ class _ReviewPageState extends State<ReviewPage> {
                     style: ElevatedButton.styleFrom(
                       backgroundColor: AppColors.sonique_purple,
                       padding: const EdgeInsets.symmetric(
-                          horizontal: 16, vertical: 14),
+                        horizontal: 16,
+                        vertical: 14,
+                      ),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(8),
                       ),

@@ -13,7 +13,8 @@ class FirestoreService {
     required DateTime listenedDate,
     required bool isRelisten,
     required String coverUrl,
-    required String artist
+    required String artist,
+    required bool isDeleted,
   }) async {
     final _db = FirebaseFirestore.instance;
 
@@ -32,8 +33,9 @@ class FirestoreService {
       'coverUrl': coverUrl,
       'artist': artist,
       'createdAt': FieldValue.serverTimestamp(),
-      'likesCount'   : 0,
+      'likesCount': 0,
       'commentsCount': 0,
+      'isDeleted': isDeleted,
     };
 
     final batch = _db.batch();
@@ -44,9 +46,7 @@ class FirestoreService {
         .collection('reviews')
         .doc(reviewId);
 
-    final globalReviewRef = _db
-        .collection('reviews')
-        .doc(reviewId);
+    final globalReviewRef = _db.collection('reviews').doc(reviewId);
 
     batch.set(userReviewRef, reviewData);
     batch.set(globalReviewRef, reviewData);
@@ -54,35 +54,35 @@ class FirestoreService {
     await batch.commit();
   }
 
-  Future<void> followUser(String currentUid, String targetUid) async{
+  Future<void> followUser(String currentUid, String targetUid) async {
     final batch = _db.batch();
 
     final followingRef = _db
-      .collection('users')
-      .doc(currentUid)
-      .collection('following')
-      .doc(targetUid);
+        .collection('users')
+        .doc(currentUid)
+        .collection('following')
+        .doc(targetUid);
 
     final followerRef = _db
-      .collection('users')
-      .doc(targetUid)
-      .collection('followers')
-      .doc(currentUid);
+        .collection('users')
+        .doc(targetUid)
+        .collection('followers')
+        .doc(currentUid);
 
     batch.set(followingRef, {'followedAt': FieldValue.serverTimestamp()});
     batch.set(followerRef, {'followedAt': FieldValue.serverTimestamp()});
 
-    batch.update(_db.collection('users').doc(currentUid),{
+    batch.update(_db.collection('users').doc(currentUid), {
       'followingCount': FieldValue.increment(1),
     });
-    batch.update(_db.collection('users').doc(targetUid),{
+    batch.update(_db.collection('users').doc(targetUid), {
       'followersCount': FieldValue.increment(1),
     });
 
     await batch.commit();
   }
 
-  Future<void> unfollowUser(String currentUid, String targetUid) async{
+  Future<void> unfollowUser(String currentUid, String targetUid) async {
     final batch = _db.batch();
 
     final followingRef = _db
@@ -100,25 +100,25 @@ class FirestoreService {
     batch.delete(followingRef);
     batch.delete(followerRef);
 
-    batch.update(_db.collection('users').doc(currentUid),{
+    batch.update(_db.collection('users').doc(currentUid), {
       'followingCount': FieldValue.increment(-1),
     });
-    batch.update(_db.collection('users').doc(targetUid),{
+    batch.update(_db.collection('users').doc(targetUid), {
       'followersCount': FieldValue.increment(-1),
     });
 
     await batch.commit();
   }
 
-  Future<bool> isFollowing(String targetUid, String currentUid) async{
-    final doc = await _db
-      .collection('users')
-      .doc(currentUid)
-      .collection('following')
-      .doc(targetUid)
-      .get();
+  Future<bool> isFollowing(String targetUid, String currentUid) async {
+    final doc =
+        await _db
+            .collection('users')
+            .doc(currentUid)
+            .collection('following')
+            .doc(targetUid)
+            .get();
 
     return doc.exists;
   }
-
 }

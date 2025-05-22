@@ -1,6 +1,7 @@
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
+import 'package:sonique/routes/review_page.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:sonique/utils/colors.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -8,7 +9,6 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:sonique/routes/welcome.dart';
-
 
 class myProfile extends StatefulWidget {
   const myProfile({super.key});
@@ -70,11 +70,11 @@ class _myProfileState extends State<myProfile> {
   int _followingCount = 0;
   int _ratingsCount = 0;
 
-  Future<void> pickAndLoadImage() async{
+  Future<void> pickAndLoadImage() async {
     final uid = FirebaseAuth.instance.currentUser?.uid;
-    final pickedFile = await _picker .pickImage(source: ImageSource.gallery);
+    final pickedFile = await _picker.pickImage(source: ImageSource.gallery);
 
-    if (pickedFile != null && uid != null){
+    if (pickedFile != null && uid != null) {
       final file = pickedFile.readAsBytes();
       final ref = FirebaseStorage.instance.ref().child('profile_pics/$uid.jpg');
 
@@ -97,13 +97,20 @@ class _myProfileState extends State<myProfile> {
     _loadUserInfo();
   }
 
-  Future<void> _loadUserInfo() async{
+  Future<void> _loadUserInfo() async {
     final uid = FirebaseAuth.instance.currentUser?.uid;
-    if(uid !=  null){
-      final doc = await FirebaseFirestore.instance.collection('users').doc(uid).get();
+    if (uid != null) {
+      final doc =
+          await FirebaseFirestore.instance.collection('users').doc(uid).get();
       final data = doc.data();
 
-      final reviewsQuerry = await FirebaseFirestore.instance.collection('users').doc(uid).collection('reviews').get();
+      final reviewsQuery =
+          await FirebaseFirestore.instance
+              .collection('users')
+              .doc(uid)
+              .collection('reviews')
+              .where('isDeleted', isNotEqualTo: true) // Add this filter
+              .get();
 
       setState(() {
         _username = data?['username'] ?? "User";
@@ -112,7 +119,8 @@ class _myProfileState extends State<myProfile> {
         _profilePicUrl = data?['profilePic'];
         _followersCount = (data?['followersCount'] ?? 0);
         _followingCount = (data?['followingCount'] ?? 0);
-        _ratingsCount = reviewsQuerry.size;
+        _ratingsCount =
+            reviewsQuery.size; // This will now only count non-deleted reviews
         _isLoading = false;
       });
     }
@@ -120,20 +128,20 @@ class _myProfileState extends State<myProfile> {
 
   Widget build(BuildContext context) {
     final BorderRadiusGeometry homeButtonRadius =
-    _selectedIndex == 0
-        ? BorderRadius.circular(6) // Fully rounded when selected
-        : BorderRadius.only(
-      topLeft: Radius.circular(6),
-      bottomLeft: Radius.circular(6),
-    );
+        _selectedIndex == 0
+            ? BorderRadius.circular(6) // Fully rounded when selected
+            : BorderRadius.only(
+              topLeft: Radius.circular(6),
+              bottomLeft: Radius.circular(6),
+            );
 
     final BorderRadiusGeometry ratingsButtonRadius =
-    _selectedIndex == 1
-        ? BorderRadius.circular(6)
-        : BorderRadius.only(
-      topRight: Radius.circular(6),
-      bottomRight: Radius.circular(6),
-    );
+        _selectedIndex == 1
+            ? BorderRadius.circular(6)
+            : BorderRadius.only(
+              topRight: Radius.circular(6),
+              bottomRight: Radius.circular(6),
+            );
 
     return Scaffold(
       body: Container(
@@ -171,18 +179,22 @@ class _myProfileState extends State<myProfile> {
                               if (!mounted) return;
                               Navigator.of(context).pushAndRemoveUntil(
                                 MaterialPageRoute(builder: (_) => Welcome()),
-                                    (route) => false,
+                                (route) => false,
                               );
                             }
                           },
                           color: AppColors.cardBackground,
                           icon: Icon(Icons.more_vert, color: Colors.white),
-                          itemBuilder: (BuildContext context) => [
-                            PopupMenuItem<String>(
-                              value: 'logout',
-                              child: Text('Log out', style: TextStyle(color: Colors.white)),
-                            ),
-                          ],
+                          itemBuilder:
+                              (BuildContext context) => [
+                                PopupMenuItem<String>(
+                                  value: 'logout',
+                                  child: Text(
+                                    'Log out',
+                                    style: TextStyle(color: Colors.white),
+                                  ),
+                                ),
+                              ],
                         ),
                       ],
                     ),
@@ -194,15 +206,17 @@ class _myProfileState extends State<myProfile> {
                           width: 79,
                           height: 79,
                           decoration: BoxDecoration(
-                              color: Colors.black,
-                              shape: BoxShape.circle
+                            color: Colors.black,
+                            shape: BoxShape.circle,
                           ),
                           child: CircleAvatar(
                             radius: 39.5,
                             backgroundColor: Colors.transparent,
-                            backgroundImage: _profilePicUrl != null
-                                ? NetworkImage(_profilePicUrl!)
-                                : AssetImage('assets/default_pfp.png') as ImageProvider,
+                            backgroundImage:
+                                _profilePicUrl != null
+                                    ? NetworkImage(_profilePicUrl!)
+                                    : AssetImage('assets/default_pfp.png')
+                                        as ImageProvider,
                           ),
                         ),
                         Spacer(),
@@ -281,7 +295,7 @@ class _myProfileState extends State<myProfile> {
                     ),
                     SizedBox(height: 9),
                     Text(
-                      _isLoading ? "" :_bio ?? "",
+                      _isLoading ? "" : _bio ?? "",
                       style: TextStyle(color: Colors.white, fontSize: 14),
                     ),
                     SizedBox(height: 9),
@@ -314,9 +328,9 @@ class _myProfileState extends State<myProfile> {
                               fontWeight: FontWeight.bold,
                               fontStyle: FontStyle.italic,
                               decoration:
-                              _userLink != null
-                                  ? TextDecoration.underline
-                                  : TextDecoration.none,
+                                  _userLink != null
+                                      ? TextDecoration.underline
+                                      : TextDecoration.none,
                             ),
                           ),
                         ],
@@ -368,9 +382,9 @@ class _myProfileState extends State<myProfile> {
                           },
                           style: ElevatedButton.styleFrom(
                             backgroundColor:
-                            _selectedIndex == 0
-                                ? AppColors.buttonSelected
-                                : AppColors.button,
+                                _selectedIndex == 0
+                                    ? AppColors.buttonSelected
+                                    : AppColors.button,
                             padding: EdgeInsets.zero,
                             shape: RoundedRectangleBorder(
                               borderRadius: homeButtonRadius,
@@ -398,9 +412,9 @@ class _myProfileState extends State<myProfile> {
                           },
                           style: ElevatedButton.styleFrom(
                             backgroundColor:
-                            _selectedIndex == 0
-                                ? AppColors.button
-                                : AppColors.buttonSelected,
+                                _selectedIndex == 0
+                                    ? AppColors.button
+                                    : AppColors.buttonSelected,
                             padding: EdgeInsets.zero,
                             shape: RoundedRectangleBorder(
                               borderRadius: ratingsButtonRadius,
@@ -424,10 +438,7 @@ class _myProfileState extends State<myProfile> {
               Expanded(
                 child: IndexedStack(
                   index: _selectedIndex,
-                  children: [
-                    HomePageView(), // <- Replace with your actual home content widget
-                    RatingsPageView(), // <- Replace with your actual ratings content widget
-                  ],
+                  children: [HomePageView(), RatingsPageView()],
                 ),
               ),
             ],
@@ -444,38 +455,41 @@ class HomePageView extends StatefulWidget {
 }
 
 class _HomePageViewState extends State<HomePageView> {
-
   List<Map<String, dynamic>> _recentReviews = [];
   bool _isLoading = true;
 
   @override
-
-  void initState(){
+  void initState() {
     super.initState();
     _fetchRecentReviews();
   }
 
-  Future<void> _fetchRecentReviews() async{
+  Future<void> _fetchRecentReviews() async {
     final uid = FirebaseAuth.instance.currentUser?.uid;
     if (uid == null) return;
 
-    final snapshot = await FirebaseFirestore.instance
-        .collection('users')
-        .doc(uid)
-        .collection('reviews')
-        .orderBy('listenedDate', descending: true)
-        .limit(3)
-        .get();
+    final snapshot =
+        await FirebaseFirestore.instance
+            .collection('users')
+            .doc(uid)
+            .collection('reviews')
+            .where('isDeleted', isNotEqualTo: true) // Add this filter
+            .orderBy('listenedDate', descending: true)
+            .limit(3)
+            .get();
 
-    final reviews = snapshot.docs.map((doc){
-      final data = doc.data();
-      return {
-        "title": data['albumName'] ?? '',
-        "artist": data['artist'] ?? '',
-        "image": data['coverUrl'] ?? '',
-        "rating": data['rating']?.toDouble() ?? 0.0,
-      };
-    }).toList();
+    final reviews =
+        snapshot.docs.map((doc) {
+          final data = doc.data();
+          return {
+            "docId": doc.id,
+            "data": data,
+            "title": data['albumName'] ?? '',
+            "artist": data['artist'] ?? '',
+            "image": data['coverUrl'] ?? '',
+            "rating": data['rating']?.toDouble() ?? 0.0,
+          };
+        }).toList();
 
     setState(() {
       _recentReviews = reviews;
@@ -502,11 +516,11 @@ class _HomePageViewState extends State<HomePageView> {
     return Scaffold(
       backgroundColor: AppColors.buttonSelected,
       body: SafeArea(
-        child: Column(
-          children: [
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 17.0),
-              child: Column(
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 17.0),
+          child: Column(
+            children: [
+              Column(
                 children: [
                   SizedBox(height: 20),
                   Align(
@@ -580,100 +594,126 @@ class _HomePageViewState extends State<HomePageView> {
                   ),
                 ],
               ),
-            ),
-            SizedBox(height: 22),
-            Align(
-              alignment: Alignment.centerLeft,
-              child: Text(
-                "Recent Activity",
-                style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 20,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-            ),
-            SizedBox(height: 6),
-            Expanded(
-              child: _isLoading
-                  ? Center(child: CircularProgressIndicator(color: Colors.white))
-                  : _recentReviews.isEmpty
-                  ? Center(
+              SizedBox(height: 22),
+              Align(
+                alignment: Alignment.centerLeft,
                 child: Text(
-                  "No recent activity yet",
+                  "Recent Activity",
                   style: TextStyle(
-                    color: Colors.white70,
-                    fontSize: 16,
+                    color: Colors.white,
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
                   ),
                 ),
-              )
-                  : ListView.builder(
-                itemCount: _recentReviews.length,
-                itemBuilder: (context, index) {
-                  final album = _recentReviews[index];
-                  return Padding(
-                    padding: const EdgeInsets.only(bottom: 18.0),
-                    child: Container(
-                      color: AppColors.cardBackground,
-                      child: Row(
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        children: [
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  album["title"],
-                                  style: TextStyle(
-                                    color: Colors.white,
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: 16,
-                                  ),
-                                ),
-                                Text(
-                                  album["artist"],
-                                  style: TextStyle(
-                                    color: Colors.white,
-                                    fontSize: 14,
-                                  ),
-                                ),
-                                SizedBox(height: 8),
-                                RatingBarIndicator(
-                                  rating: album["rating"],
-                                  itemBuilder: (context, _) => Icon(Icons.star, color: Colors.amber),
-                                  itemCount: 5,
-                                  itemSize: 18,
-                                  direction: Axis.horizontal,
-                                ),
-                              ],
-                            ),
-                          ),
-                          SizedBox(width: 10),
-                          ClipRRect(
-                            borderRadius: BorderRadius.circular(10),
-                            child: Image.network(
-                              album["image"],
-                              height: 70,
-                              width: 70,
-                              fit: BoxFit.cover,
-                              errorBuilder: (context, error, stackTrace) =>
-                                  Container(
-                                    height: 70,
-                                    width: 70,
-                                    color: Colors.grey[900],
-                                    child: Icon(Icons.broken_image, color: Colors.white),
-                                  ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  );
-                },
               ),
-            )
-
-          ],
+              SizedBox(height: 6),
+              Expanded(
+                child:
+                    _isLoading
+                        ? Center(
+                          child: CircularProgressIndicator(color: Colors.white),
+                        )
+                        : _recentReviews.isEmpty
+                        ? Center(
+                          child: Text(
+                            "No recent activity yet",
+                            style: TextStyle(
+                              color: Colors.white70,
+                              fontSize: 16,
+                            ),
+                          ),
+                        )
+                        : ListView.builder(
+                          itemCount: _recentReviews.length,
+                          itemBuilder: (context, index) {
+                            final album = _recentReviews[index];
+                            return GestureDetector(
+                              onTap: () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder:
+                                        (_) => ReviewPage(
+                                          review: album["data"],
+                                          reviewId: album["docId"],
+                                        ),
+                                  ),
+                                );
+                              },
+                              child: Padding(
+                                padding: const EdgeInsets.only(bottom: 18.0),
+                                child: Container(
+                                  color: AppColors.cardBackground,
+                                  child: Row(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.center,
+                                    children: [
+                                      Expanded(
+                                        child: Column(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          children: [
+                                            Text(
+                                              album["title"],
+                                              style: TextStyle(
+                                                color: Colors.white,
+                                                fontWeight: FontWeight.bold,
+                                                fontSize: 16,
+                                              ),
+                                            ),
+                                            Text(
+                                              album["artist"],
+                                              style: TextStyle(
+                                                color: Colors.white,
+                                                fontSize: 14,
+                                              ),
+                                            ),
+                                            SizedBox(height: 8),
+                                            RatingBarIndicator(
+                                              rating: album["rating"],
+                                              itemBuilder:
+                                                  (context, _) => Icon(
+                                                    Icons.star,
+                                                    color: Colors.amber,
+                                                  ),
+                                              itemCount: 5,
+                                              itemSize: 18,
+                                              direction: Axis.horizontal,
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                      SizedBox(width: 10),
+                                      ClipRRect(
+                                        borderRadius: BorderRadius.circular(10),
+                                        child: Image.network(
+                                          album["image"],
+                                          height: 70,
+                                          width: 70,
+                                          fit: BoxFit.cover,
+                                          errorBuilder:
+                                              (context, error, stackTrace) =>
+                                                  Container(
+                                                    height: 70,
+                                                    width: 70,
+                                                    color: Colors.grey[900],
+                                                    child: Icon(
+                                                      Icons.broken_image,
+                                                      color: Colors.white,
+                                                    ),
+                                                  ),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                            );
+                          },
+                        ),
+              ),
+            ],
+          ),
         ),
       ),
     );
@@ -692,34 +732,37 @@ class _RatingsPageViewState extends State<RatingsPageView> {
   String _searchQuery = '';
   bool _isLoading = true;
 
-
   @override
-
   void initState() {
     super.initState();
     _fetchReviews();
   }
 
-  Future<void> _fetchReviews() async{
+  Future<void> _fetchReviews() async {
     final uid = FirebaseAuth.instance.currentUser?.uid;
     if (uid == null) return;
 
-    final cover = await FirebaseFirestore.instance
-        .collection('users')
-        .doc(uid)
-        .collection('reviews')
-        .orderBy('listenedDate', descending: true)
-        .get();
+    final cover =
+        await FirebaseFirestore.instance
+            .collection('users')
+            .doc(uid)
+            .collection('reviews')
+            .where('isDeleted', isNotEqualTo: true) // Add this filter
+            .orderBy('listenedDate', descending: true)
+            .get();
 
-    final reviews = cover.docs.map((doc) {
-      final data = doc.data();
-      return{
-        "title": data['albumName'] ?? '',
-        "artist": data['artist'] ?? '',
-        "image": data['coverUrl'] ?? '',
-        "rating": data['rating'] ?? 0.0,
-      };
-    }).toList();
+    final reviews =
+        cover.docs.map((doc) {
+          final data = doc.data();
+          return {
+            "docId": doc.id,
+            "data": data,
+            "title": data['albumName'] ?? '',
+            "artist": data['artist'] ?? '',
+            "image": data['coverUrl'] ?? '',
+            "rating": data['rating'] ?? 0.0,
+          };
+        }).toList();
 
     setState(() {
       _ratedAlbums = reviews;
@@ -727,9 +770,9 @@ class _RatingsPageViewState extends State<RatingsPageView> {
     });
   }
 
-  List<Map<String, dynamic>> get _filteredAlbums{
-    if(_searchQuery.isEmpty) return _ratedAlbums;
-    return _ratedAlbums.where((album){
+  List<Map<String, dynamic>> get _filteredAlbums {
+    if (_searchQuery.isEmpty) return _ratedAlbums;
+    return _ratedAlbums.where((album) {
       final title = album['title'].toLowerCase();
       final artist = album['artist'].toLowerCase();
       final query = _searchQuery.toLowerCase();
@@ -779,81 +822,104 @@ class _RatingsPageViewState extends State<RatingsPageView> {
               ),
               SizedBox(height: 25),
               Expanded(
-                child: _isLoading
-                    ? Center(
-                  child: CircularProgressIndicator(color: Colors.white),
-                )
-                    : _filteredAlbums.isEmpty
-                    ? Center(
-                  child: Text(
-                    "No reviews yet",
-                    style: TextStyle(
-                      color: Colors.white70,
-                      fontSize: 18,
-                      fontWeight: FontWeight.w500,
-                    ),
-                  ),
-                )
-                    : GridView.builder(
-                  itemCount: _filteredAlbums.length,
-                  gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount: 2,
-                    crossAxisSpacing: 14,
-                    mainAxisSpacing: 14,
-                    childAspectRatio: 0.71,
-                  ),
-                  itemBuilder: (context, index) {
-                    final album = _filteredAlbums[index];
-                    return Column(
-                      crossAxisAlignment: CrossAxisAlignment.center,
-
-                      children: [
-                        ClipRRect(
-                          borderRadius: BorderRadius.circular(10),
-                          child: Image.network(
-                            album["image"]!,
-                            height: 183,
-                            width: double.infinity,
-                            fit: BoxFit.cover,
-                            errorBuilder: (context, error, stackTrace) => Container(
-                              height: 183,
-                              color: Colors.grey[900],
-                              child: Icon(Icons.broken_image, color: Colors.white),
+                child:
+                    _isLoading
+                        ? Center(
+                          child: CircularProgressIndicator(color: Colors.white),
+                        )
+                        : _filteredAlbums.isEmpty
+                        ? Center(
+                          child: Text(
+                            "No reviews yet",
+                            style: TextStyle(
+                              color: Colors.white70,
+                              fontSize: 18,
+                              fontWeight: FontWeight.w500,
                             ),
                           ),
+                        )
+                        : GridView.builder(
+                          itemCount: _filteredAlbums.length,
+                          gridDelegate:
+                              SliverGridDelegateWithFixedCrossAxisCount(
+                                crossAxisCount: 2,
+                                crossAxisSpacing: 14,
+                                mainAxisSpacing: 14,
+                                childAspectRatio: 0.71,
+                              ),
+                          itemBuilder: (context, index) {
+                            final album = _filteredAlbums[index];
+                            return GestureDetector(
+                              onTap: () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder:
+                                        (_) => ReviewPage(
+                                          review: album["data"],
+                                          reviewId: album["docId"],
+                                        ),
+                                  ),
+                                );
+                              },
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.center,
+
+                                children: [
+                                  ClipRRect(
+                                    borderRadius: BorderRadius.circular(10),
+                                    child: Image.network(
+                                      album["image"]!,
+                                      height: 183,
+                                      width: double.infinity,
+                                      fit: BoxFit.cover,
+                                      errorBuilder:
+                                          (context, error, stackTrace) =>
+                                              Container(
+                                                height: 183,
+                                                color: Colors.grey[900],
+                                                child: Icon(
+                                                  Icons.broken_image,
+                                                  color: Colors.white,
+                                                ),
+                                              ),
+                                    ),
+                                  ),
+                                  SizedBox(height: 16),
+                                  RatingBarIndicator(
+                                    rating: album["rating"]!,
+                                    itemBuilder:
+                                        (context, index) => Icon(
+                                          Icons.star,
+                                          color: Colors.amber,
+                                        ),
+                                    itemCount: 5,
+                                    itemSize: 18,
+                                    direction: Axis.horizontal,
+                                  ),
+                                  Text(
+                                    album["title"]!,
+                                    style: TextStyle(
+                                      color: Colors.white,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                  Text(
+                                    album["artist"]!,
+                                    style: TextStyle(
+                                      color: Colors.white,
+                                      fontWeight: FontWeight.normal,
+                                    ),
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                ],
+                              ),
+                            );
+                          },
                         ),
-                        SizedBox(height: 16),
-                        RatingBarIndicator(
-                          rating: album["rating"]!,
-                          itemBuilder:
-                              (context, index) =>
-                              Icon(Icons.star, color: Colors.amber),
-                          itemCount: 5,
-                          itemSize: 18,
-                          direction: Axis.horizontal,
-                        ),
-                        Text(
-                          album["title"]!,
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontWeight: FontWeight.bold,
-                          ),
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                        Text(
-                          album["artist"]!,
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontWeight: FontWeight.normal,
-                          ),
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                      ],
-                    );
-                  },
-                ),
               ),
             ],
           ),
