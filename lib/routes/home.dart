@@ -85,39 +85,48 @@ class _HomeState extends State<Home> {
     final String name = raw.length > 12 ? '${raw.substring(0, 12)}…' : raw;
 
     return SizedBox(
-      width: 130,
+      width: 130, // Fixed width
+      height: 200, // Fixed height to contain all elements
       child: Column(
+        mainAxisSize: MainAxisSize.min, // Important for consistent sizing
         children: [
           ClipRRect(
             borderRadius: BorderRadius.circular(10),
-            child: Image.network(
-              r['coverUrl'],
+            child: SizedBox(
+              // Constrain the image container
               width: 130,
               height: 130,
-              fit: BoxFit.cover,
+              child: Image.network(r['coverUrl'], fit: BoxFit.cover),
             ),
           ),
           const SizedBox(height: 11),
-          Text(
-            name,
-            maxLines: 1,
-            overflow: TextOverflow.clip, // no second line ever
-            textAlign: TextAlign.center,
-            style: const TextStyle(
-              color: Colors.white,
-              fontSize: 16,
-              fontWeight: FontWeight.w700,
-              height: 1.16168,
+          Flexible(
+            // Use Flexible to prevent text overflow from expanding the container
+            child: Text(
+              name,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              textAlign: TextAlign.center,
+              style: const TextStyle(
+                color: Colors.white,
+                fontSize: 16,
+                fontWeight: FontWeight.w700,
+                height: 1.16168,
+              ),
             ),
           ),
-          Text(
-            r['artist'] ?? '',
-            textAlign: TextAlign.center,
-            style: const TextStyle(
-              color: Colors.white,
-              fontSize: 16,
-              fontWeight: FontWeight.w400,
-              height: 1.16168,
+          Flexible(
+            child: Text(
+              r['artist'] ?? '',
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              textAlign: TextAlign.center,
+              style: const TextStyle(
+                color: Colors.white,
+                fontSize: 16,
+                fontWeight: FontWeight.w400,
+                height: 1.16168,
+              ),
             ),
           ),
         ],
@@ -403,6 +412,8 @@ class _HomeState extends State<Home> {
                   scrollDirection: Axis.horizontal,
                   padding: const EdgeInsets.symmetric(horizontal: 16),
                   child: Row(
+                    crossAxisAlignment:
+                        CrossAxisAlignment.start, // Align all items at the top
                     children: [
                       for (int i = 0; i < list.length; i++) ...[
                         _albumTile(list[i]),
