@@ -6,7 +6,6 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:sonique/services/firestore_service.dart';
 
-
 class Profile extends StatefulWidget {
   final String uid;
 
@@ -23,7 +22,6 @@ class _ProfileState extends State<Profile> {
   Map<String, dynamic>? _userData;
   bool _isFollowing = false;
   final String _currentUid = FirebaseAuth.instance.currentUser!.uid;
-
 
   void _showLinkDialog() {
     showDialog(
@@ -71,7 +69,11 @@ class _ProfileState extends State<Profile> {
   }
 
   Future<void> _fetchUserData() async {
-    final doc = await FirebaseFirestore.instance.collection('users').doc(widget.uid).get();
+    final doc =
+        await FirebaseFirestore.instance
+            .collection('users')
+            .doc(widget.uid)
+            .get();
     if (doc.exists) {
       setState(() {
         _userData = doc.data();
@@ -81,7 +83,10 @@ class _ProfileState extends State<Profile> {
 
   Future<void> _checkIfFollowing() async {
     if (_currentUid == widget.uid) return;
-    final result = await FirestoreService().isFollowing(widget.uid, _currentUid);
+    final result = await FirestoreService().isFollowing(
+      widget.uid,
+      _currentUid,
+    );
     setState(() {
       _isFollowing = result;
     });
@@ -105,20 +110,14 @@ class _ProfileState extends State<Profile> {
       batch.update(currentUserRef, {
         'followingCount': FieldValue.increment(-1),
       });
-      batch.update(targetUserRef, {
-        'followersCount': FieldValue.increment(-1),
-      });
+      batch.update(targetUserRef, {'followersCount': FieldValue.increment(-1)});
     } else {
       // Follow
       batch.set(followingRef, {'followedAt': FieldValue.serverTimestamp()});
       batch.set(followerRef, {'followedAt': FieldValue.serverTimestamp()});
 
-      batch.update(currentUserRef, {
-        'followingCount': FieldValue.increment(1),
-      });
-      batch.update(targetUserRef, {
-        'followersCount': FieldValue.increment(1),
-      });
+      batch.update(currentUserRef, {'followingCount': FieldValue.increment(1)});
+      batch.update(targetUserRef, {'followersCount': FieldValue.increment(1)});
     }
 
     await batch.commit();
@@ -130,24 +129,22 @@ class _ProfileState extends State<Profile> {
     _fetchUserData();
   }
 
-
-
   Widget build(BuildContext context) {
     final BorderRadiusGeometry homeButtonRadius =
-    _selectedIndex == 0
-        ? BorderRadius.circular(6) // Fully rounded when selected
-        : BorderRadius.only(
-      topLeft: Radius.circular(6),
-      bottomLeft: Radius.circular(6),
-    );
+        _selectedIndex == 0
+            ? BorderRadius.circular(6) // Fully rounded when selected
+            : BorderRadius.only(
+              topLeft: Radius.circular(6),
+              bottomLeft: Radius.circular(6),
+            );
 
     final BorderRadiusGeometry ratingsButtonRadius =
-    _selectedIndex == 1
-        ? BorderRadius.circular(6)
-        : BorderRadius.only(
-      topRight: Radius.circular(6),
-      bottomRight: Radius.circular(6),
-    );
+        _selectedIndex == 1
+            ? BorderRadius.circular(6)
+            : BorderRadius.only(
+              topRight: Radius.circular(6),
+              bottomRight: Radius.circular(6),
+            );
 
     return Scaffold(
       body: Container(
@@ -172,7 +169,6 @@ class _ProfileState extends State<Profile> {
                       ),
                     ),
 
-
                     Center(
                       child: Text(
                         _userData?['username'] ?? 'username',
@@ -188,9 +184,11 @@ class _ProfileState extends State<Profile> {
                       children: [
                         CircleAvatar(
                           radius: 39.5,
-                          backgroundImage: _userData?['photoUrl'] != null
-                              ? NetworkImage(_userData!['photoUrl'])
-                              : AssetImage('assets/default_pfp.jpg') as ImageProvider,
+                          backgroundImage:
+                              _userData?['photoUrl'] != null
+                                  ? NetworkImage(_userData!['photoUrl'])
+                                  : AssetImage('assets/default_pfp.png')
+                                      as ImageProvider,
                         ),
                         Spacer(),
                         Column(
@@ -301,9 +299,9 @@ class _ProfileState extends State<Profile> {
                               fontWeight: FontWeight.bold,
                               fontStyle: FontStyle.italic,
                               decoration:
-                              _userLink != null
-                                  ? TextDecoration.underline
-                                  : TextDecoration.none,
+                                  _userLink != null
+                                      ? TextDecoration.underline
+                                      : TextDecoration.none,
                             ),
                           ),
                         ],
@@ -320,13 +318,19 @@ class _ProfileState extends State<Profile> {
                   child: ElevatedButton(
                     onPressed: _toggleFollow,
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: _isFollowing ? Colors.grey[700] : AppColors.button,
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                      backgroundColor:
+                          _isFollowing ? Colors.grey[700] : AppColors.button,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8),
+                      ),
                       minimumSize: Size(double.infinity, 36),
                     ),
                     child: Text(
                       _isFollowing ? "Following" : "Follow",
-                      style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
                   ),
                 ),
@@ -348,9 +352,9 @@ class _ProfileState extends State<Profile> {
                           },
                           style: ElevatedButton.styleFrom(
                             backgroundColor:
-                            _selectedIndex == 0
-                                ? AppColors.buttonSelected
-                                : AppColors.button,
+                                _selectedIndex == 0
+                                    ? AppColors.buttonSelected
+                                    : AppColors.button,
                             padding: EdgeInsets.zero,
                             shape: RoundedRectangleBorder(
                               borderRadius: homeButtonRadius,
@@ -378,9 +382,9 @@ class _ProfileState extends State<Profile> {
                           },
                           style: ElevatedButton.styleFrom(
                             backgroundColor:
-                            _selectedIndex == 0
-                                ? AppColors.button
-                                : AppColors.buttonSelected,
+                                _selectedIndex == 0
+                                    ? AppColors.button
+                                    : AppColors.buttonSelected,
                             padding: EdgeInsets.zero,
                             shape: RoundedRectangleBorder(
                               borderRadius: ratingsButtonRadius,
@@ -404,10 +408,7 @@ class _ProfileState extends State<Profile> {
               Expanded(
                 child: IndexedStack(
                   index: _selectedIndex,
-                  children: [
-                    HomePageView(),
-                    RatingsPageView(uid: widget.uid),
-                  ],
+                  children: [HomePageView(), RatingsPageView(uid: widget.uid)],
                 ),
               ),
             ],
@@ -564,7 +565,7 @@ class HomePageView extends StatelessWidget {
                               rating: 5,
                               itemBuilder:
                                   (context, index) =>
-                                  Icon(Icons.star, color: Colors.amber),
+                                      Icon(Icons.star, color: Colors.amber),
                               itemCount: 5,
                               itemSize: 18,
                               direction: Axis.horizontal,
@@ -614,14 +615,16 @@ class _RatingsPageViewState extends State<RatingsPageView> {
   }
 
   Future<void> _fetchRatedAlbums() async {
-    final snapshot = await FirebaseFirestore.instance
-        .collection('users')
-        .doc(widget.uid)
-        .collection('reviews')
-        .orderBy('listenedDate', descending: true)
-        .get();
+    final snapshot =
+        await FirebaseFirestore.instance
+            .collection('users')
+            .doc(widget.uid)
+            .collection('reviews')
+            .orderBy('listenedDate', descending: true)
+            .get();
 
-    final data = snapshot.docs.map((doc) => doc.data() as Map<String, dynamic>).toList();
+    final data =
+        snapshot.docs.map((doc) => doc.data() as Map<String, dynamic>).toList();
 
     setState(() {
       ratedAlbums = data;
@@ -684,60 +687,61 @@ class _RatingsPageViewState extends State<RatingsPageView> {
               _isLoading
                   ? CircularProgressIndicator(color: Colors.white)
                   : Expanded(
-                child: GridView.builder(
-                  itemCount: _filteredAlbums.length,
-                  gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount: 2,
-                    crossAxisSpacing: 14,
-                    mainAxisSpacing: 14,
-                    childAspectRatio: 0.71,
+                    child: GridView.builder(
+                      itemCount: _filteredAlbums.length,
+                      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                        crossAxisCount: 2,
+                        crossAxisSpacing: 14,
+                        mainAxisSpacing: 14,
+                        childAspectRatio: 0.71,
+                      ),
+                      itemBuilder: (context, index) {
+                        final album = _filteredAlbums[index];
+                        return Column(
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: [
+                            ClipRRect(
+                              borderRadius: BorderRadius.circular(10),
+                              child: Image.network(
+                                album["coverUrl"] ?? '',
+                                height: 183,
+                                width: double.infinity,
+                                fit: BoxFit.cover,
+                              ),
+                            ),
+                            SizedBox(height: 16),
+                            RatingBarIndicator(
+                              rating: (album["rating"] ?? 0).toDouble(),
+                              itemBuilder:
+                                  (context, index) =>
+                                      Icon(Icons.star, color: Colors.amber),
+                              itemCount: 5,
+                              itemSize: 18,
+                              direction: Axis.horizontal,
+                            ),
+                            Text(
+                              album["albumName"] ?? '',
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontWeight: FontWeight.bold,
+                              ),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                            Text(
+                              album["artist"] ?? '',
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontWeight: FontWeight.normal,
+                              ),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ],
+                        );
+                      },
+                    ),
                   ),
-                  itemBuilder: (context, index) {
-                    final album = _filteredAlbums[index];
-                    return Column(
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: [
-                        ClipRRect(
-                          borderRadius: BorderRadius.circular(10),
-                          child: Image.network(
-                            album["coverUrl"] ?? '',
-                            height: 183,
-                            width: double.infinity,
-                            fit: BoxFit.cover,
-                          ),
-                        ),
-                        SizedBox(height: 16),
-                        RatingBarIndicator(
-                          rating: (album["rating"] ?? 0).toDouble(),
-                          itemBuilder: (context, index) =>
-                              Icon(Icons.star, color: Colors.amber),
-                          itemCount: 5,
-                          itemSize: 18,
-                          direction: Axis.horizontal,
-                        ),
-                        Text(
-                          album["albumName"] ?? '',
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontWeight: FontWeight.bold,
-                          ),
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                        Text(
-                          album["artist"] ?? '',
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontWeight: FontWeight.normal,
-                          ),
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                      ],
-                    );
-                  },
-                ),
-              ),
             ],
           ),
         ),
