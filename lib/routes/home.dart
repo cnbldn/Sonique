@@ -40,41 +40,46 @@ class _HomeState extends State<Home> {
             .snapshots();
 
     //  FRIENDS STREAM
-    final userRef = FirebaseFirestore.instance.collection('users').doc(_uid);
-
-    //   try array field first
-    final userSnap = await userRef.get();
-    List<String> friendIds = [];
-    final data = userSnap.data();
-    if (data?['following'] is List) {
-      friendIds = List<String>.from(data!['following']);
-    }
-
-    //   if array absent, read sub-collection /following
-    if (friendIds.isEmpty) {
-      final sub = await userRef.collection('following').get();
-      friendIds = sub.docs.map((d) => d.id).toList();
-    }
-
-    if (friendIds.isEmpty) {
-      // point at a query that is guaranteed to return **0 docs**
+    final currentUser = FirebaseAuth.instance.currentUser;
+    if (currentUser == null) {
       _friendsStream =
           FirebaseFirestore.instance
               .collection('reviews')
-              .where('userId', isEqualTo: '__none__') // dummy value
+              .where('userId', isEqualTo: '__none__')
+              .limit(1)
+              .snapshots();
+      setState(() {});
+      return;
+    }
+    // Get list of followed user IDs
+    final followingSnapshot =
+        await FirebaseFirestore.instance
+            .collection('users')
+            .doc(currentUser.uid)
+            .collection('following')
+            .get();
+
+    final friendIds = followingSnapshot.docs.map((doc) => doc.id).toList();
+
+    if (friendIds.isEmpty) {
+      // If not following anyone, show empty state
+      _friendsStream =
+          FirebaseFirestore.instance
+              .collection('reviews')
+              .where('userId', isEqualTo: '__none__')
               .limit(1)
               .snapshots();
     } else {
+      // Get reviews from followed users
       _friendsStream =
           FirebaseFirestore.instance
               .collection('reviews')
-              .where('userId', whereIn: friendIds.take(10).toList())
+              .where('userId', whereIn: friendIds)
               .where('isDeleted', isEqualTo: false)
               .orderBy('createdAt', descending: true)
-              .limit(3)
+              .limit(10) // Adjust limit as needed
               .snapshots();
     }
-
     setState(() {}); // rebuild UI with the real stream
   }
 
@@ -220,9 +225,11 @@ class _HomeState extends State<Home> {
               children: [
                 CircleAvatar(
                   radius: 14,
-                  backgroundImage: NetworkImage(
-                    r['profilePic'] ?? 'https://via.placeholder.com/28',
-                  ),
+                  backgroundImage:
+                      r['profilePic'] != null
+                          ? NetworkImage(r['profilePic'])
+                          : AssetImage('assets/default_pfp.png')
+                              as ImageProvider,
                 ),
                 const SizedBox(width: 8),
                 Text(

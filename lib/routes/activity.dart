@@ -35,6 +35,121 @@ class _ActivityState extends State<Activity> {
     return ClipRRect(borderRadius: BorderRadius.circular(r), child: i);
   }
 
+  // Add this to your _ActivityState class
+  Stream<QuerySnapshot>? _friendsReviewsStream;
+
+  @override
+  void initState() {
+    super.initState();
+    _initFriendsStream();
+  }
+
+  Future<void> _initFriendsStream() async {
+    final currentUser = FirebaseAuth.instance.currentUser;
+    if (currentUser == null) return;
+
+    // Get list of friend IDs
+    final following =
+        await FirebaseFirestore.instance
+            .collection('users')
+            .doc(currentUser.uid)
+            .collection('following')
+            .get();
+
+    final friendIds = following.docs.map((doc) => doc.id).toList();
+
+    if (friendIds.isEmpty) {
+      // Return empty stream if no friends
+      _friendsReviewsStream = Stream.empty();
+    } else {
+      _friendsReviewsStream =
+          FirebaseFirestore.instance
+              .collection('reviews')
+              .where('userId', whereIn: friendIds)
+              .where('isDeleted', isNotEqualTo: true)
+              .orderBy('createdAt', descending: true)
+              .snapshots();
+    }
+
+    setState(() {});
+  }
+
+  Widget _friendsTab() {
+    final uid = FirebaseAuth.instance.currentUser?.uid;
+    if (uid == null) {
+      return const Expanded(
+        child: Center(
+          child: Text(
+            'Not signed in',
+            style: TextStyle(color: Colors.white, fontSize: 16),
+          ),
+        ),
+      );
+    }
+
+    return Expanded(
+      child: StreamBuilder<QuerySnapshot>(
+        stream: _friendsReviewsStream,
+        builder: (context, snap) {
+          if (snap.connectionState == ConnectionState.waiting) {
+            return const Center(child: CircularProgressIndicator());
+          }
+          if (snap.hasError) {
+            return Center(
+              child: Text(
+                'Error: ${snap.error}',
+                style: const TextStyle(color: Colors.white),
+              ),
+            );
+          }
+          final docs = snap.data?.docs ?? [];
+          if (docs.isEmpty) {
+            return const Center(
+              child: Text(
+                'No activity from friends yet',
+                style: TextStyle(color: Colors.white, fontSize: 16),
+              ),
+            );
+          }
+
+          return ListView.separated(
+            padding: EdgeInsets.zero,
+            itemCount: docs.length,
+            separatorBuilder:
+                (_, __) => const Divider(height: 1, color: Color(0xFF0E0F11)),
+            itemBuilder: (context, i) {
+              final doc = docs[i];
+              final d = doc.data() as Map<String, dynamic>;
+              return GestureDetector(
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => ReviewPage(review: d, reviewId: doc.id),
+                    ),
+                  );
+                },
+                child: _rateCard(
+                  docId: doc.id,
+                  canDelete: false, // Friends' reviews can't be deleted by you
+                  username: d['username'] ?? 'User',
+                  album: d['albumName'] ?? '',
+                  artist: d['artist'] ?? '',
+                  rating: (d['rating'] ?? 0).toDouble(),
+                  comment: d['comment'] ?? '',
+                  coverUrl: d['coverUrl'] ?? 'assets/placeholder_album.png',
+                  profilePic: d['profilePic'] ?? 'assets/default_pfp.png',
+                  timeAgo:
+                      d['createdAt'] is Timestamp ? _fmt(d['createdAt']) : '',
+                ),
+              );
+            },
+          );
+        },
+      ),
+    );
+  }
+
   Widget _youTab() {
     final uid = FirebaseAuth.instance.currentUser?.uid;
     if (uid == null) {
@@ -409,29 +524,7 @@ class _ActivityState extends State<Activity> {
               ],
             ),
           ),
-          _selectedIndex == 0
-              ? Expanded(
-                child: ListView(
-                  padding: EdgeInsets.zero,
-                  children: [
-                    _rateCard(
-                      docId: 'static',
-                      canDelete: false,
-                      username: 'umaylovesmus1c',
-                      album: 'DeBÍ TiRAR MáS FOToS',
-                      artist: 'Bad Bunny',
-                      rating: 4,
-                      comment:
-                          'THE summer album of 2025 – Bad Bunny really created a masterpiece!',
-                      coverUrl: 'assets/dtmf.png',
-                      profilePic: 'assets/umay.png',
-                      timeAgo: '3h',
-                    ),
-                    const Divider(height: 1, color: Color(0xFF0E0F11)),
-                  ],
-                ),
-              )
-              : _youTab(),
+          _selectedIndex == 0 ? _friendsTab() : _youTab(),
         ],
       ),
     );
