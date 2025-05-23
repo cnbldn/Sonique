@@ -16,13 +16,18 @@ void main() async {
   runApp(const SoniqueApp());
 }
 
-class SoniqueApp extends StatelessWidget{
-  const SoniqueApp ({super.key});
+class SoniqueApp extends StatelessWidget {
+  const SoniqueApp({super.key});
 
   @override
-  Widget build(BuildContext context){
+  Widget build(BuildContext context) {
     return MaterialApp(
-      theme: ThemeData(fontFamily: 'Inter'),
+      theme: ThemeData(
+        fontFamily: 'Inter',
+        iconButtonTheme: IconButtonThemeData(
+          style: IconButton.styleFrom(foregroundColor: Colors.white),
+        ),
+      ),
       title: 'Sonique',
       routes: {
         '/': (context) => Welcome(),
@@ -34,4 +39,3 @@ class SoniqueApp extends StatelessWidget{
     );
   }
 }
-

@@ -25,6 +25,8 @@ class _ProfileState extends State<Profile> {
   final String _currentUid = FirebaseAuth.instance.currentUser!.uid;
   List<Map<String, dynamic>> _recentReviews = [];
   bool _reviewsLoading = true;
+  List<Map<String, dynamic>> _favoriteAlbums = [];
+  bool _albumsLoading = true;
 
   void _showLinkDialog() {
     showDialog(
@@ -70,6 +72,39 @@ class _ProfileState extends State<Profile> {
     _fetchUserData();
     _checkIfFollowing();
     _fetchRecentReviews();
+    _fetchFavoriteAlbums();
+  }
+
+  Future<void> _fetchFavoriteAlbums() async {
+    try {
+      final doc =
+          await FirebaseFirestore.instance
+              .collection('users')
+              .doc(widget.uid)
+              .get();
+
+      if (doc.exists) {
+        final data = doc.data();
+        if (data?['favoriteAlbums'] != null) {
+          setState(() {
+            _favoriteAlbums = List<Map<String, dynamic>>.from(
+              data!['favoriteAlbums'],
+            );
+            _albumsLoading = false;
+          });
+        } else {
+          setState(() {
+            _favoriteAlbums = [];
+            _albumsLoading = false;
+          });
+        }
+      }
+    } catch (e) {
+      setState(() {
+        _albumsLoading = false;
+      });
+      print("Error fetching favorite albums: $e");
+    }
   }
 
   Future<void> _fetchRecentReviews() async {
@@ -453,6 +488,8 @@ class _ProfileState extends State<Profile> {
                     HomePageView(
                       recentReviews: _recentReviews,
                       isLoading: _reviewsLoading,
+                      favoriteAlbums: _favoriteAlbums,
+                      albumsLoading: _albumsLoading,
                     ),
                     RatingsPageView(uid: widget.uid),
                   ],
@@ -469,30 +506,19 @@ class _ProfileState extends State<Profile> {
 class HomePageView extends StatelessWidget {
   final List<Map<String, dynamic>> recentReviews;
   final bool isLoading;
+  final List<Map<String, dynamic>> favoriteAlbums;
+  final bool albumsLoading;
 
   const HomePageView({
     Key? key,
     required this.recentReviews,
     required this.isLoading,
+    required this.favoriteAlbums,
+    required this.albumsLoading,
   }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    final List<Map<String, String>> favoriteAlbums = [
-      {
-        "title": "Goodbye Yellow Brick Road",
-        "artist": "Elton John",
-        "image": "assets/goodbye_yellow_brick_road.jpg",
-      },
-      {"title": "brat", "artist": "Charli xcx", "image": "assets/brat.png"},
-      {"title": "Dummy", "artist": "Portishead", "image": "assets/dummy.jpg"},
-      {
-        "title": "Underground",
-        "artist": "Thelonious Monk",
-        "image": "assets/underground.png",
-      },
-    ];
-
     return Scaffold(
       backgroundColor: AppColors.buttonSelected,
       body: SafeArea(
@@ -515,63 +541,87 @@ class HomePageView extends StatelessWidget {
                     ),
                   ),
                   SizedBox(height: 20),
-                  SizedBox(
-                    height: 177,
-                    child: Card(
-                      color: AppColors.buttonSelected,
-                      shadowColor: Color(0x00000000),
-                      child: ListView.builder(
-                        scrollDirection: Axis.horizontal,
-                        itemCount: favoriteAlbums.length,
-                        itemBuilder: (context, index) {
-                          return Padding(
-                            padding: const EdgeInsets.only(right: 17),
-                            child: Column(
-                              children: [
-                                ClipRRect(
-                                  borderRadius: BorderRadius.circular(10),
-                                  child: Image.asset(
-                                    favoriteAlbums[index]["image"]!,
-                                    height: 110,
-                                    width: 110,
-                                    fit: BoxFit.cover,
-                                  ),
-                                ),
-                                SizedBox(height: 11),
-                                SizedBox(
-                                  width: 110,
-                                  child: Text(
-                                    favoriteAlbums[index]["title"]!,
-                                    style: TextStyle(
-                                      color: Colors.white,
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: 16,
+                  albumsLoading
+                      ? Center(
+                        child: CircularProgressIndicator(color: Colors.white),
+                      )
+                      : favoriteAlbums.isEmpty
+                      ? Padding(
+                        padding: EdgeInsets.symmetric(vertical: 20),
+                        child: Text(
+                          'No favorite albums yet',
+                          style: TextStyle(color: Colors.white70, fontSize: 16),
+                        ),
+                      )
+                      : SizedBox(
+                        height: 177,
+                        child: Card(
+                          color: AppColors.buttonSelected,
+                          shadowColor: Color(0x00000000),
+                          child: ListView.builder(
+                            scrollDirection: Axis.horizontal,
+                            itemCount: favoriteAlbums.length,
+                            itemBuilder: (context, index) {
+                              final album = favoriteAlbums[index];
+                              return Padding(
+                                padding: const EdgeInsets.only(right: 17),
+                                child: Column(
+                                  children: [
+                                    ClipRRect(
+                                      borderRadius: BorderRadius.circular(10),
+                                      child: Image.network(
+                                        album['image'] ?? '',
+                                        height: 110,
+                                        width: 110,
+                                        fit: BoxFit.cover,
+                                        errorBuilder:
+                                            (context, error, stackTrace) =>
+                                                Container(
+                                                  height: 110,
+                                                  width: 110,
+                                                  color: Colors.grey[900],
+                                                  child: Icon(
+                                                    Icons.broken_image,
+                                                    color: Colors.white,
+                                                  ),
+                                                ),
+                                      ),
                                     ),
-                                    textAlign: TextAlign.center,
-                                    maxLines: 1,
-                                    overflow: TextOverflow.ellipsis,
-                                  ),
-                                ),
-                                SizedBox(
-                                  width: 120,
-                                  child: Text(
-                                    favoriteAlbums[index]["artist"]!,
-                                    style: TextStyle(
-                                      color: Colors.white,
-                                      fontSize: 16,
+                                    SizedBox(height: 11),
+                                    SizedBox(
+                                      width: 110,
+                                      child: Text(
+                                        album['title'] ?? '',
+                                        style: TextStyle(
+                                          color: Colors.white,
+                                          fontWeight: FontWeight.bold,
+                                          fontSize: 16,
+                                        ),
+                                        textAlign: TextAlign.center,
+                                        maxLines: 1,
+                                        overflow: TextOverflow.ellipsis,
+                                      ),
                                     ),
-                                    textAlign: TextAlign.center,
-                                    maxLines: 1,
-                                    overflow: TextOverflow.ellipsis,
-                                  ),
+                                    SizedBox(
+                                      width: 120,
+                                      child: Text(
+                                        album['artist'] ?? '',
+                                        style: TextStyle(
+                                          color: Colors.white,
+                                          fontSize: 16,
+                                        ),
+                                        textAlign: TextAlign.center,
+                                        maxLines: 1,
+                                        overflow: TextOverflow.ellipsis,
+                                      ),
+                                    ),
+                                  ],
                                 ),
-                              ],
-                            ),
-                          );
-                        },
+                              );
+                            },
+                          ),
+                        ),
                       ),
-                    ),
-                  ),
                 ],
               ),
               SizedBox(height: 22),

@@ -7,8 +7,9 @@ import 'package:sonique/utils/colors.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:sonique/routes/welcome.dart';
+
+import 'edit_profile.dart';
 
 class myProfile extends StatefulWidget {
   const myProfile({super.key});
@@ -69,6 +70,7 @@ class _myProfileState extends State<myProfile> {
   int _followersCount = 0;
   int _followingCount = 0;
   int _ratingsCount = 0;
+  List<Map<String, String>> _favoriteAlbums = [];
 
   Future<void> pickAndLoadImage() async {
     final uid = FirebaseAuth.instance.currentUser?.uid;
@@ -99,31 +101,39 @@ class _myProfileState extends State<myProfile> {
 
   Future<void> _loadUserInfo() async {
     final uid = FirebaseAuth.instance.currentUser?.uid;
-    if (uid != null) {
-      final doc =
-          await FirebaseFirestore.instance.collection('users').doc(uid).get();
-      final data = doc.data();
+    if (uid == null) return;
 
-      final reviewsQuery =
-          await FirebaseFirestore.instance
-              .collection('users')
-              .doc(uid)
-              .collection('reviews')
-              .where('isDeleted', isNotEqualTo: true) // Add this filter
-              .get();
+    final doc =
+        await FirebaseFirestore.instance.collection('users').doc(uid).get();
+    final data = doc.data();
 
-      setState(() {
-        _username = data?['username'] ?? "User";
-        _displayName = data?['displayName'] ?? _username;
-        _bio = data?['bio'] ?? "Hey, I'm a Sonique user!";
-        _profilePicUrl = data?['profilePic'];
-        _followersCount = (data?['followersCount'] ?? 0);
-        _followingCount = (data?['followingCount'] ?? 0);
-        _ratingsCount =
-            reviewsQuery.size; // This will now only count non-deleted reviews
-        _isLoading = false;
-      });
+    final reviewsQuery =
+        await FirebaseFirestore.instance
+            .collection('users')
+            .doc(uid)
+            .collection('reviews')
+            .where('isDeleted', isNotEqualTo: true)
+            .get();
+
+    // Load favorite albums from Firestore
+    List<Map<String, String>> favoriteAlbums = [];
+    if (data?['favoriteAlbums'] != null) {
+      favoriteAlbums = List<Map<String, String>>.from(
+        data!['favoriteAlbums'].map((album) => Map<String, String>.from(album)),
+      );
     }
+
+    setState(() {
+      _username = data?['username'] ?? "User";
+      _displayName = data?['displayName'] ?? _username;
+      _bio = data?['bio'] ?? "Hey, I'm a Sonique user!";
+      _profilePicUrl = data?['profilePic'];
+      _followersCount = (data?['followersCount'] ?? 0);
+      _followingCount = (data?['followingCount'] ?? 0);
+      _ratingsCount = reviewsQuery.size;
+      _favoriteAlbums = favoriteAlbums; // Set the favorite albums from database
+      _isLoading = false;
+    });
   }
 
   Widget build(BuildContext context) {
@@ -342,9 +352,21 @@ class _myProfileState extends State<myProfile> {
                       height: 35,
                       child: ElevatedButton(
                         onPressed: () {
-                          print(
-                            "have not implemented the edit profile page yet",
-                          );
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder:
+                                  (_) => EditProfilePage(
+                                    currentBio: _bio ?? "",
+                                    favoriteAlbums:
+                                        _favoriteAlbums, // Pass the current favorite albums
+                                  ),
+                            ),
+                          ).then((success) {
+                            if (success == true) {
+                              _loadUserInfo(); // Refresh profile data
+                            }
+                          });
                         },
                         style: ElevatedButton.styleFrom(
                           backgroundColor: AppColors.button,
@@ -438,7 +460,10 @@ class _myProfileState extends State<myProfile> {
               Expanded(
                 child: IndexedStack(
                   index: _selectedIndex,
-                  children: [HomePageView(), RatingsPageView()],
+                  children: [
+                    HomePageView(favoriteAlbums: _favoriteAlbums),
+                    RatingsPageView(),
+                  ],
                 ),
               ),
             ],
@@ -450,6 +475,11 @@ class _myProfileState extends State<myProfile> {
 }
 
 class HomePageView extends StatefulWidget {
+  final List<Map<String, String>> favoriteAlbums;
+
+  const HomePageView({Key? key, required this.favoriteAlbums})
+    : super(key: key);
+
   @override
   State<HomePageView> createState() => _HomePageViewState();
 }
@@ -498,21 +528,6 @@ class _HomePageViewState extends State<HomePageView> {
   }
 
   Widget build(BuildContext context) {
-    final List<Map<String, String>> favoriteAlbums = [
-      {
-        "title": "Goodbye Yellow Brick Road",
-        "artist": "Elton John",
-        "image": "assets/goodbye_yellow_brick_road.jpg",
-      },
-      {"title": "brat", "artist": "Charli xcx", "image": "assets/brat.png"},
-      {"title": "Dummy", "artist": "Portishead", "image": "assets/dummy.jpg"},
-      {
-        "title": "Underground",
-        "artist": "Thelonious Monk",
-        "image": "assets/underground.png",
-      },
-    ];
-
     return Scaffold(
       backgroundColor: AppColors.buttonSelected,
       body: SafeArea(
@@ -535,63 +550,83 @@ class _HomePageViewState extends State<HomePageView> {
                     ),
                   ),
                   SizedBox(height: 20),
-                  SizedBox(
-                    height: 177,
-                    child: Card(
-                      color: AppColors.buttonSelected,
-                      shadowColor: Color(0x00000000),
-                      child: ListView.builder(
-                        scrollDirection: Axis.horizontal,
-                        itemCount: favoriteAlbums.length,
-                        itemBuilder: (context, index) {
-                          return Padding(
-                            padding: const EdgeInsets.only(right: 17),
-                            child: Column(
-                              children: [
-                                ClipRRect(
-                                  borderRadius: BorderRadius.circular(10),
-                                  child: Image.asset(
-                                    favoriteAlbums[index]["image"]!,
-                                    height: 110,
-                                    width: 110,
-                                    fit: BoxFit.cover,
-                                  ),
-                                ),
-                                SizedBox(height: 11),
-                                SizedBox(
-                                  width: 110,
-                                  child: Text(
-                                    favoriteAlbums[index]["title"]!,
-                                    style: TextStyle(
-                                      color: Colors.white,
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: 16,
+                  widget.favoriteAlbums.isEmpty
+                      ? Padding(
+                        padding: EdgeInsets.symmetric(vertical: 20),
+                        child: Text(
+                          'No favorite albums yet',
+                          style: TextStyle(color: Colors.white70, fontSize: 16),
+                        ),
+                      )
+                      : SizedBox(
+                        height: 177,
+                        child: Card(
+                          color: AppColors.buttonSelected,
+                          shadowColor: Color(0x00000000),
+                          child: ListView.builder(
+                            scrollDirection: Axis.horizontal,
+                            itemCount: widget.favoriteAlbums.length,
+                            itemBuilder: (context, index) {
+                              final album = widget.favoriteAlbums[index];
+                              return Padding(
+                                padding: const EdgeInsets.only(right: 17),
+                                child: Column(
+                                  children: [
+                                    ClipRRect(
+                                      borderRadius: BorderRadius.circular(10),
+                                      child: Image.network(
+                                        album["image"]!,
+                                        height: 110,
+                                        width: 110,
+                                        fit: BoxFit.cover,
+                                        errorBuilder:
+                                            (context, error, stackTrace) =>
+                                                Container(
+                                                  height: 110,
+                                                  width: 110,
+                                                  color: Colors.grey[900],
+                                                  child: Icon(
+                                                    Icons.broken_image,
+                                                    color: Colors.white,
+                                                  ),
+                                                ),
+                                      ),
                                     ),
-                                    textAlign: TextAlign.center,
-                                    maxLines: 1,
-                                    overflow: TextOverflow.ellipsis,
-                                  ),
-                                ),
-                                SizedBox(
-                                  width: 120,
-                                  child: Text(
-                                    favoriteAlbums[index]["artist"]!,
-                                    style: TextStyle(
-                                      color: Colors.white,
-                                      fontSize: 16,
+                                    SizedBox(height: 11),
+                                    SizedBox(
+                                      width: 110,
+                                      child: Text(
+                                        album["title"]!,
+                                        style: TextStyle(
+                                          color: Colors.white,
+                                          fontWeight: FontWeight.bold,
+                                          fontSize: 16,
+                                        ),
+                                        textAlign: TextAlign.center,
+                                        maxLines: 1,
+                                        overflow: TextOverflow.ellipsis,
+                                      ),
                                     ),
-                                    textAlign: TextAlign.center,
-                                    maxLines: 1,
-                                    overflow: TextOverflow.ellipsis,
-                                  ),
+                                    SizedBox(
+                                      width: 120,
+                                      child: Text(
+                                        album["artist"]!,
+                                        style: TextStyle(
+                                          color: Colors.white,
+                                          fontSize: 16,
+                                        ),
+                                        textAlign: TextAlign.center,
+                                        maxLines: 1,
+                                        overflow: TextOverflow.ellipsis,
+                                      ),
+                                    ),
+                                  ],
                                 ),
-                              ],
-                            ),
-                          );
-                        },
+                              );
+                            },
+                          ),
+                        ),
                       ),
-                    ),
-                  ),
                 ],
               ),
               SizedBox(height: 22),
