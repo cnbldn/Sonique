@@ -18,6 +18,7 @@ class Profile extends StatefulWidget {
 
 class _ProfileState extends State<Profile> {
   int _selectedIndex = 0;
+  int _ratingsCount = 0;
   String? _userLink;
   final TextEditingController _linkController = TextEditingController();
   Map<String, dynamic>? _userData;
@@ -78,10 +79,10 @@ class _ProfileState extends State<Profile> {
   Future<void> _fetchFavoriteAlbums() async {
     try {
       final doc =
-          await FirebaseFirestore.instance
-              .collection('users')
-              .doc(widget.uid)
-              .get();
+      await FirebaseFirestore.instance
+          .collection('users')
+          .doc(widget.uid)
+          .get();
 
       if (doc.exists) {
         final data = doc.data();
@@ -110,30 +111,31 @@ class _ProfileState extends State<Profile> {
   Future<void> _fetchRecentReviews() async {
     try {
       final snapshot =
-          await FirebaseFirestore.instance
-              .collection('users')
-              .doc(widget.uid)
-              .collection('reviews')
-              .where('isDeleted', isNotEqualTo: true)
-              .orderBy('listenedDate', descending: true)
-              .limit(3)
-              .get();
+      await FirebaseFirestore.instance
+          .collection('users')
+          .doc(widget.uid)
+          .collection('reviews')
+          .where('isDeleted', isNotEqualTo: true)
+          .orderBy('listenedDate', descending: true)
+          .limit(3)
+          .get();
 
       final reviews =
-          snapshot.docs.map((doc) {
-            final data = doc.data();
-            return {
-              "docId": doc.id,
-              "data": data,
-              "title": data['albumName'] ?? '',
-              "artist": data['artist'] ?? '',
-              "image": data['coverUrl'] ?? '',
-              "rating": data['rating']?.toDouble() ?? 0.0,
-            };
-          }).toList();
+      snapshot.docs.map((doc) {
+        final data = doc.data();
+        return {
+          "docId": doc.id,
+          "data": data,
+          "title": data['albumName'] ?? '',
+          "artist": data['artist'] ?? '',
+          "image": data['coverUrl'] ?? '',
+          "rating": data['rating']?.toDouble() ?? 0.0,
+        };
+      }).toList();
 
       setState(() {
         _recentReviews = reviews;
+        _ratingsCount = snapshot.docs.length;
         _reviewsLoading = false;
       });
     } catch (e) {
@@ -146,10 +148,10 @@ class _ProfileState extends State<Profile> {
 
   Future<void> _fetchUserData() async {
     final doc =
-        await FirebaseFirestore.instance
-            .collection('users')
-            .doc(widget.uid)
-            .get();
+    await FirebaseFirestore.instance
+        .collection('users')
+        .doc(widget.uid)
+        .get();
     if (doc.exists) {
       setState(() {
         _userData = doc.data();
@@ -207,20 +209,20 @@ class _ProfileState extends State<Profile> {
 
   Widget build(BuildContext context) {
     final BorderRadiusGeometry homeButtonRadius =
-        _selectedIndex == 0
-            ? BorderRadius.circular(6) // Fully rounded when selected
-            : BorderRadius.only(
-              topLeft: Radius.circular(6),
-              bottomLeft: Radius.circular(6),
-            );
+    _selectedIndex == 0
+        ? BorderRadius.circular(6) // Fully rounded when selected
+        : BorderRadius.only(
+      topLeft: Radius.circular(6),
+      bottomLeft: Radius.circular(6),
+    );
 
     final BorderRadiusGeometry ratingsButtonRadius =
-        _selectedIndex == 1
-            ? BorderRadius.circular(6)
-            : BorderRadius.only(
-              topRight: Radius.circular(6),
-              bottomRight: Radius.circular(6),
-            );
+    _selectedIndex == 1
+        ? BorderRadius.circular(6)
+        : BorderRadius.only(
+      topRight: Radius.circular(6),
+      bottomRight: Radius.circular(6),
+    );
 
     return Scaffold(
       body: Container(
@@ -261,16 +263,16 @@ class _ProfileState extends State<Profile> {
                         CircleAvatar(
                           radius: 39.5,
                           backgroundImage:
-                              _userData?['photoUrl'] != null
-                                  ? NetworkImage(_userData!['photoUrl'])
-                                  : AssetImage('assets/default_pfp.png')
-                                      as ImageProvider,
+                          _userData?['photoUrl'] != null
+                              ? NetworkImage(_userData!['photoUrl'])
+                              : AssetImage('assets/default_pfp.png')
+                          as ImageProvider,
                         ),
                         Spacer(),
                         Column(
                           children: [
                             Text(
-                              "24",
+                              _ratingsCount.toString(),
                               style: TextStyle(
                                 color: AppColors.text,
                                 fontSize: 20,
@@ -375,9 +377,9 @@ class _ProfileState extends State<Profile> {
                               fontWeight: FontWeight.bold,
                               fontStyle: FontStyle.italic,
                               decoration:
-                                  _userLink != null
-                                      ? TextDecoration.underline
-                                      : TextDecoration.none,
+                              _userLink != null
+                                  ? TextDecoration.underline
+                                  : TextDecoration.none,
                             ),
                           ),
                         ],
@@ -395,7 +397,7 @@ class _ProfileState extends State<Profile> {
                     onPressed: _toggleFollow,
                     style: ElevatedButton.styleFrom(
                       backgroundColor:
-                          _isFollowing ? Colors.grey[700] : AppColors.button,
+                      _isFollowing ? Colors.grey[700] : AppColors.button,
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(8),
                       ),
@@ -428,9 +430,9 @@ class _ProfileState extends State<Profile> {
                           },
                           style: ElevatedButton.styleFrom(
                             backgroundColor:
-                                _selectedIndex == 0
-                                    ? AppColors.buttonSelected
-                                    : AppColors.button,
+                            _selectedIndex == 0
+                                ? AppColors.buttonSelected
+                                : AppColors.button,
                             padding: EdgeInsets.zero,
                             shape: RoundedRectangleBorder(
                               borderRadius: homeButtonRadius,
@@ -458,9 +460,9 @@ class _ProfileState extends State<Profile> {
                           },
                           style: ElevatedButton.styleFrom(
                             backgroundColor:
-                                _selectedIndex == 0
-                                    ? AppColors.button
-                                    : AppColors.buttonSelected,
+                            _selectedIndex == 0
+                                ? AppColors.button
+                                : AppColors.buttonSelected,
                             padding: EdgeInsets.zero,
                             shape: RoundedRectangleBorder(
                               borderRadius: ratingsButtonRadius,
@@ -543,85 +545,85 @@ class HomePageView extends StatelessWidget {
                   SizedBox(height: 20),
                   albumsLoading
                       ? Center(
-                        child: CircularProgressIndicator(color: Colors.white),
-                      )
+                    child: CircularProgressIndicator(color: Colors.white),
+                  )
                       : favoriteAlbums.isEmpty
                       ? Padding(
-                        padding: EdgeInsets.symmetric(vertical: 20),
-                        child: Text(
-                          'No favorite albums yet',
-                          style: TextStyle(color: Colors.white70, fontSize: 16),
-                        ),
-                      )
+                    padding: EdgeInsets.symmetric(vertical: 20),
+                    child: Text(
+                      'No favorite albums yet',
+                      style: TextStyle(color: Colors.white70, fontSize: 16),
+                    ),
+                  )
                       : SizedBox(
-                        height: 177,
-                        child: Card(
-                          color: AppColors.buttonSelected,
-                          shadowColor: Color(0x00000000),
-                          child: ListView.builder(
-                            scrollDirection: Axis.horizontal,
-                            itemCount: favoriteAlbums.length,
-                            itemBuilder: (context, index) {
-                              final album = favoriteAlbums[index];
-                              return Padding(
-                                padding: const EdgeInsets.only(right: 17),
-                                child: Column(
-                                  children: [
-                                    ClipRRect(
-                                      borderRadius: BorderRadius.circular(10),
-                                      child: Image.network(
-                                        album['image'] ?? '',
-                                        height: 110,
-                                        width: 110,
-                                        fit: BoxFit.cover,
-                                        errorBuilder:
-                                            (context, error, stackTrace) =>
-                                                Container(
-                                                  height: 110,
-                                                  width: 110,
-                                                  color: Colors.grey[900],
-                                                  child: Icon(
-                                                    Icons.broken_image,
-                                                    color: Colors.white,
-                                                  ),
-                                                ),
-                                      ),
-                                    ),
-                                    SizedBox(height: 11),
-                                    SizedBox(
-                                      width: 110,
-                                      child: Text(
-                                        album['title'] ?? '',
-                                        style: TextStyle(
-                                          color: Colors.white,
-                                          fontWeight: FontWeight.bold,
-                                          fontSize: 16,
+                    height: 177,
+                    child: Card(
+                      color: AppColors.buttonSelected,
+                      shadowColor: Color(0x00000000),
+                      child: ListView.builder(
+                        scrollDirection: Axis.horizontal,
+                        itemCount: favoriteAlbums.length,
+                        itemBuilder: (context, index) {
+                          final album = favoriteAlbums[index];
+                          return Padding(
+                            padding: const EdgeInsets.only(right: 17),
+                            child: Column(
+                              children: [
+                                ClipRRect(
+                                  borderRadius: BorderRadius.circular(10),
+                                  child: Image.network(
+                                    album['image'] ?? '',
+                                    height: 110,
+                                    width: 110,
+                                    fit: BoxFit.cover,
+                                    errorBuilder:
+                                        (context, error, stackTrace) =>
+                                        Container(
+                                          height: 110,
+                                          width: 110,
+                                          color: Colors.grey[900],
+                                          child: Icon(
+                                            Icons.broken_image,
+                                            color: Colors.white,
+                                          ),
                                         ),
-                                        textAlign: TextAlign.center,
-                                        maxLines: 1,
-                                        overflow: TextOverflow.ellipsis,
-                                      ),
-                                    ),
-                                    SizedBox(
-                                      width: 120,
-                                      child: Text(
-                                        album['artist'] ?? '',
-                                        style: TextStyle(
-                                          color: Colors.white,
-                                          fontSize: 16,
-                                        ),
-                                        textAlign: TextAlign.center,
-                                        maxLines: 1,
-                                        overflow: TextOverflow.ellipsis,
-                                      ),
-                                    ),
-                                  ],
+                                  ),
                                 ),
-                              );
-                            },
-                          ),
-                        ),
+                                SizedBox(height: 11),
+                                SizedBox(
+                                  width: 110,
+                                  child: Text(
+                                    album['title'] ?? '',
+                                    style: TextStyle(
+                                      color: Colors.white,
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 16,
+                                    ),
+                                    textAlign: TextAlign.center,
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                ),
+                                SizedBox(
+                                  width: 120,
+                                  child: Text(
+                                    album['artist'] ?? '',
+                                    style: TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 16,
+                                    ),
+                                    textAlign: TextAlign.center,
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          );
+                        },
                       ),
+                    ),
+                  ),
                 ],
               ),
               SizedBox(height: 22),
@@ -639,108 +641,108 @@ class HomePageView extends StatelessWidget {
               SizedBox(height: 6),
               Expanded(
                 child:
-                    isLoading
-                        ? Center(
-                          child: CircularProgressIndicator(color: Colors.white),
-                        )
-                        : recentReviews.isEmpty
-                        ? Center(
-                          child: Text(
-                            "No recent activity yet",
-                            style: TextStyle(
-                              color: Colors.white70,
-                              fontSize: 16,
+                isLoading
+                    ? Center(
+                  child: CircularProgressIndicator(color: Colors.white),
+                )
+                    : recentReviews.isEmpty
+                    ? Center(
+                  child: Text(
+                    "No recent activity yet",
+                    style: TextStyle(
+                      color: Colors.white70,
+                      fontSize: 16,
+                    ),
+                  ),
+                )
+                    : ListView.builder(
+                  itemCount: recentReviews.length,
+                  itemBuilder: (context, index) {
+                    final album = recentReviews[index];
+                    return GestureDetector(
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder:
+                                (_) => ReviewPage(
+                              review: album["data"],
+                              reviewId: album["docId"],
                             ),
                           ),
-                        )
-                        : ListView.builder(
-                          itemCount: recentReviews.length,
-                          itemBuilder: (context, index) {
-                            final album = recentReviews[index];
-                            return GestureDetector(
-                              onTap: () {
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder:
-                                        (_) => ReviewPage(
-                                          review: album["data"],
-                                          reviewId: album["docId"],
-                                        ),
-                                  ),
-                                );
-                              },
-                              child: Padding(
-                                padding: const EdgeInsets.only(bottom: 18.0),
-                                child: Container(
-                                  color: AppColors.cardBackground,
-                                  child: Row(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.center,
-                                    children: [
-                                      Expanded(
-                                        child: Column(
-                                          crossAxisAlignment:
-                                              CrossAxisAlignment.start,
-                                          children: [
-                                            Text(
-                                              album["title"],
-                                              style: TextStyle(
-                                                color: Colors.white,
-                                                fontWeight: FontWeight.bold,
-                                                fontSize: 16,
-                                              ),
-                                            ),
-                                            Text(
-                                              album["artist"],
-                                              style: TextStyle(
-                                                color: Colors.white,
-                                                fontSize: 14,
-                                              ),
-                                            ),
-                                            SizedBox(height: 8),
-                                            RatingBarIndicator(
-                                              rating: album["rating"],
-                                              itemBuilder:
-                                                  (context, _) => Icon(
-                                                    Icons.star,
-                                                    color: Colors.amber,
-                                                  ),
-                                              itemCount: 5,
-                                              itemSize: 18,
-                                              direction: Axis.horizontal,
-                                            ),
-                                          ],
-                                        ),
+                        );
+                      },
+                      child: Padding(
+                        padding: const EdgeInsets.only(bottom: 18.0),
+                        child: Container(
+                          color: AppColors.cardBackground,
+                          child: Row(
+                            crossAxisAlignment:
+                            CrossAxisAlignment.center,
+                            children: [
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment:
+                                  CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      album["title"],
+                                      style: TextStyle(
+                                        color: Colors.white,
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 16,
                                       ),
-                                      SizedBox(width: 10),
-                                      ClipRRect(
-                                        borderRadius: BorderRadius.circular(10),
-                                        child: Image.network(
-                                          album["image"],
-                                          height: 70,
-                                          width: 70,
-                                          fit: BoxFit.cover,
-                                          errorBuilder:
-                                              (context, error, stackTrace) =>
-                                                  Container(
-                                                    height: 70,
-                                                    width: 70,
-                                                    color: Colors.grey[900],
-                                                    child: Icon(
-                                                      Icons.broken_image,
-                                                      color: Colors.white,
-                                                    ),
-                                                  ),
-                                        ),
+                                    ),
+                                    Text(
+                                      album["artist"],
+                                      style: TextStyle(
+                                        color: Colors.white,
+                                        fontSize: 14,
                                       ),
-                                    ],
-                                  ),
+                                    ),
+                                    SizedBox(height: 8),
+                                    RatingBarIndicator(
+                                      rating: album["rating"],
+                                      itemBuilder:
+                                          (context, _) => Icon(
+                                        Icons.star,
+                                        color: Colors.amber,
+                                      ),
+                                      itemCount: 5,
+                                      itemSize: 18,
+                                      direction: Axis.horizontal,
+                                    ),
+                                  ],
                                 ),
                               ),
-                            );
-                          },
+                              SizedBox(width: 10),
+                              ClipRRect(
+                                borderRadius: BorderRadius.circular(10),
+                                child: Image.network(
+                                  album["image"],
+                                  height: 70,
+                                  width: 70,
+                                  fit: BoxFit.cover,
+                                  errorBuilder:
+                                      (context, error, stackTrace) =>
+                                      Container(
+                                        height: 70,
+                                        width: 70,
+                                        color: Colors.grey[900],
+                                        child: Icon(
+                                          Icons.broken_image,
+                                          color: Colors.white,
+                                        ),
+                                      ),
+                                ),
+                              ),
+                            ],
+                          ),
                         ),
+                      ),
+                    );
+                  },
+                ),
               ),
             ],
           ),
@@ -772,25 +774,25 @@ class _RatingsPageViewState extends State<RatingsPageView> {
 
   Future<void> _fetchRatedAlbums() async {
     final snapshot =
-        await FirebaseFirestore.instance
-            .collection('users')
-            .doc(widget.uid)
-            .collection('reviews')
-            .where('isDeleted', isNotEqualTo: true) // Add this filter
-            .orderBy('listenedDate', descending: true)
-            .get();
+    await FirebaseFirestore.instance
+        .collection('users')
+        .doc(widget.uid)
+        .collection('reviews')
+        .where('isDeleted', isNotEqualTo: true) // Add this filter
+        .orderBy('listenedDate', descending: true)
+        .get();
 
     final data =
-        snapshot.docs.map((doc) {
-          return {
-            "docId": doc.id,
-            "data": doc.data(),
-            "title": doc['albumName'] ?? '',
-            "artist": doc['artist'] ?? '',
-            "image": doc['coverUrl'] ?? '',
-            "rating": doc['rating']?.toDouble() ?? 0.0,
-          };
-        }).toList();
+    snapshot.docs.map((doc) {
+      return {
+        "docId": doc.id,
+        "data": doc.data(),
+        "title": doc['albumName'] ?? '',
+        "artist": doc['artist'] ?? '',
+        "image": doc['coverUrl'] ?? '',
+        "rating": doc['rating']?.toDouble() ?? 0.0,
+      };
+    }).toList();
 
     setState(() {
       ratedAlbums = data;
@@ -852,87 +854,87 @@ class _RatingsPageViewState extends State<RatingsPageView> {
               SizedBox(height: 25),
               _isLoading
                   ? Center(
-                    child: CircularProgressIndicator(color: Colors.white),
-                  )
+                child: CircularProgressIndicator(color: Colors.white),
+              )
                   : Expanded(
-                    child: GridView.builder(
-                      itemCount: _filteredAlbums.length,
-                      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                        crossAxisCount: 2,
-                        crossAxisSpacing: 14,
-                        mainAxisSpacing: 14,
-                        childAspectRatio: 0.71,
-                      ),
-                      itemBuilder: (context, index) {
-                        final album = _filteredAlbums[index];
-                        return GestureDetector(
-                          onTap: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder:
-                                    (_) => ReviewPage(
-                                      review: album["data"],
-                                      reviewId: album["docId"],
-                                    ),
-                              ),
-                            );
-                          },
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.center,
-                            children: [
-                              ClipRRect(
-                                borderRadius: BorderRadius.circular(10),
-                                child: Image.network(
-                                  album["image"] ?? '',
-                                  height: 183,
-                                  width: double.infinity,
-                                  fit: BoxFit.cover,
-                                  errorBuilder:
-                                      (context, error, stackTrace) => Container(
-                                        height: 183,
-                                        color: Colors.grey[900],
-                                        child: Icon(
-                                          Icons.broken_image,
-                                          color: Colors.white,
-                                        ),
-                                      ),
-                                ),
-                              ),
-                              SizedBox(height: 16),
-                              RatingBarIndicator(
-                                rating: (album["rating"] ?? 0).toDouble(),
-                                itemBuilder:
-                                    (context, index) =>
-                                        Icon(Icons.star, color: Colors.amber),
-                                itemCount: 5,
-                                itemSize: 18,
-                                direction: Axis.horizontal,
-                              ),
-                              Text(
-                                album["title"] ?? '',
-                                style: TextStyle(
-                                  color: Colors.white,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                                maxLines: 1,
-                                overflow: TextOverflow.ellipsis,
-                              ),
-                              Text(
-                                album["artist"] ?? '',
-                                style: TextStyle(
-                                  color: Colors.white,
-                                  fontWeight: FontWeight.normal,
-                                ),
-                                maxLines: 1,
-                                overflow: TextOverflow.ellipsis,
-                              ),
-                            ],
+                child: GridView.builder(
+                  itemCount: _filteredAlbums.length,
+                  gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisCount: 2,
+                    crossAxisSpacing: 14,
+                    mainAxisSpacing: 14,
+                    childAspectRatio: 0.71,
+                  ),
+                  itemBuilder: (context, index) {
+                    final album = _filteredAlbums[index];
+                    return GestureDetector(
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder:
+                                (_) => ReviewPage(
+                              review: album["data"],
+                              reviewId: album["docId"],
+                            ),
                           ),
                         );
                       },
-                    ),
-                  ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          ClipRRect(
+                            borderRadius: BorderRadius.circular(10),
+                            child: Image.network(
+                              album["image"] ?? '',
+                              height: 183,
+                              width: double.infinity,
+                              fit: BoxFit.cover,
+                              errorBuilder:
+                                  (context, error, stackTrace) => Container(
+                                height: 183,
+                                color: Colors.grey[900],
+                                child: Icon(
+                                  Icons.broken_image,
+                                  color: Colors.white,
+                                ),
+                              ),
+                            ),
+                          ),
+                          SizedBox(height: 16),
+                          RatingBarIndicator(
+                            rating: (album["rating"] ?? 0).toDouble(),
+                            itemBuilder:
+                                (context, index) =>
+                                Icon(Icons.star, color: Colors.amber),
+                            itemCount: 5,
+                            itemSize: 18,
+                            direction: Axis.horizontal,
+                          ),
+                          Text(
+                            album["title"] ?? '',
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontWeight: FontWeight.bold,
+                            ),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                          Text(
+                            album["artist"] ?? '',
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontWeight: FontWeight.normal,
+                            ),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ],
+                      ),
+                    );
+                  },
+                ),
+              ),
             ],
           ),
         ),
