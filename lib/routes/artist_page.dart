@@ -173,14 +173,6 @@ class _ArtistPageState extends State<ArtistPage> {
                   widget.artistImageUrl != null && widget.artistImageUrl!.isNotEmpty
                       ? Image.network(widget.artistImageUrl!, fit: BoxFit.cover)
                       : Image.asset('assets/alexg.png', fit: BoxFit.cover),
-                  Positioned(
-                    top: 50,
-                    left: 16,
-                    child: GestureDetector(
-                      onTap: () => Navigator.pop(context),
-                      child: Image.asset('assets/backarrow.png', width: 32, height: 32),
-                    ),
-                  ),
                 ],
               ),
             ),
