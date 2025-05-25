@@ -510,7 +510,7 @@ class _ActivityState extends State<Activity> {
             color: const Color(0xFF181A1C),
             child: Column(
               children: [
-                const SizedBox(height: 50),
+                const SizedBox(height: 60),
                 const Text(
                   'Activity',
                   style: TextStyle(
@@ -519,7 +519,7 @@ class _ActivityState extends State<Activity> {
                     color: Colors.white,
                   ),
                 ),
-                const SizedBox(height: 5),
+                const SizedBox(height: 12),
                 _tabs(),
               ],
             ),
