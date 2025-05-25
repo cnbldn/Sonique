@@ -6,6 +6,7 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:sonique/routes/artist_page.dart';
 import 'package:sonique/routes/profile.dart';
+import 'package:sonique/routes/album_page.dart';
 
 class Search extends StatefulWidget {
   const Search({Key? key}) : super(key: key);
@@ -97,12 +98,12 @@ class _SearchState extends State<Search> with SingleTickerProviderStateMixin {
 
   Future<void> _searchUsers(String query) async {
     final snapshot =
-        await FirebaseFirestore.instance
-            .collection('users')
-            .where('displayName', isGreaterThanOrEqualTo: query)
-            .where('displayName', isLessThanOrEqualTo: '$query\uf8ff')
-            .limit(10)
-            .get();
+    await FirebaseFirestore.instance
+        .collection('users')
+        .where('displayName', isGreaterThanOrEqualTo: query)
+        .where('displayName', isLessThanOrEqualTo: '$query\uf8ff')
+        .limit(10)
+        .get();
 
     setState(() {
       _users = snapshot.docs;
@@ -116,117 +117,138 @@ class _SearchState extends State<Search> with SingleTickerProviderStateMixin {
     switch (index) {
       case 0:
         return Column(
-          children:
-              _albums
-                  .map(
-                    (album) => ListTile(
-                      leading:
-                          album['images'] != null && album['images'].isNotEmpty
-                              ? Image.network(
-                                album['images'][0]['url'],
-                                width: 50,
-                                height: 50,
-                                fit: BoxFit.cover,
-                              )
-                              : const SizedBox(width: 50, height: 50),
-                      title: Text(
-                        album['name'],
-                        style: TextStyle(color: Colors.white),
-                      ),
-                      subtitle: Text(
-                        album['artists'][0]['name'],
-                        style: TextStyle(color: Colors.grey),
-                      ),
+          children: _albums.map((album) {
+            final albumId = album['id'];
+            final albumName = album['name'];
+            final imageUrl = album['images'] != null && album['images'].isNotEmpty
+                ? album['images'][0]['url']
+                : '';
+            final artistName = album['artists'] != null &&
+                album['artists'].isNotEmpty &&
+                album['artists'][0]['name'] != null
+                ? album['artists'][0]['name']
+                : 'Unknown Artist';
+
+            return ListTile(
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => AlbumPage(
+                      albumId: albumId,
+                      albumName: albumName,
+                      albumCoverUrl: imageUrl,
+                      artistName: artistName,
                     ),
-                  )
-                  .toList(),
+                  ),
+                );
+              },
+              leading: imageUrl.isNotEmpty
+                  ? Image.network(
+                imageUrl,
+                width: 50,
+                height: 50,
+                fit: BoxFit.cover,
+              )
+                  : const SizedBox(width: 50, height: 50),
+              title: Text(
+                albumName,
+                style: TextStyle(color: Colors.white),
+              ),
+              subtitle: Text(
+                artistName,
+                style: TextStyle(color: Colors.grey),
+              ),
+            );
+          }).toList(),
         );
+
       case 1:
         return Column(
           children:
-              _artists.map((artist) {
-                final name = artist['name'] ?? 'Unknown';
-                final imageUrl =
-                    artist['images'] != null && artist['images'].isNotEmpty
-                        ? artist['images'][0]['url']
-                        : null;
-                final genres =
-                    (artist['genres'] is List)
-                        ? List<String>.from(artist['genres'])
-                        : <String>[];
+          _artists.map((artist) {
+            final name = artist['name'] ?? 'Unknown';
+            final imageUrl =
+            artist['images'] != null && artist['images'].isNotEmpty
+                ? artist['images'][0]['url']
+                : null;
+            final genres =
+            (artist['genres'] is List)
+                ? List<String>.from(artist['genres'])
+                : <String>[];
 
-                return ListTile(
-                  onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder:
-                            (_) => ArtistPage(
-                              artistName: name,
-                              artistImageUrl: imageUrl,
-                              genres: genres,
-                            ),
-                      ),
-                    );
-                  },
-                  leading:
-                      imageUrl != null
-                          ? ClipOval(
-                            child: Image.network(
-                              imageUrl,
-                              width: 50,
-                              height: 50,
-                              fit: BoxFit.cover,
-                            ),
-                          )
-                          : const CircleAvatar(
-                            backgroundColor: Colors.grey,
-                            radius: 25,
-                            child: Icon(Icons.person, color: Colors.black),
-                          ),
-                  title: Text(
-                    name,
-                    style: const TextStyle(color: Colors.white),
+            return ListTile(
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder:
+                        (_) => ArtistPage(
+                      artistName: name,
+                      artistImageUrl: imageUrl,
+                      genres: genres,
+                    ),
                   ),
                 );
-              }).toList(),
+              },
+              leading:
+              imageUrl != null
+                  ? ClipOval(
+                child: Image.network(
+                  imageUrl,
+                  width: 50,
+                  height: 50,
+                  fit: BoxFit.cover,
+                ),
+              )
+                  : const CircleAvatar(
+                backgroundColor: Colors.grey,
+                radius: 25,
+                child: Icon(Icons.person, color: Colors.black),
+              ),
+              title: Text(
+                name,
+                style: const TextStyle(color: Colors.white),
+              ),
+            );
+          }).toList(),
         );
       case 2:
         return Column(
           children:
-              _users.map((doc) {
-                final data = doc.data() as Map<String, dynamic>;
-                final displayName = data['displayName'] ?? 'Unknown';
-                final photoUrl = data['photoUrl'];
+          _users.map((doc) {
+            final data = doc.data() as Map<String, dynamic>;
+            final displayName = data['displayName'] ?? 'Unknown';
+            final photoUrl = data['photoUrl'];
 
-                return ListTile(
-                  onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (_) => Profile(uid: doc.id)),
-                    );
-                  },
-                  leading:
-                      photoUrl != null
-                          ? ClipOval(
-                            child: Image.network(
-                              photoUrl,
-                              width: 50,
-                              height: 50,
-                              fit: BoxFit.cover,
-                            ),
-                          )
-                          : const CircleAvatar(
-                            backgroundColor: Colors.grey,
-                            radius: 25,
-                            child: Icon(Icons.person, color: Colors.black),
-                          ),
-                  title: Text(
-                    displayName,
-                    style: const TextStyle(color: Colors.white),
-                  ),
+            return ListTile(
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (_) => Profile(uid: doc.id)),
                 );
-              }).toList(),
+              },
+              leading:
+              photoUrl != null
+                  ? ClipOval(
+                child: Image.network(
+                  photoUrl,
+                  width: 50,
+                  height: 50,
+                  fit: BoxFit.cover,
+                ),
+              )
+                  : const CircleAvatar(
+                backgroundColor: Colors.grey,
+                radius: 25,
+                child: Icon(Icons.person, color: Colors.black),
+              ),
+              title: Text(
+                displayName,
+                style: const TextStyle(color: Colors.white),
+              ),
+            );
+          }).toList(),
         );
       default:
         return SizedBox();
