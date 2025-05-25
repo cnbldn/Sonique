@@ -172,7 +172,7 @@ class _ArtistPageState extends State<ArtistPage> {
                 children: [
                   widget.artistImageUrl != null && widget.artistImageUrl!.isNotEmpty
                       ? Image.network(widget.artistImageUrl!, fit: BoxFit.cover)
-                      : Image.asset('assets/alexg.png', fit: BoxFit.cover),
+                      : Image.asset('assets/default_pfp.png', fit: BoxFit.cover),
                 ],
               ),
             ),
