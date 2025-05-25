@@ -123,7 +123,7 @@ class _AlbumPageState extends State<AlbumPage> {
                   const SizedBox(height: 12),
                   Text(widget.albumName, style: const TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold)),
                   const SizedBox(height: 6),
-                  Text(widget.artistName, style: const TextStyle(color: Colors.grey, fontSize: 16)),
+                  Text(widget.artistName, style: const TextStyle(color: Colors.grey, fontSize: 16, fontWeight: FontWeight.bold)),
                   const SizedBox(height: 6),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
@@ -133,16 +133,16 @@ class _AlbumPageState extends State<AlbumPage> {
                       Text("${_averageRating.toStringAsFixed(1)} / 5", style: const TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold)),
                     ],
                   ),
-                  const Text("Average Rating", style: TextStyle(color: Colors.white70, fontSize: 14)),
+                  const Text("Average Rating", style: TextStyle(color: Colors.white, fontSize: 14)),
                   const SizedBox(height: 6),
-                  Text("Tracks: ${_tracks.length}", style: const TextStyle(color: Colors.white70)),
+                  Text("Tracks: ${_tracks.length}", style: const TextStyle(color: Colors.white70 )),
                   Text("Total Duration: $_totalDuration", style: const TextStyle(color: Colors.white70)),
                 ],
               ),
             ),
             const SizedBox(height: 20),
-            const Text("Tracks", style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold)),
-            const SizedBox(height: 10),
+            const Text("Tracks", style: TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold)),
+            const SizedBox(height: 15),
             ..._tracks.asMap().entries.map((entry) {
               final index = entry.key + 1;
               final track = entry.value;
@@ -150,12 +150,12 @@ class _AlbumPageState extends State<AlbumPage> {
               final duration = Duration(milliseconds: track['duration_ms']);
               final formatted = "${duration.inMinutes}:${(duration.inSeconds.remainder(60)).toString().padLeft(2, '0')}";
               return Padding(
-                padding: const EdgeInsets.symmetric(vertical: 6),
+                padding: const EdgeInsets.symmetric(vertical: 8),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Text("$index. $name", style: const TextStyle(color: Colors.white)),
-                    Text(formatted, style: const TextStyle(color: Colors.white70)),
+                    Text("$index. $name", style: const TextStyle(color: Colors.white, fontSize: 17)),
+                    Text(formatted, style: const TextStyle(color: Colors.white70, fontSize: 17)),
                   ],
                 ),
               );
