@@ -4,6 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import '../utils/colors.dart';
 import 'review_page.dart';
+import 'package:sonique/routes/album_page.dart';
+
 
 class Home extends StatefulWidget {
   const Home({super.key});
@@ -18,10 +20,10 @@ class _HomeState extends State<Home> {
 
   /// Stream
   Stream<QuerySnapshot<Map<String, dynamic>>> _popularStream =
-      const Stream.empty();
+  const Stream.empty();
 
   Stream<QuerySnapshot<Map<String, dynamic>>> _friendsStream =
-      const Stream.empty();
+  const Stream.empty();
 
   @override
   void initState() {
@@ -53,11 +55,11 @@ class _HomeState extends State<Home> {
     }
     // Get list of followed user IDs
     final followingSnapshot =
-        await FirebaseFirestore.instance
-            .collection('users')
-            .doc(currentUser.uid)
-            .collection('following')
-            .get();
+    await FirebaseFirestore.instance
+        .collection('users')
+        .doc(currentUser.uid)
+        .collection('following')
+        .get();
 
     final friendIds = followingSnapshot.docs.map((doc) => doc.id).toList();
 
@@ -89,55 +91,69 @@ class _HomeState extends State<Home> {
     final String raw = r['albumName'] ?? '';
     final String name = raw.length > 12 ? '${raw.substring(0, 12)}…' : raw;
 
-    return SizedBox(
-      width: 130, // Fixed width
-      height: 200, // Fixed height to contain all elements
-      child: Column(
-        mainAxisSize: MainAxisSize.min, // Important for consistent sizing
-        children: [
-          ClipRRect(
-            borderRadius: BorderRadius.circular(10),
-            child: SizedBox(
-              // Constrain the image container
-              width: 130,
-              height: 130,
-              child: Image.network(r['coverUrl'], fit: BoxFit.cover),
+    return GestureDetector(
+      onTap: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (_) => AlbumPage(
+              albumId: r['albumId'] ?? '',
+              albumName: r['albumName'] ?? '',
+              albumCoverUrl: r['coverUrl'] ?? '',
+              artistName: r['artist'] ?? '',
             ),
           ),
-          const SizedBox(height: 11),
-          Flexible(
-            // Use Flexible to prevent text overflow from expanding the container
-            child: Text(
-              name,
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-              textAlign: TextAlign.center,
-              style: const TextStyle(
-                color: Colors.white,
-                fontSize: 16,
-                fontWeight: FontWeight.w700,
-                height: 1.16168,
+        );
+      },
+      child: SizedBox(
+        width: 130,
+        height: 200,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            ClipRRect(
+              borderRadius: BorderRadius.circular(10),
+              child: SizedBox(
+                width: 130,
+                height: 130,
+                child: Image.network(r['coverUrl'], fit: BoxFit.cover),
               ),
             ),
-          ),
-          Flexible(
-            child: Text(
-              r['artist'] ?? '',
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-              textAlign: TextAlign.center,
-              style: const TextStyle(
-                color: Colors.white,
-                fontSize: 16,
-                fontWeight: FontWeight.w400,
-                height: 1.16168,
+            const SizedBox(height: 11),
+            Flexible(
+              child: Text(
+                name,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                textAlign: TextAlign.center,
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontSize: 16,
+                  fontWeight: FontWeight.w700,
+                  height: 1.16168,
+                ),
               ),
             ),
-          ),
-        ],
+            Flexible(
+              child: Text(
+                r['artist'] ?? '',
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                textAlign: TextAlign.center,
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontSize: 16,
+                  fontWeight: FontWeight.w400,
+                  height: 1.16168,
+                ),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
+
 
   Widget _reviewBox({required Map<String, dynamic> r, required String docId}) {
     return GestureDetector(
@@ -183,9 +199,9 @@ class _HomeState extends State<Home> {
                             Icons.star,
                             size: 18,
                             color:
-                                i < (r['rating'] as num).round()
-                                    ? const Color(0xFFD7CE7C)
-                                    : Colors.white,
+                            i < (r['rating'] as num).round()
+                                ? const Color(0xFFD7CE7C)
+                                : Colors.white,
                           );
                         }),
                       ),
@@ -226,10 +242,10 @@ class _HomeState extends State<Home> {
                 CircleAvatar(
                   radius: 14,
                   backgroundImage:
-                      r['profilePic'] != null
-                          ? NetworkImage(r['profilePic'])
-                          : AssetImage('assets/default_pfp.png')
-                              as ImageProvider,
+                  r['profilePic'] != null
+                      ? NetworkImage(r['profilePic'])
+                      : AssetImage('assets/default_pfp.png')
+                  as ImageProvider,
                 ),
                 const SizedBox(width: 8),
                 Text(
@@ -251,12 +267,12 @@ class _HomeState extends State<Home> {
                 /// LIKE
                 StreamBuilder<DocumentSnapshot>(
                   stream:
-                      FirebaseFirestore.instance
-                          .collection('reviews')
-                          .doc(docId)
-                          .collection('likes')
-                          .doc(_uid)
-                          .snapshots(),
+                  FirebaseFirestore.instance
+                      .collection('reviews')
+                      .doc(docId)
+                      .collection('likes')
+                      .doc(_uid)
+                      .snapshots(),
                   builder: (_, snap) {
                     final liked = snap.hasData && snap.data!.exists;
                     return GestureDetector(
@@ -266,7 +282,7 @@ class _HomeState extends State<Home> {
                           Icon(
                             Icons.favorite,
                             color:
-                                liked ? const Color(0xFF7CCE80) : Colors.white,
+                            liked ? const Color(0xFF7CCE80) : Colors.white,
                             size: 24,
                           ),
                           const SizedBox(width: 15),
@@ -290,10 +306,10 @@ class _HomeState extends State<Home> {
                 /// counters (live)
                 StreamBuilder<DocumentSnapshot>(
                   stream:
-                      FirebaseFirestore.instance
-                          .collection('reviews')
-                          .doc(docId)
-                          .snapshots(),
+                  FirebaseFirestore.instance
+                      .collection('reviews')
+                      .doc(docId)
+                      .snapshots(),
                   builder: (_, s) {
                     final Map<String, dynamic> data =
                         (s.data?.data() as Map<String, dynamic>?) ?? r;
@@ -334,19 +350,19 @@ class _HomeState extends State<Home> {
   }
 
   void _openReview(
-    Map<String, dynamic> review,
-    String docId,
-    bool startWithKeyboard,
-  ) {
+      Map<String, dynamic> review,
+      String docId,
+      bool startWithKeyboard,
+      ) {
     Navigator.push(
       context,
       MaterialPageRoute(
         builder:
             (_) => ReviewPage(
-              review: review,
-              reviewId: docId,
-              startWithKeyboard: startWithKeyboard,
-            ),
+          review: review,
+          reviewId: docId,
+          startWithKeyboard: startWithKeyboard,
+        ),
       ),
     );
   }
@@ -408,19 +424,19 @@ class _HomeState extends State<Home> {
                   byAlbum[aid]!['count'] += 1;
                 }
                 final list =
-                    byAlbum.values.toList()..sort((a, b) {
-                      final c = (b['count'] as int).compareTo(a['count']);
-                      if (c != 0) return c;
-                      return (b['createdAt'] as Timestamp).compareTo(
-                        a['createdAt'],
-                      );
-                    });
+                byAlbum.values.toList()..sort((a, b) {
+                  final c = (b['count'] as int).compareTo(a['count']);
+                  if (c != 0) return c;
+                  return (b['createdAt'] as Timestamp).compareTo(
+                    a['createdAt'],
+                  );
+                });
                 return SingleChildScrollView(
                   scrollDirection: Axis.horizontal,
                   padding: const EdgeInsets.symmetric(horizontal: 16),
                   child: Row(
                     crossAxisAlignment:
-                        CrossAxisAlignment.start, // Align all items at the top
+                    CrossAxisAlignment.start, // Align all items at the top
                     children: [
                       for (int i = 0; i < list.length; i++) ...[
                         _albumTile(list[i]),
